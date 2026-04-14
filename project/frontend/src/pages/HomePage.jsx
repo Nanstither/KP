@@ -1,12 +1,25 @@
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Monitor, Cpu, Zap, Sparkles, Menu, X } from "lucide-react";
+
+import Navigation from "@/components/Navigation";
+import PremiumPСHero from "@/components/PremiumPСHero";
+
 function HomePage() {
   return (
-    <div className="container mx-auto px-6 py-20">
-      <h1 className="text-5xl font-bold text-white mb-6">
-        Добро пожаловать в <span className="bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">НАЗВАНИЕ ПРОЕКТА</span>
-      </h1>
-      <p className="text-xl text-purple-200/80">
-        Это главная страница твоего курсового проекта
-      </p>
+    <div className="w-full min-h-screen">
+      <Navigation />
+      <PremiumPСHero />
+      <div className="min-h-screen bg-(--color-background)/80 flex items-center justify-center">
+        <div className="text-center space-y-4 px-6">
+          <h2 className="text-4xl font-bold text-white">
+            Продолжайте своё путешествие
+          </h2>
+          <p className="text-purple-300/70 max-w-md mx-auto">
+            Изучите дополнительные функции и возможности настройки для сборки ПК вашей мечты.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

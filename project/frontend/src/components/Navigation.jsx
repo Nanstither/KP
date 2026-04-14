@@ -25,10 +25,12 @@ const Navigation = () => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-slate-950/80 backdrop-blur-xl border-b border-purple-400/10"
-          : "bg-slate-950/80 backdrop-blur-xl border-b border-purple-400/10"
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-600 backdrop-blur-xl ${
+        window.screen.width <= 768 
+        ? "bg-[#0f0f10]/80 border-b border-purple-400/10 " 
+        : scrolled 
+        ? "bg-[#0f0f10]/80 border-b border-purple-400/10 "
+        : "bg-transparent border-b border-transparent"
       }`}
     >
       <div className="container mx-auto px-6">

@@ -13,6 +13,11 @@ body {
   --text: #6b6375;
   --text-h: #08060d;
   --bg: #fff;
+  
+  --color-background: #0f0f10;
+  --color-border: #26272c;
+  --color-sidebar-background: #0a0a0a;
+
   --border: #e5e4e7;
   --code-bg: #f4f3ec;
   --accent: #aa3bff;
@@ -68,7 +73,6 @@ body {
 #root {
   /* width: 1126px; */
   max-width: 100%;
-  height: 3000px;
   margin: 0 auto;
   text-align: center;
   /* border-inline: 1px solid var(--border); */
@@ -103,9 +107,9 @@ h2 {
     font-size: 20px;
   }
 }
-p {
+/* p {
   margin: 0;
-}
+} */
 
 code,
 .counter {
