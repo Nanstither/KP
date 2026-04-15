@@ -9,7 +9,7 @@ const ParticlesBackground = () => {
       id: i,
       x: Math.random() * 100,
       y: Math.random() * 100,
-      size: Math.random() * 6 + 2,
+      size: Math.random() * 6 + 4,
       duration: Math.random() * 10 + 8,
       delay: Math.random() * 5,
       opacity: Math.random() * 0.3 + 0.1,
@@ -21,7 +21,7 @@ const ParticlesBackground = () => {
       {particles.map((p) => (
         <motion.div
           key={p.id}
-          className="absolute rounded-full bg-purple-400/80 blur-xs"
+          className="absolute rounded-full bg-white/50"
           style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.size, height: p.size }}
           animate={{
             y: [0, -20, 0],
@@ -50,7 +50,7 @@ export default function PremiumPCHero() {
   const smoothOpacity = useSpring(opacity, { stiffness: 100, damping: 30 });
   const smoothScale = useSpring(scale, { stiffness: 100, damping: 30 });
   const smoothY = useSpring(y, { stiffness: 100, damping: 30 });
-
+// ============================================================
   const features = [
     { icon: Cpu, label: "RTX 4090", value: "24GB VRAM" },
     { icon: Monitor, label: "4K Ready", value: "165Hz" },
@@ -63,6 +63,31 @@ export default function PremiumPCHero() {
     { label: "Память (SSD)", value: "2TB NVMe Gen5" },
     { label: "Питание", value: "1000W Platinum" },
   ];
+// ============================================================
+  function useWindowSize(){
+    const [windowSize, setWindowSize] = React.useState({
+      width: 0,
+      height: 0,
+    });
+
+    React.useEffect(() => {
+    function handleResize() {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }
+
+    handleResize();
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    return windowSize;
+  }
+
+  const { height } = useWindowSize();
+// ============================================================
 
   return (
     <div ref={containerRef} id="home" className="relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-slate-950 via-purple-950/20 to-pink-950/20">
@@ -82,11 +107,11 @@ export default function PremiumPCHero() {
             transition={{ duration: 0.8, delay: 0.2 }} 
             className="space-y-8"
           >
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }}>
+            {height >= 1024 && (<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }}>
               <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border border-purple-400/30 bg-purple-500/10 text-purple-300 backdrop-blur-sm mb-0">
                 <Sparkles className="w-3 h-3" /> Лучшая сборка
               </span>
-            </motion.div>
+            </motion.div>)}
 
             <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4 }} className="text-5xl md:text-7xl font-bold tracking-tight">
               <span className="bg-gradient-to-r from-purple-300 via-pink-300 to-purple-400 bg-clip-text text-transparent">Идеальная</span><br />
