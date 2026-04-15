@@ -4,6 +4,7 @@ import { Monitor, Cpu, Zap, Sparkles, Menu, X } from "lucide-react";
 
 import Navigation from "@/components/Navigation";
 import PremiumPСHero from "@/components/PremiumPСHero";
+import ProductCard from "@/components/ProductCard";
 
 function HomePage() {
   return (
