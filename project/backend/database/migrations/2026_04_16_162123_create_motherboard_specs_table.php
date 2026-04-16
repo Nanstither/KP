@@ -10,7 +10,8 @@ return new class extends Migration
     {
         Schema::create('motherboard_specs', function (Blueprint $table) {
             $table->foreignId('component_id')->primary()->constrained('components')->cascadeOnDelete();
-            $table->string('socket');
+            // $table->string('socket');
+            $table->foreignId('socket_id')->constrained('sockets')->cascadeOnDelete();
             $table->string('chipset');
             $table->integer('ram_slots');
             $table->string('ram_type'); // DDR4, DDR5

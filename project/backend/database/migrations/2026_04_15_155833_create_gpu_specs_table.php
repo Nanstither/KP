@@ -18,6 +18,9 @@ return new class extends Migration
             $table->integer('width_mm');
             $table->integer('pcie_slots_required')->default(2);
             $table->string('pcie_gen'); // 3.0, 4.0, 5.0
+
+            $table->string('power_requires')->nullable(); // "1x8", "2x8", "3x8", "1x16"
+            
             $table->timestamps();
         });
     }
