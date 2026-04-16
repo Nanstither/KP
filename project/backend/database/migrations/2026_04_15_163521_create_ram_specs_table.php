@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('ram_scecs', function (Blueprint $table) {
+        Schema::create('ram_specs', function (Blueprint $table) {
             $table->foreignId('component_id')->primary()->constrained('components')->cascadeOnDelete();
             $table->integer('total_capacity_gb');
             $table->integer('speed_mhz');
@@ -21,6 +21,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('ram_scecs');
+        Schema::dropIfExists('ram_specs');
     }
 };

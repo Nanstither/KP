@@ -4,24 +4,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class CpuSpecs extends Model
+class RamSpecs extends Model
 {
-    protected $table = 'cpu_specs';
+    protected $table = 'ram_scecs';
     protected $primaryKey = 'component_id';
     public $incrementing = false;
 
     protected $fillable = [
-        'component_id', 'socket', 'cores', 'threads',
-        'base_clock_mhz', 'boost_clock_mhz', 'tdp_watts',
+        'component_id', 'total_capacity_gb', 'speed_mhz',
+        'type', 'latency_cl', 'modules_count',
     ];
 
     protected $casts = [
         'component_id' => 'integer',
-        'cores' => 'integer',
-        'threads' => 'integer',
-        'base_clock_mhz' => 'decimal:1',
-        'boost_clock_mhz' => 'decimal:1',
-        'tdp_watts' => 'integer',
+        'total_capacity_gb' => 'integer',
+        'speed_mhz' => 'integer',
+        'latency_cl' => 'integer',
+        'modules_count' => 'integer',
     ];
 
     public function component(): BelongsTo

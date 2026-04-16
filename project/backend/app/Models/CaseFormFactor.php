@@ -3,11 +3,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class CoolerSocket extends Pivot
+class CaseFormFactor extends Pivot
 {
-    protected $table = 'cooler_socket';
+    protected $table = 'case_form_factor';
     public $incrementing = false;
     public $timestamps = true;
 
-    protected $fillable = ['component_id', 'socket_id'];
+    protected $fillable = ['component_id', 'form_factor_id'];
 }
