@@ -12,6 +12,7 @@ const Navigation = () => {
     { name: "Каталог", href: "#catalog" },
     { name: "Услуги", href: "#services" },
     { name: "Контакты", href: "#contact" },
+    { name: "Вход", href: "#login" },
   ];
 
   useEffect(() => {
@@ -25,12 +26,12 @@ const Navigation = () => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-600 backdrop-blur-xl ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-600 ${
         window.screen.width <= 768 
-        ? "bg-[#0f0f10]/80 border-b border-purple-400/10 " 
+        ? "bg-[#0f0f10]/80 border-b border-purple-400/10 backdrop-blur-xl" 
         : scrolled 
-        ? "bg-[#0f0f10]/80 border-b border-purple-400/10 "
-        : "bg-transparent border-b border-transparent"
+        ? "bg-[#0f0f10]/80 border-b border-purple-400/10 backdrop-blur-xl"
+        : "bg-transaprent border-b border-transparent backdrop-blur-none"
       }`}
     >
       <div className="container mx-auto px-6">

@@ -1,20 +1,68 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import Navigation from '@/components/Navigation';
+import HomePage from '@/pages/HomePage';
+import AboutPage from '@/pages/AboutPage';
+import CatalogPage from '@/pages/CatalogPage';
+import LoginPage from '@/pages/LoginPage';
+import AdminPanel from '@/pages/admin/AdminPanel';
+import '@/App.css';
 
-import Navigation from './components/Navigation';
-import HomePage from './pages/HomePage'
+// Компонент для защиты роутов
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const { user, loading } = useAuth();
 
-function App() {
-  const [count, setCount] = useState(0)
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-purple-300">
+        Загрузка...
+      </div>
+    );
+  }
 
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+};
+
+function AppRoutes() {
   return (
     <>
-    <HomePage />
+      <Navigation />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/catalog" element={<CatalogPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        
+        {/* Защищённые админ-роуты */}
+        <Route 
+          path="/admin/*" 
+          element={
+            <ProtectedRoute allowedRoles={['admin', 'manager']}>
+              <AdminPanel />
+            </ProtectedRoute>
+          } 
+        />
+      </Routes>
     </>
-  )
+  );
 }
 
-export default App
+function App() {
+  return (
+    <Router>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </Router>
+  );
+}
+
+export default App;

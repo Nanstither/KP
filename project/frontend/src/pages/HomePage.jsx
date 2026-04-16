@@ -15,7 +15,7 @@ function HomePage() {
   const [cart, setCart] = useState([]);
 
   useEffect(() => {
-    fetch(`${API_URL}/products`)
+    fetch(`${API_URL}/components`)
       .then((res) => {
         if (!res.ok) throw new Error("Ошибка сети");
         return res.json();
