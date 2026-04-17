@@ -26,6 +26,8 @@ return new class extends Migration
             $table->boolean('front_audio_jack')->default(true);
 
             $table->string('material')->default('steel');
+
+            $table->timestamps();
         });
 
         Schema::create('case_form_factor', function (Blueprint $table) {

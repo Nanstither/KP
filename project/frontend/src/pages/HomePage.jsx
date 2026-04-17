@@ -39,7 +39,7 @@ function HomePage() {
         setIsLoading(false);
       })
       .catch((err) => {
-        console.error("❌ Ошибка загрузки товаров:", err);
+        console.error("Ошибка загрузки товаров:", err);
         setIsLoading(false);
       });
   }, []);
@@ -51,7 +51,6 @@ function HomePage() {
 
   return (
     <div className="w-full min-h-screen">
-      <Navigation />
       <PremiumPСHero />
       <div className="min-h-screen bg-(--color-background)/80 flex items-center justify-center flex-col gap-8">
         <div className="text-center space-y-4 px-6">

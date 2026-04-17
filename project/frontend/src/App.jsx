@@ -31,7 +31,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   return children;
 };
 
-function AppRoutes() {
+export default function App() {
   return (
     <>
       <Navigation />
@@ -50,19 +50,20 @@ function AppRoutes() {
             </ProtectedRoute>
           } 
         />
+        <Route path="*" element={<Navigate to="/"/>} />
       </Routes>
     </>
   );
 }
 
-function App() {
-  return (
-    <Router>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
-    </Router>
-  );
-}
+// function App() {
+//   return (
+//     <Router>
+//       <AuthProvider>
+//         <AppRoutes />
+//       </AuthProvider>
+//     </Router>
+//   );
+// }
 
-export default App;
+// export default App;

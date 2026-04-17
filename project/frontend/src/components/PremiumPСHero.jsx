@@ -24,8 +24,8 @@ const ParticlesBackground = () => {
           className="absolute rounded-full bg-white/50"
           style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.size, height: p.size }}
           animate={{
-            y: [0, -20, 0],
-            x: [0, 10, 0],
+            y: [0, -50, 0],
+            x: [0, 30, 0],
             opacity: [p.opacity, p.opacity * 0.4, p.opacity],
           }}
           transition={{ duration: p.duration, repeat: Infinity, ease: "easeInOut", delay: p.delay }}

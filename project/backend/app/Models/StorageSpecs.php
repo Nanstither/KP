@@ -24,6 +24,6 @@ class StorageSpecs extends Model
 
     public function component(): BelongsTo
     {
-        return $this->belongsTo(Component::class, 'component_id');
+        return $this->belongsTo(Components::class, 'component_id');
     }
 }

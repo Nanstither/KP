@@ -18,9 +18,11 @@ class ComponentController extends Controller
             $query->where('stock', '>', 0);
         }
 
-        return $request->boolean('paginate', true) 
-            ? $query->paginate(20) 
-            : $query->get();
+        // return $request->boolean('paginate', true) 
+        //     ? $query->paginate(20) 
+        //     : $query->get();
+
+        return $query->get();
     }
 
     public function show($id)

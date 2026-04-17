@@ -1,18 +1,19 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Menu, X, Monitor } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   const navItems = [
-    { name: "Главная", href: "#home" },
-    { name: "О нас", href: "#about" },
-    { name: "Каталог", href: "#catalog" },
-    { name: "Услуги", href: "#services" },
-    { name: "Контакты", href: "#contact" },
-    { name: "Вход", href: "#login" },
+    { name: "Главная", to: "/" },
+    { name: "Каталог", to: "/catalog" },
+    { name: "Услуги", to: "/services" },
+    { name: "Контакты", to: "/contact" },
+    { name: "О нас", to: "/about" },
+    { name: "Вход", to: "/login" },
   ];
 
   useEffect(() => {
@@ -36,36 +37,40 @@ const Navigation = () => {
     >
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-20">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex items-center gap-2"
-          >
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-              <Monitor className="w-6 h-6 text-white" />
-            </div>
-            <span className="ml-2 text-xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
-              TECH LAB
-            </span>
-          </motion.div>
-
+          <Link to='/'>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="flex items-center gap-2"
+            >
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                <Monitor className="w-6 h-6 text-white" />
+              </div>
+              <span className="ml-2 text-xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
+                  TECH LAB
+              </span>
+            </motion.div>
+          </Link>
+          
+          {/* Десктопное меню */}
           <div className="hidden md:flex items-center gap-8">
             {navItems.map((item, index) => (
-              <motion.a
+              <motion.p
                 key={item.name}
-                href={item.href}
+                // href={item.href}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 * index }}
                 className="text-sm text-purple-200/70 hover:text-purple-300 transition-colors relative group block"
               >
-                {item.name}
+                <Link to={item.to}>{item.name}</Link>
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 group-hover:w-full transition-all duration-300" />
-              </motion.a>
+              </motion.p>
             ))}
           </div>
-
+          
+          {/* Кнопка мобильного меню */}
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="md:hidden text-purple-300 hover:text-purple-200 transition-colors"
@@ -74,6 +79,7 @@ const Navigation = () => {
           </button>
         </div>
 
+        {/* Мобильное меню */}
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
@@ -81,17 +87,17 @@ const Navigation = () => {
             className="md:hidden pb-6 space-y-4"
           >
             {navItems.map((item, index) => (
-              <motion.a
+              <motion.p
                 key={item.name}
-                href={item.href}
+                // href={item.href}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 * index }}
                 onClick={() => setIsOpen(false)}
                 className="block text-sm text-purple-200/70 hover:text-purple-300 transition-colors py-2"
               >
-                {item.name}
-              </motion.a>
+                <Link to={item.to}>{item.name}</Link>
+              </motion.p>
             ))}
           </motion.div>
         )}
