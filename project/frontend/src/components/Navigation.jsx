@@ -16,6 +16,7 @@ const Navigation = () => {
     { name: "Контакты", to: "/contact" },
     { name: "О нас", to: "/about" },
     { name: "Конфигуратор", to: "/config" },
+    { name: "База знаний", to: "/knowledge" },
     // { name: "Вход", to: "/login" },
     ...(user 
       ? [{ name: "Выход", to: "#", action: logout, isLogout: true }] 
@@ -120,7 +121,7 @@ const Navigation = () => {
               >
                 {item.isLogout ? (
                   <>
-                    <button onClick={item.action} className="text-purple-200/70 hover:text-red-400 transition-colors cursor-pointer">
+                    <button onClick={item.action} className="text-red-400/70 hover:text-red-400 transition-colors cursor-pointer">
                       {item.name}
                     </button>
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-red-400/80 to-red-400/60 group-hover:w-full transition-all duration-300" />
