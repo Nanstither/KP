@@ -43,6 +43,7 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     await api.post('/logout');
     setUser(null);
+    
   };
 
   const isAdmin = () => user?.role === 'admin';

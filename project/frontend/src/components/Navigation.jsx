@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Menu, X, Monitor } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { user, logout } = useAuth();
 
   const navItems = [
     { name: "Главная", to: "/" },
@@ -13,8 +15,17 @@ const Navigation = () => {
     { name: "Услуги", to: "/services" },
     { name: "Контакты", to: "/contact" },
     { name: "О нас", to: "/about" },
-    { name: "Вход", to: "/login" },
+    { name: "Конфигуратор", to: "/config" },
+    // { name: "Вход", to: "/login" },
+    ...(user 
+      ? [{ name: "Выход", to: "#", action: logout, isLogout: true }] 
+      : [{ name: "Вход", to: "/login" }]
+    ),
   ];
+
+  if (user?.role === 'admin') {
+    navItems.push({ name: "Админ", to: "/admin" });
+  }
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -64,8 +75,19 @@ const Navigation = () => {
                 transition={{ duration: 0.6, delay: 0.3 * index }}
                 className="text-sm text-purple-200/70 hover:text-purple-300 transition-colors relative group block"
               >
-                <Link to={item.to}>{item.name}</Link>
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 group-hover:w-full transition-all duration-300" />
+                {item.isLogout ? (
+                  <>
+                    <button onClick={item.action} className="text-purple-200/70 hover:text-red-400 transition-colors cursor-pointer">
+                      {item.name}
+                    </button>
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-red-400/80 to-red-400/60 group-hover:w-full transition-all duration-300" />
+                  </>
+                ) : (
+                  <>
+                    <Link to={item.to}>{item.name}</Link>
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 group-hover:w-full transition-all duration-300" />
+                  </>
+                )}
               </motion.p>
             ))}
           </div>
@@ -96,7 +118,19 @@ const Navigation = () => {
                 onClick={() => setIsOpen(false)}
                 className="block text-sm text-purple-200/70 hover:text-purple-300 transition-colors py-2"
               >
-                <Link to={item.to}>{item.name}</Link>
+                {item.isLogout ? (
+                  <>
+                    <button onClick={item.action} className="text-purple-200/70 hover:text-red-400 transition-colors cursor-pointer">
+                      {item.name}
+                    </button>
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-red-400/80 to-red-400/60 group-hover:w-full transition-all duration-300" />
+                  </>
+                ) : (
+                  <>
+                    <Link to={item.to}>{item.name}</Link>
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 group-hover:w-full transition-all duration-300" />
+                  </>
+                )}
               </motion.p>
             ))}
           </motion.div>

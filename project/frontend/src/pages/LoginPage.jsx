@@ -1,7 +1,43 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
+
+import React, { useRef, useMemo } from "react";
+
+
+// ─── Декларативный фон частиц ───
+const ParticlesBackground = () => {
+  const particles = useMemo(() => 
+    Array.from({ length: 100 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 6 + 4,
+      duration: Math.random() * 10 + 8,
+      delay: Math.random() * 5,
+      opacity: Math.random() * 0.3 + 0.1,
+    })), []
+  );
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          className="absolute rounded-full bg-white/50"
+          style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.size, height: p.size }}
+          animate={{
+            y: [0, -50, 0],
+            x: [0, 30, 0],
+            opacity: [p.opacity, p.opacity * 0.4, p.opacity],
+          }}
+          transition={{ duration: p.duration, repeat: Infinity, ease: "easeInOut", delay: p.delay }}
+        />
+      ))}
+    </div>
+  );
+};
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -42,6 +78,8 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen pt-20 flex items-center justify-center bg-gradient-to-br from-slate-950 via-purple-950/20 to-pink-950/20">
+      <ParticlesBackground/>
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent" />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

@@ -36,10 +36,10 @@ export default function AdminPanel() {
     }
   };
 
-  const handleLogout = async () => {
-    await logout();
-    window.location.href = '/';
-  };
+  // const handleLogout = async () => {
+  //   await logout();
+  //   window.location.href = '/';
+  // };
 
   const tabs = [
     { id: 'dashboard', label: 'Дашборд', icon: Monitor },
@@ -65,13 +65,13 @@ export default function AdminPanel() {
               Добро пожаловать, {user?.name} ({user?.role === 'admin' ? 'Администратор' : 'Менеджер'})
             </p>
           </div>
-          <button
+          {/* <button
             onClick={handleLogout}
             className="flex items-center gap-2 px-4 py-2 rounded-lg border border-purple-400/30 text-purple-300 hover:bg-purple-500/10 transition-all"
           >
             <LogOut className="w-4 h-4" />
             Выйти
-          </button>
+          </button> */}
         </motion.div>
 
         <div className="grid lg:grid-cols-4 gap-6">

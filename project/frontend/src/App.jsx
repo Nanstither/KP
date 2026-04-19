@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navigation from '@/components/Navigation';
+import Footer from '@/components/Footer';
 import HomePage from '@/pages/HomePage';
 import AboutPage from '@/pages/AboutPage';
 import CatalogPage from '@/pages/CatalogPage';
@@ -33,26 +34,29 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
 export default function App() {
   return (
-    <>
+    <div>
       <Navigation />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/catalog" element={<CatalogPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        
-        {/* Защищённые админ-роуты */}
-        <Route 
-          path="/admin/*" 
-          element={
-            <ProtectedRoute allowedRoles={['admin', 'manager']}>
-              <AdminPanel />
-            </ProtectedRoute>
-          } 
-        />
-        <Route path="*" element={<Navigate to="/"/>} />
-      </Routes>
-    </>
+      <main>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/catalog" element={<CatalogPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          
+          {/* Защищённые админ-роуты */}
+          <Route 
+            path="/admin/*" 
+            element={
+              <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                <AdminPanel />
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="*" element={<Navigate to="/"/>} />
+        </Routes>
+      </main>
+    <Footer/>
+    </div>
   );
 }
 
