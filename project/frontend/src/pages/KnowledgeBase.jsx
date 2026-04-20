@@ -30,6 +30,7 @@ const KnowledgeBase = () => {
       icon: Monitor,
       subsections: [
         { id: "why_balance_is_important", title: "Почему важен баланс, а не только мощность"},
+        { id: "gpu-role", title: "Роль видеокарты в игровой сборке"},
         { id: "gpu-algorithm", title: "Алгоритм подбора" },
         { id: "gpu-compatibility", title: "Таблица совместимости 2026" },
         { id: "gpu-mistakes", title: "Распространённые ошибки" },
@@ -294,7 +295,47 @@ const KnowledgeBase = () => {
                     <p>
                       Чтобы избежать подобных перекосов при сборке, удобно воспользоваться <Link to="/config"><span className="bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent font-bold">конфигуратором</span></Link> — он помогает подобрать сбалансированную связку процессора и видеокарты за пару шагов.
                     </p>
+                  </div>
                 </div>
+                <div id="gpu-role" className="scroll-mt-24 mb-10">
+                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-8">
+                    Роли видеокарты в игровой сборке
+                  </h3>
+                  <h3 className="text-left text-xl font-semibold text-gray-900 dark:text-white mt-8">
+                    За что отвечает видеокарта (GPU)
+                  </h3>
+                  <div className="my-8 text-gray-600 dark:text-gray-400 text-justify flex flex-col gap-4">
+                    <p>
+                      Видеокарта — это главный декоратор. Она берёт черновой набросок, который создал процессор, и превращает его в шедевр. 
+                      Её работа — «раскрасить» мир: натянуть текстуры на модели, просчитать игру света и теней и отправить готовую красивую картинку тебе на экран.
+                    </p>
+                    <p>
+                      Основные задачи GPU:
+                    </p>
+                    <p>
+                      <span className="text-gray-500 dark:text-gray-300 font-bold">Расчёт освещения и теней. </span> 
+                      Самая ресурсоемкая часть. Трассировка лучей (Ray Tracing) и путей (Path Tracing) полностью ложится на плечи графического процессора. 
+                      Чем сложнее свет, тем мощнее должна быть карта.
+                    </p>
+                    <p>
+                      <span className="text-gray-500 dark:text-gray-300 font-bold">Наложение текстур. </span> 
+                       Видеокарта «одевает» полигональные модели в реалистичные материалы: металл, кожу, ткань. 
+                       Для этого ей нужен большой объём видеопамяти (VRAM), чтобы хранить текстуры высокого разрешения.
+                    </p>
+                    <p>
+                      <span className="text-gray-500 dark:text-gray-300 font-bold">Постобработка. </span> 
+                      Сглаживание, цветокоррекция, эффекты глубины резкости (DoF) и работа технологий апскейлинга (DLSS, FSR) — это финальные штрихи, 
+                      которые делает GPU перед выдачей кадра.
+                    </p>
+                    <p>
+                      <span className="text-gray-500 dark:text-gray-300 font-bold">Вывод изображения на экран. </span> 
+                      Видеокарта формирует итоговый сигнал для твоего монитора, обеспечивая нужное разрешение (например, 4K) и частоту обновления (герцовку).
+                    </p>
+                    <div className="mt-6">
+                      <img className="rounded-2xl" src="/d081df56c1042a478328e3241687b9c9.webp" alt="Кадр из игры Unchartred" />
+                      <i className="block w-min text-center mt-4 text-slate-500">Кадр из игры Uncharted 4: GPU накладывает текстуры, тени, освещение и выводит изображение на экран.</i>
+                    </div>
+                  </div>
                 </div>
                 <div id="gpu-algorithm" className="scroll-mt-24 mb-10">
                   <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
@@ -329,7 +370,6 @@ const KnowledgeBase = () => {
                     </ol>
                   </div>
                 </div>
-
                 <div id="gpu-compatibility" className="scroll-mt-24 mb-10">
                   <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
                     Таблица совместимости процессоров и видеокарт (2026)
