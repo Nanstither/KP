@@ -31,6 +31,7 @@ const KnowledgeBase = () => {
       subsections: [
         { id: "why_balance_is_important", title: "Почему важен баланс, а не только мощность"},
         { id: "gpu-role", title: "Роль видеокарты в игровой сборке"},
+        { id: "gpu-imbalance", title: "Признаки дисбаланса процессора и видеокарты"},
         { id: "gpu-algorithm", title: "Алгоритм подбора" },
         { id: "gpu-compatibility", title: "Таблица совместимости 2026" },
         { id: "gpu-mistakes", title: "Распространённые ошибки" },
@@ -128,7 +129,7 @@ const KnowledgeBase = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#0f0f10]/80">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#101019]">
       {/* Progress bar */}
       <motion.div
         className="fixed top-0 left-0 right-0 h-1 bg-purple-500 origin-left z-50"
@@ -251,11 +252,21 @@ const KnowledgeBase = () => {
 
               {/* Видеокарты */}
               <section id="gpu" className="scroll-mt-24 mb-16">
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-3">
-                  <Monitor className="w-8 h-8 text-purple-500" />
-                  Видеокарты
-                </h2>
-                <div className="my-8 text-gray-600 dark:text-gray-400 text-justify flex flex-col gap-8">
+                <div className="relative">
+                  <picture>
+                    <img className="rounded-2xl h-[572px] w-full object-cover object-bottom" 
+                    src="/bcb7c339ee7dbc8b7af2c5f6f61eacf17f3434ee831ec7e81f7b343852e7febb.webp" 
+                    alt="Как подобрать видеокарту к процессору: полный гайд по совместимости 2026" 
+                    fetchPriority="high"/>
+                  </picture>
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-slate-950/90 via-transparent to-transparent p-10 flex flex-col justify-end">
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 items-center">
+                      {/* <Monitor className="w-8 h-8 text-purple-500" /> */}
+                      Как подобрать видеокарту к процессору: полный гайд по совместимости 2026
+                    </h2>
+                  </div>
+                </div>
+                <div className="my-8 text-gray-600 dark:text-gray-400  text-lg leading-relaxed text-justify flex flex-col gap-8">
                   <p>
                     Какую выбрать видеокарту к своему процессору и какой процессор раскроет всю мощь твоей видеокарты? 
                     Рассказываем, как распределяется нагрузка между CPU и GPU, почему возникает «бутылочное горлышко», 
@@ -271,10 +282,10 @@ const KnowledgeBase = () => {
                   </p>
                 </div>
                 <div id="why_balance_is_important" className="scroll-mt-24 mb-10">
-                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                  <h3 className="text-3xl font-semibold text-gray-900 dark:text-white mb-4">
                     Почему важен баланс, а не только мощность
                   </h3>
-                  <div className="my-8 text-gray-600 dark:text-gray-400 text-justify flex flex-col gap-8">
+                  <div className="my-8 text-gray-600 dark:text-gray-400  text-lg leading-relaxed text-justify flex flex-col gap-8">
                     <p>
                       Игровой ПК — это всегда командная работа. Процессор и видеокарта находятся в постоянном диалоге, обмениваясь гигабайтами данных, и именно от их слаженности зависит итоговый FPS. 
                       Заблуждение считать, что производительность в играх зависит только от видеокарты.
@@ -298,13 +309,13 @@ const KnowledgeBase = () => {
                   </div>
                 </div>
                 <div id="gpu-role" className="scroll-mt-24 mb-10">
-                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-8">
+                  <h3 className="text-3xl font-semibold text-gray-900 dark:text-white mb-8">
                     Роли видеокарты в игровой сборке
                   </h3>
-                  <h3 className="text-left text-xl font-semibold text-gray-900 dark:text-white mt-8">
+                  <h3 className="text-left text-2xl font-semibold text-gray-900 dark:text-white mt-8">
                     За что отвечает видеокарта (GPU)
                   </h3>
-                  <div className="my-8 text-gray-600 dark:text-gray-400 text-justify flex flex-col gap-4">
+                  <div className="my-8 text-gray-600 dark:text-gray-400 text-lg leading-relaxed text-justify flex flex-col gap-4">
                     <p>
                       Видеокарта — это главный декоратор. Она берёт черновой набросок, который создал процессор, и превращает его в шедевр. 
                       Её работа — «раскрасить» мир: натянуть текстуры на модели, просчитать игру света и теней и отправить готовую красивую картинку тебе на экран.
@@ -332,11 +343,110 @@ const KnowledgeBase = () => {
                       Видеокарта формирует итоговый сигнал для твоего монитора, обеспечивая нужное разрешение (например, 4K) и частоту обновления (герцовку).
                     </p>
                     <div className="mt-6">
-                      <img className="rounded-2xl" src="/d081df56c1042a478328e3241687b9c9.webp" alt="Кадр из игры Unchartred" />
-                      <i className="block w-min text-center mt-4 text-slate-500">Кадр из игры Uncharted 4: GPU накладывает текстуры, тени, освещение и выводит изображение на экран.</i>
+                      <picture><img className="rounded-2xl h-[572px] w-full object-cover" src="/d081df56c1042a478328e3241687b9c9.webp" alt="Кадр из игры Unchartred" /></picture>
+                      <i className="block w-full text-center mt-4 text-base text-slate-500">Кадр из игры Uncharted 4: GPU накладывает текстуры, тени, освещение и выводит изображение на экран.</i>
                     </div>
                   </div>
                 </div>
+
+                {/* Признаки дисбаланса процессора и видеокарты */}
+                <div id="gpu-imbalance" className="scroll-mt-24 mb-10">
+                  <h3 className="text-3xl font-semibold text-gray-900 dark:text-white mb-4">
+                    Признаки дисбаланса процессора и видеокарты
+                  </h3>
+                  <div className="my-8 text-gray-600 dark:text-gray-400 text-lg leading-relaxed text-justify flex flex-col gap-4">
+                    <div className="mb-4 flex flex-col gap-4">
+                      <p>
+                        Если в игре появляются рывки, просадки FPS возможно систему ограничивает один из компонентов. Вот признаки, которые можно заметить сразу:
+                      </p>
+                      <div className="grid grid-cols-auto gap-6">
+                        <div className="grid size-10 grid-cols-1 grid-rows-1 place-content-center border-1 border-transparent [border-image:linear-gradient(60deg,theme(colors.purple.300),theme(colors.pink.500))_1] font-mono text-[16px]/7 font-medium text-gray-950 dark:border-white/50 dark:text-white my-auto">
+                          <div className="col-start-1 row-start-1 grid place-content-center">
+                            <div className="h-10 w-7 bg-white dark:bg-[#101019]">
+                            </div>
+                          </div>
+                          <div className="col-start-1 row-start-1 grid place-content-center tracking-widest bg-gradient-to-r from-purple-300 to-pink-400 bg-clip-text text-transparent">
+                          01
+                          </div>
+                        </div>
+                        <div className="col-start-2 col-end-auto">
+                          <span className="text-gray-500 dark:text-gray-300 font-bold">Рывки и микрофризы при движении по локации. </span>Картинка «дёргается» при поворотах камеры или быстром перемещении, даже если средний FPS выглядит приемлемым.
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-auto gap-6">
+                        <div className="grid size-10 grid-cols-1 grid-rows-1 place-content-center border-1 border-transparent [border-image:linear-gradient(60deg,theme(colors.purple.300),theme(colors.pink.500))_1] font-mono text-[16px]/7 font-medium text-gray-950 dark:border-white/50 dark:text-white my-auto">
+                          <div className="col-start-1 row-start-1 grid place-content-center">
+                            <div className="h-10 w-7 bg-white dark:bg-[#101019]">
+                            </div>
+                          </div>
+                          <div className="col-start-1 row-start-1 grid place-content-center tracking-widest bg-gradient-to-r from-purple-300 to-pink-400 bg-clip-text text-transparent">
+                          02
+                          </div>
+                        </div>
+                        <div className="col-start-2 col-end-auto">
+                          <span className="text-gray-500 dark:text-gray-300 font-bold">Просадки в насыщенных сценах. </span>Резкое падение FPS в городах, массовых боях, сценах с большим количеством NPC и объектов.
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-auto gap-6">
+                        <div className="grid size-10 grid-cols-1 grid-rows-1 place-content-center border-1 border-transparent [border-image:linear-gradient(60deg,theme(colors.purple.300),theme(colors.pink.500))_1] font-mono text-[16px]/7 font-medium text-gray-950 dark:border-white/50 dark:text-white my-auto">
+                          <div className="col-start-1 row-start-1 grid place-content-center">
+                            <div className="h-10 w-7 bg-white dark:bg-[#101019]">
+                            </div>
+                          </div>
+                          <div className="col-start-1 row-start-1 grid place-content-center tracking-widest bg-gradient-to-r from-purple-300 to-pink-400 bg-clip-text text-transparent">
+                          03
+                          </div>
+                        </div>
+                        <div className="col-start-2 col-end-auto">
+                          <span className="text-gray-500 dark:text-gray-300 font-bold">Подтормаживания во время взрывов, разрушений, скоплений объектов. </span>Система теряет плавность в моменты активных расчётов физики и логики сцены.
+                        </div>
+                      </div>
+                    </div>
+                    <p>
+                      Чтобы понять, что именно тормозит систему, не обязательно быть инженером. Достаточно провести простой эксперимент прямо в игре
+                    </p>
+                    <p>
+                      Суть теста: зайди в требовательную игру и снизь все настройки графики на минимум. 
+                      Разрешение экрана тоже опусти (например, с 4K или 2K до Full HD). Выключи сглаживание, трассировку лучей, V-Sync и лимит FPS.
+                    </p>                
+                    <div className="mb-4 flex flex-col gap-4">
+                      <p>А теперь наблюдай за игрой:</p>
+                      <div className="grid grid-cols-auto gap-6">
+                        <div className="grid size-4 grid-cols-1 rounded-sm border-transparent bg-gradient-to-tr from-purple-300 to-pink-500 bg-clip-border [background-origin:border-box] [mask:linear-gradient(#fff_0_0)_padding-box,linear-gradient(#fff_0_0)] [mask-composite:exclude] mt-2"></div>
+                        <div className="col-start-2 col-end-auto">
+                          <p>FPS резко вырос при снижении настроек — ограничение со стороны видеокарты. Процессор способен готовить больше кадров, но GPU не справляется с графической нагрузкой. Решение: более мощная видеокарта или умеренные настройки графики;</p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-auto gap-6">
+                        <div className="grid size-4 grid-cols-1 rounded-sm border-transparent bg-gradient-to-tr from-purple-300 to-pink-500 bg-clip-border [background-origin:border-box] [mask:linear-gradient(#fff_0_0)_padding-box,linear-gradient(#fff_0_0)] [mask-composite:exclude] mt-2"></div>
+                        <div className="col-start-2 col-end-auto">
+                          <p>FPS почти не изменился — значит систему тормозит процессор. Даже при снижении графики система упирается в возможности CPU, который не успевает подготавливать кадры. Поможет апгрейд процессора (возможно придётся добавить оперативной памяти).</p>
+                        </div>
+                      </div>
+                    </div>
+                    <p>Есть ещё один безотказный метод — используй утилиту для мониторинга <a className="bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent font-bold" href="https://www.msi.com/page/afterburner" target="_blank" rel="noopener noreferrer">MSI Afterburner</a> или её аналог.</p>
+                    <div className="mb-4 flex flex-col gap-4">
+                      <p>Запусти игру и включи MSI Afterburner. </p>
+                      <div className="grid grid-cols-auto gap-6">
+                        <div className="grid size-4 grid-cols-1 rounded-sm border-transparent bg-gradient-to-tr from-purple-300 to-pink-500 bg-clip-border [background-origin:border-box] [mask:linear-gradient(#fff_0_0)_padding-box,linear-gradient(#fff_0_0)] [mask-composite:exclude] mt-2"></div>
+                        <div className="col-start-2 col-end-auto">
+                          <p>Если GPU постоянно загружен на 95–100%, а FPS растёт при снижении графики — видеокарта не вытягивает;</p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-auto gap-6">
+                        <div className="grid size-4 grid-cols-1 rounded-sm border-transparent bg-gradient-to-tr from-purple-300 to-pink-500 bg-clip-border [background-origin:border-box] [mask:linear-gradient(#fff_0_0)_padding-box,linear-gradient(#fff_0_0)] [mask-composite:exclude] mt-2"></div>
+                        <div className="col-start-2 col-end-auto">
+                          <p>Если загрузка видеокарты заметно ниже, а один или несколько потоков процессора работают на пределе — система упирается в CPU.</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <picture><img className="rounded-2xl h-[572px] w-full object-cover object-[x:25%]" src="/MSI-Afterburner-guide-01b-Troubleshooting-Uncheck-Start-with-Windows.jpg" alt="Интерфейс MSI Afterburner" /></picture>
+                      <i className="block w-full text-center mt-4 text-base text-slate-500">Интерфейс MSI Afterburner</i>
+                    </div>
+                  </div>
+                </div>
+
                 <div id="gpu-algorithm" className="scroll-mt-24 mb-10">
                   <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
                     Алгоритм подбора видеокарты к процессору
