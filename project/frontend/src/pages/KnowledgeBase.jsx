@@ -1,652 +1,707 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, useScroll, useSpring } from "framer-motion";
 import { 
-  Cpu, 
-  Monitor, 
-  Zap, 
-  HardDrive, 
-  Thermometer, 
-  AlertTriangle,
-  ChevronRight,
-  BookOpen,
-  BarChart3,
-  Info
+  Cpu, Monitor, Zap, HardDrive, Thermometer, AlertTriangle,
+  ChevronRight, ChevronDown, Menu, X, ExternalLink
 } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 
 const KnowledgeBase = () => {
-  const [activeSection, setActiveSection] = useState("pci");
+  const [activeSection, setActiveSection] = useState("intro");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [expandedSections, setExpandedSections] = useState(["gpu"]);
+  
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
 
   const sections = [
-    { id: "pci", label: "PCIe и видеокарты", icon: Monitor },
-    { id: "cpu", label: "Процессоры и маркировки", icon: Cpu },
-    { id: "ram", label: "ОЗУ: скорость и тайминги", icon: Zap },
-    { id: "storage", label: "Накопители", icon: HardDrive },
-    { id: "cooling", label: "Охлаждение и TDP", icon: Thermometer },
+    {
+      id: "intro",
+      title: "Введение",
+      icon: ExternalLink,
+    },
+    {
+      id: "gpu",
+      title: "Видеокарты",
+      icon: Monitor,
+      subsections: [
+        { id: "why_balance_is_important", title: "Почему важен баланс, а не только мощность"},
+        { id: "gpu-algorithm", title: "Алгоритм подбора" },
+        { id: "gpu-compatibility", title: "Таблица совместимости 2026" },
+        { id: "gpu-mistakes", title: "Распространённые ошибки" },
+        { id: "gpu-bottleneck", title: "Ботлнекинг" },
+      ]
+    },
+    {
+      id: "cpu",
+      title: "Процессоры",
+      icon: Cpu,
+      subsections: [
+        { id: "cpu-selection", title: "Как выбрать" },
+        { id: "cpu-cores", title: "Ядра и потоки" },
+        { id: "cpu-frequency", title: "Частота и кэш" },
+        { id: "cpu-gaming", title: "Для игр" },
+      ]
+    },
+    {
+      id: "ram",
+      title: "Оперативная память",
+      icon: Zap,
+      subsections: [
+        { id: "ram-capacity", title: "Объём памяти" },
+        { id: "ram-frequency", title: "Частота и тайминги" },
+        { id: "ram-channels", title: "Канальность" },
+      ]
+    },
+    {
+      id: "psu",
+      title: "Блок питания",
+      icon: Thermometer,
+      subsections: [
+        { id: "psu-power", title: "Расчёт мощности" },
+        { id: "psu-efficiency", title: "Сертификаты эффективности" },
+        { id: "psu-connectors", title: "Разъёмы" },
+      ]
+    },
+    {
+      id: "storage",
+      title: "Накопители",
+      icon: HardDrive,
+      subsections: [
+        { id: "storage-types", title: "Типы накопителей" },
+        { id: "storage-speed", title: "Скорость работы" },
+      ]
+    },
   ];
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY + 200;
+      
+      sections.forEach(section => {
+        const element = document.getElementById(section.id);
+        if (element) {
+          const offsetTop = element.offsetTop;
+          const offsetHeight = element.offsetHeight;
+          
+          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+            setActiveSection(section.id);
+            if (section.subsections) {
+              setExpandedSections([section.id]);
+            }
+          }
+        }
+      });
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      const offset = 120;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
+      setActiveSection(id);
+      setMobileMenuOpen(false);
+    }
+  };
+
+  const toggleSection = (id) => {
+    setExpandedSections(prev => 
+      prev.includes(id) 
+        ? prev.filter(s => s !== id)
+        : [...prev, id]
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950/20 to-pink-950/20">      
-      <div className="pt-24 pb-12 container mx-auto px-4 md:px-6">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            <span className="bg-gradient-to-r from-purple-300 via-pink-300 to-purple-400 bg-clip-text text-transparent">
-              База знаний
-            </span>
-          </h1>
-          <p className="text-purple-200/70 max-w-2xl mx-auto">
-            Подробные технические руководства по совместимости компонентов 
-            и их характеристикам
-          </p>
-        </motion.div>
-
-        <div className="grid lg:grid-cols-4 gap-6">
-          {/* Sidebar Navigation */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="lg:col-span-1"
-          >
-            <div className="sticky top-24 bg-[#0f0f10]/80 backdrop-blur-xl border border-purple-400/20 rounded-xl p-4 space-y-2">
-              {sections.map((section) => (
-                <button
-                  key={section.id}
-                  onClick={() => setActiveSection(section.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-all ${
-                    activeSection === section.id
-                      ? "bg-purple-500/20 text-purple-300 border border-purple-400/30"
-                      : "text-purple-200/70 hover:bg-purple-500/10 hover:text-purple-300"
-                  }`}
-                >
-                  <section.icon className="w-4 h-4" />
-                  {section.label}
-                  <ChevronRight className="w-4 h-4 ml-auto" />
-                </button>
-              ))}
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0f0f10]/80">
+      {/* Progress bar */}
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-1 bg-purple-500 origin-left z-50"
+        style={{ scaleX }}
+      />
+      <div className="pt-24 pb-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="lg:grid lg:grid-cols-12 lg:gap-8">
+          
+          {/* Sidebar */}
+          <aside className="hidden lg:block lg:col-span-3">
+            <div className="sticky top-24 space-y-8">
+              <nav className="space-y-1">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-4">
+                  Содержание
+                </h3>
+                {sections.map((section) => (
+                  <div key={section.id}>
+                    <button
+                      onClick={() => {
+                        scrollToSection(section.id);
+                        if (section.subsections) toggleSection(section.id);
+                      }}
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                        activeSection === section.id
+                          ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
+                          : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+                      }`}
+                    >
+                      {section.icon && <section.icon className="w-4 h-4" />}
+                      {section.title}
+                      {section.subsections && (
+                        <ChevronDown 
+                          className={`w-4 h-4 ml-auto transition-transform ${
+                            expandedSections.includes(section.id) ? "rotate-180" : ""
+                          }`}
+                        />
+                      )}
+                    </button>
+                    
+                    {section.subsections && expandedSections.includes(section.id) && (
+                      <div className="mt-1 space-y-1 pl-6">
+                        {section.subsections.map((sub) => (
+                          <button
+                            key={sub.id}
+                            onClick={() => scrollToSection(sub.id)}
+                            className={`block w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors ${
+                              activeSection === sub.id
+                                ? "text-purple-700 dark:text-purple-300"
+                                : "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200"
+                            }`}
+                          >
+                            {sub.title}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </nav>
             </div>
-          </motion.div>
+          </aside>
 
-          {/* Content Area */}
-          <div className="lg:col-span-3 space-y-8">
-            {/* PCIe Section */}
-            {activeSection === "pci" && (
-              <PCIeSection />
-            )}
-
-            {/* CPU Section */}
-            {activeSection === "cpu" && (
-              <CPUSection />
-            )}
-
-            {/* RAM Section */}
-            {activeSection === "ram" && (
-              <RAMSection />
-            )}
-
-            {/* Storage Section */}
-            {activeSection === "storage" && (
-              <StorageSection />
-            )}
-
-            {/* Cooling Section */}
-            {activeSection === "cooling" && (
-              <CoolingSection />
+          {/* Mobile menu button */}
+          <div className="lg:hidden mb-6">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-800 rounded-md text-gray-700 dark:text-gray-300"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              <span>Содержание</span>
+            </button>
+            
+            {mobileMenuOpen && (
+              <div className="mt-2 space-y-1 bg-white dark:bg-gray-800 rounded-md shadow-lg p-4">
+                {sections.map((section) => (
+                  <div key={section.id}>
+                    <button
+                      onClick={() => {
+                        scrollToSection(section.id);
+                        if (section.subsections) toggleSection(section.id);
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      {section.title}
+                    </button>
+                    {section.subsections && expandedSections.includes(section.id) && (
+                      <div className="ml-6 mt-1 space-y-1">
+                        {section.subsections.map((sub) => (
+                          <button
+                            key={sub.id}
+                            onClick={() => scrollToSection(sub.id)}
+                            className="block w-full text-left px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                          >
+                            {sub.title}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             )}
           </div>
+
+          {/* Main content */}
+          <main className="lg:col-span-9">
+            <div className="prose prose-lg dark:prose-invert max-w-none">
+              
+              {/* Введение */}
+              <section id="intro" className="scroll-mt-24 mb-12">
+                <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-6">
+                  База знаний по сборке ПК
+                </h1>
+                <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed">
+                  Полное руководство по подбору комплектующих для игрового компьютера. 
+                  Здесь вы найдёте актуальную информацию о совместимости компонентов, 
+                  алгоритмы подбора и распространённые ошибки.
+                </p>
+              </section>
+
+              {/* Видеокарты */}
+              <section id="gpu" className="scroll-mt-24 mb-16">
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-3">
+                  <Monitor className="w-8 h-8 text-purple-500" />
+                  Видеокарты
+                </h2>
+                <div className="my-8 text-gray-600 dark:text-gray-400 text-justify flex flex-col gap-8">
+                  <p>
+                    Какую выбрать видеокарту к своему процессору и какой процессор раскроет всю мощь твоей видеокарты? 
+                    Рассказываем, как распределяется нагрузка между CPU и GPU, почему возникает «бутылочное горлышко», 
+                    как на производительность влияют разрешение, настройки графики и частота обновления монитора. 
+                    Отдельно затронем техническую сторону: питание, PCIe, охлаждение и габариты — те вещи, из-за которых даже мощное железо может работать хуже, чем должно.
+                  </p>
+                  <p>
+                    Главная проблема в теме подбора проста: бытует мнение, что для игр достаточно «просто взять видеокарту помощнее». 
+                    В итоге получаем дисбаланс — процессор не успевает подготавливать кадры для GPU.
+                  </p>
+                  <p>
+                    Этот гайд нужен, чтобы ты понимал, где именно рождается FPS, что ограничивает твой ПК и как собрать сбалансированную систему, где каждый компонент работает на результат, а не простаивает.
+                  </p>
+                </div>
+                <div id="why_balance_is_important" className="scroll-mt-24 mb-10">
+                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                    Почему важен баланс, а не только мощность
+                  </h3>
+                  <div className="my-8 text-gray-600 dark:text-gray-400 text-justify flex flex-col gap-8">
+                    <p>
+                      Игровой ПК — это всегда командная работа. Процессор и видеокарта находятся в постоянном диалоге, обмениваясь гигабайтами данных, и именно от их слаженности зависит итоговый FPS. 
+                      Заблуждение считать, что производительность в играх зависит только от видеокарты.
+                    </p>
+                    <p>
+                      Если один из компонентов заметно слабее другого, возникает эффект «бутылочного горлышка» (bottleneck). 
+                      Это ситуация, когда система работает со скоростью самого медленного звена. В играх это проявляется в двух вариант  
+                    </p>
+                    <p>
+                      <span className="text-gray-500 dark:text-gray-300 font-bold">Отстающий процессор:</span> не успевает подготавливать кадры для видеокарты. В итоге GPU простаивает, а ты видишь на экране фризы, рывки и нестабильный график кадра.
+                    </p>
+                    <p>
+                      <span className="text-gray-500 dark:text-gray-300 font-bold">Отстающая видеокарта:</span> работает на пределе своих возможностей, но FPS упирается в её потолок. В тяжёлых сценах со сложным освещением неизбежны просадки.
+                    </p>
+                    <p>
+                      Именно поэтому ставить мощную видеокарту к слабому процессору и наоборот экономически невыгодно: значительная часть мощности (за которую ты заплатил!) останется невостребованной.
+                    </p>
+                    <p>
+                      Чтобы избежать подобных перекосов при сборке, удобно воспользоваться <Link to="/config"><span className="bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent font-bold">конфигуратором</span></Link> — он помогает подобрать сбалансированную связку процессора и видеокарты за пару шагов.
+                    </p>
+                </div>
+                </div>
+                <div id="gpu-algorithm" className="scroll-mt-24 mb-10">
+                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                    Алгоритм подбора видеокарты к процессору
+                  </h3>
+                  <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 mb-6">
+                    <ol className="space-y-4 text-gray-700 dark:text-gray-300">
+                      <li className="flex gap-3">
+                        <span className="flex-shrink-0 w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold">1</span>
+                        <div>
+                          <strong>Определите бюджет</strong> — оптимальное соотношение: 30-40% бюджета на видеокарту
+                        </div>
+                      </li>
+                      <li className="flex gap-3">
+                        <span className="flex-shrink-0 w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold">2</span>
+                        <div>
+                          <strong>Выберите разрешение</strong> — 1080p, 1440p или 4K
+                        </div>
+                      </li>
+                      <li className="flex gap-3">
+                        <span className="flex-shrink-0 w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold">3</span>
+                        <div>
+                          <strong>Подберите процессор</strong> — избегайте ботлнекинга (см. таблицу ниже)
+                        </div>
+                      </li>
+                      <li className="flex gap-3">
+                        <span className="flex-shrink-0 w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold">4</span>
+                        <div>
+                          <strong>Проверьте блок питания</strong> — запас 20-30% от TDP системы
+                        </div>
+                      </li>
+                    </ol>
+                  </div>
+                </div>
+
+                <div id="gpu-compatibility" className="scroll-mt-24 mb-10">
+                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                    Таблица совместимости процессоров и видеокарт (2026)
+                  </h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-gray-600 dark:text-gray-400">
+                      <thead className="text-xs text-gray-700 uppercase bg-gray-200 dark:bg-gray-700 dark:text-gray-300">
+                        <tr>
+                          <th className="px-6 py-3 rounded-tl-lg">Видеокарта</th>
+                          <th className="px-6 py-3">Мин. процессор</th>
+                          <th className="px-6 py-3">Рекомендуемый</th>
+                          <th className="px-6 py-3 rounded-tr-lg">Разрешение</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="bg-white dark:bg-gray-800 border-b dark:border-gray-700">
+                          <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">RTX 4060</td>
+                          <td className="px-6 py-4">i3-12100F / Ryzen 5 5500</td>
+                          <td className="px-6 py-4">i5-13400F / Ryzen 5 7600</td>
+                          <td className="px-6 py-4">1080p</td>
+                        </tr>
+                        <tr className="bg-gray-50 dark:bg-gray-900 border-b dark:border-gray-700">
+                          <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">RTX 4070</td>
+                          <td className="px-6 py-4">i5-12400F / Ryzen 5 5600</td>
+                          <td className="px-6 py-4">i5-13600K / Ryzen 7 7700X</td>
+                          <td className="px-6 py-4">1440p</td>
+                        </tr>
+                        <tr className="bg-white dark:bg-gray-800 border-b dark:border-gray-700">
+                          <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">RTX 4080</td>
+                          <td className="px-6 py-4">i5-13600K / Ryzen 7 7700X</td>
+                          <td className="px-6 py-4">i7-13700K / Ryzen 7 7800X3D</td>
+                          <td className="px-6 py-4">1440p/4K</td>
+                        </tr>
+                        <tr className="bg-gray-50 dark:bg-gray-900">
+                          <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">RTX 4090</td>
+                          <td className="px-6 py-4">i7-13700K / Ryzen 7 7800X3D</td>
+                          <td className="px-6 py-4">i9-13900K / Ryzen 9 7950X3D</td>
+                          <td className="px-6 py-4">4K</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div id="gpu-mistakes" className="scroll-mt-24 mb-10">
+                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                    Распространённые ошибки при подборе
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4">
+                      <div className="flex">
+                        <AlertTriangle className="w-5 h-5 text-red-500 mr-3 flex-shrink-0" />
+                        <div>
+                          <h4 className="font-semibold text-red-800 dark:text-red-300 mb-1">
+                            Слабый процессор для мощной видеокарты
+                          </h4>
+                          <p className="text-red-700 dark:text-red-400 text-sm">
+                            RTX 4090 с i3-12100F — видеокарта будет простаивать 30-40% времени
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-4">
+                      <div className="flex">
+                        <AlertTriangle className="w-5 h-5 text-yellow-500 mr-3 flex-shrink-0" />
+                        <div>
+                          <h4 className="font-semibold text-yellow-800 dark:text-yellow-300 mb-1">
+                            Недостаточный блок питания
+                          </h4>
+                          <p className="text-yellow-700 dark:text-yellow-400 text-sm">
+                            Для RTX 4080 нужен БП минимум 750W, а не 550W
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4">
+                      <div className="flex">
+                        <AlertTriangle className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
+                        <div>
+                          <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-1">
+                            PCIe 3.0 для новых видеокарт
+                          </h4>
+                          <p className="text-blue-700 dark:text-blue-400 text-sm">
+                            RTX 4060 на PCIe 3.0 теряет до 10% производительности
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="gpu-bottleneck" className="scroll-mt-24">
+                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                    Что такое ботлнекинг (узкое место)
+                  </h3>
+                  <p className="text-gray-700 dark:text-gray-300 mb-4">
+                    Ботлнекинг возникает, когда один компонент системы ограничивает 
+                    производительность другого. В случае с CPU и GPU:
+                  </p>
+                  <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+                    <li><strong>CPU bottleneck</strong> — процессор не успевает готовить кадры для видеокарты</li>
+                    <li><strong>GPU bottleneck</strong> — идеальный сценарий, видеокарта загружена на 95-100%</li>
+                    <li>Проверяйте загрузку в MSI Afterburner во время игр</li>
+                  </ul>
+                </div>
+              </section>
+
+              {/* Процессоры */}
+              <section id="cpu" className="scroll-mt-24 mb-16">
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-3">
+                  <Cpu className="w-8 h-8 text-purple-500" />
+                  Процессоры
+                </h2>
+
+                <div id="cpu-selection" className="scroll-mt-24 mb-10">
+                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                    Как выбрать процессор
+                  </h3>
+                  <p className="text-gray-700 dark:text-gray-300 mb-4">
+                    При выборе процессора для игрового ПК учитывайте:
+                  </p>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Intel</h4>
+                      <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                        <li>• i3 — бюджетные сборки</li>
+                        <li>• i5 — оптимальный выбор</li>
+                        <li>• i7 — мощные игровые ПК</li>
+                        <li>• i9 — топовые рабочие станции</li>
+                      </ul>
+                    </div>
+                    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">AMD</h4>
+                      <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                        <li>• Ryzen 5 — аналог i5</li>
+                        <li>• Ryzen 7 — аналог i7</li>
+                        <li>• Ryzen 9 — флагманы</li>
+                        <li>• X3D — лучший выбор для игр</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="cpu-cores" className="scroll-mt-24 mb-10">
+                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                    Ядра и потоки
+                  </h3>
+                  <p className="text-gray-700 dark:text-gray-300 mb-4">
+                    Для игр в 2026 году:
+                  </p>
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-200 dark:bg-gray-700">
+                      <tr>
+                        <th className="px-4 py-2 text-left">Конфигурация</th>
+                        <th className="px-4 py-2 text-left">Для чего</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-gray-700 dark:text-gray-300">
+                      <tr className="border-b dark:border-gray-700">
+                        <td className="px-4 py-3">6 ядер / 12 потоков</td>
+                        <td className="px-4 py-3">Минимум для современных игр</td>
+                      </tr>
+                      <tr className="border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                        <td className="px-4 py-3">8 ядер / 16 потоков</td>
+                        <td className="px-4 py-3">Оптимально для игр + стриминг</td>
+                      </tr>
+                      <tr>
+                        <td className="px-4 py-3">12+ ядер</td>
+                        <td className="px-4 py-3">Рабочие станции, рендеринг</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div id="cpu-frequency" className="scroll-mt-24 mb-10">
+                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                    Частота и кэш
+                  </h3>
+                  <p className="text-gray-700 dark:text-gray-300">
+                    <strong>Частота:</strong> для игр важна высокая частота (4.5+ ГГц). 
+                    AMD X3D процессоры имеют увеличенный кэш L3, что даёт прирост 
+                    10-15% в играх.
+                  </p>
+                </div>
+
+                <div id="cpu-gaming" className="scroll-mt-24">
+                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                    Лучшие процессоры для игр 2026
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
+                      <h4 className="font-semibold text-purple-900 dark:text-purple-300">Ryzen 7 7800X3D</h4>
+                      <p className="text-sm text-purple-800 dark:text-purple-400">Лучший игровой процессор 2026</p>
+                    </div>
+                    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+                      <h4 className="font-semibold text-gray-900 dark:text-white">Intel i5-13600K</h4>
+                      <p className="text-sm text-gray-700 dark:text-gray-400">Оптимальное соотношение цена/производительность</p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* ОЗУ */}
+              <section id="ram" className="scroll-mt-24 mb-16">
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-3">
+                  <Zap className="w-8 h-8 text-purple-500" />
+                  Оперативная память
+                </h2>
+
+                <div id="ram-capacity" className="scroll-mt-24 mb-10">
+                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                    Объём памяти
+                  </h3>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+                      <div className="text-2xl font-bold text-purple-500 mb-2">16 GB</div>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">Минимум для игр 2026</p>
+                    </div>
+                    <div className="bg-purple-100 dark:bg-purple-900/30 p-4 rounded-lg border-2 border-purple-500">
+                      <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-2">32 GB</div>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">Рекомендуемый объём</p>
+                    </div>
+                    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+                      <div className="text-2xl font-bold text-purple-500 mb-2">64 GB</div>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">Для рабочих станций</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="ram-frequency" className="scroll-mt-24 mb-10">
+                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                    Частота и тайминги
+                  </h3>
+                  <p className="text-gray-700 dark:text-gray-300 mb-4">
+                    <strong>DDR4:</strong> оптимально 3200-3600 МГц с таймингами CL16-18<br/>
+                    <strong>DDR5:</strong> от 5600 МГц, оптимально 6000-6400 МГц
+                  </p>
+                  <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-4">
+                    <p className="text-sm text-yellow-800 dark:text-yellow-300">
+                      <strong>Важно:</strong> для AMD Ryzen 7000 используйте DDR5-6000 CL30 — 
+                      это точка стабильности контроллера памяти
+                    </p>
+                  </div>
+                </div>
+
+                <div id="ram-channels" className="scroll-mt-24">
+                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                    Двухканальный режим
+                  </h3>
+                  <p className="text-gray-700 dark:text-gray-300">
+                    Всегда используйте 2 планки памяти вместо одной! 
+                    Двухканальный режим даёт прирост 10-20% в играх.
+                  </p>
+                </div>
+              </section>
+
+              {/* Блок питания */}
+              <section id="psu" className="scroll-mt-24 mb-16">
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-3">
+                  <Thermometer className="w-8 h-8 text-purple-500" />
+                  Блок питания
+                </h2>
+
+                <div id="psu-power" className="scroll-mt-24 mb-10">
+                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                    Расчёт мощности
+                  </h3>
+                  <div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg mb-4">
+                    <h4 className="font-semibold mb-4">Формула:</h4>
+                    <code className="block bg-gray-200 dark:bg-gray-700 p-3 rounded text-lg">
+                      (TDP CPU + TDP GPU + 100W) × 1.3 = Рекомендуемая мощность
+                    </code>
+                  </div>
+                  <p className="text-gray-700 dark:text-gray-300">
+                    Пример: i5-13600K (181W) + RTX 4070 (200W) + 100W = 481W × 1.3 = <strong>625W</strong>
+                  </p>
+                </div>
+
+                <div id="psu-efficiency" className="scroll-mt-24 mb-10">
+                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                    Сертификаты эффективности
+                  </h3>
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-200 dark:bg-gray-700">
+                      <tr>
+                        <th className="px-4 py-2">Сертификат</th>
+                        <th className="px-4 py-2">КПД</th>
+                        <th className="px-4 py-2">Для чего</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-gray-700 dark:text-gray-300">
+                      <tr className="border-b dark:border-gray-700">
+                        <td className="px-4 py-3">80 Plus Bronze</td>
+                        <td className="px-4 py-3">85%</td>
+                        <td className="px-4 py-3">Бюджетные сборки</td>
+                      </tr>
+                      <tr className="border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                        <td className="px-4 py-3">80 Plus Gold</td>
+                        <td className="px-4 py-3">90%</td>
+                        <td className="px-4 py-3">Рекомендуемый выбор</td>
+                      </tr>
+                      <tr>
+                        <td className="px-4 py-3">80 Plus Platinum</td>
+                        <td className="px-4 py-3">92%</td>
+                        <td className="px-4 py-3">Топовые системы</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div id="psu-connectors" className="scroll-mt-24">
+                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                    Необходимые разъёмы
+                  </h3>
+                  <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+                    <li><strong>24-pin ATX</strong> — питание материнской платы</li>
+                    <li><strong>8-pin EPS</strong> — питание процессора (может быть 2 шт)</li>
+                    <li><strong>PCIe 6+2 pin</strong> — для видеокарты (RTX 4070: 2 шт, RTX 4090: 4 шт)</li>
+                    <li><strong>SATA</strong> — для SSD/HDD</li>
+                  </ul>
+                </div>
+              </section>
+
+              {/* Накопители */}
+              <section id="storage" className="scroll-mt-24 mb-16">
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-3">
+                  <HardDrive className="w-8 h-8 text-purple-500" />
+                  Накопители
+                </h2>
+
+                <div id="storage-types" className="scroll-mt-24 mb-10">
+                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                    Типы накопителей
+                  </h3>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">NVMe SSD (M.2)</h4>
+                      <ul className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                        <li>• Скорость: 3500-7000 MB/s</li>
+                        <li>• Подключение: PCIe x4</li>
+                        <li>• Для системы и игр</li>
+                      </ul>
+                    </div>
+                    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">SATA SSD (2.5")</h4>
+                      <ul className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                        <li>• Скорость: 500-550 MB/s</li>
+                        <li>• Подключение: SATA III</li>
+                        <li>• Для хранения файлов</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="storage-speed" className="scroll-mt-24">
+                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                    Скорость работы
+                  </h3>
+                  <p className="text-gray-700 dark:text-gray-300">
+                    <strong>PCIe 4.0:</strong> до 7000 MB/s (Samsung 980 Pro, WD SN850X)<br/>
+                    <strong>PCIe 3.0:</strong> до 3500 MB/s (достаточно для игр)<br/>
+                    <strong>Рекомендация:</strong> минимум 1 TB NVMe для системы + игр
+                  </p>
+                </div>
+              </section>
+
+            </div>
+          </main>
         </div>
       </div>
     </div>
   );
 };
-
-// ─── PCIe Section ───
-const PCIeSection = () => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    className="space-y-6"
-  >
-    <div className="bg-[#0f0f10]/80 backdrop-blur-xl border border-purple-400/20 rounded-xl p-6 md:p-8">
-      <h2 className="text-2xl font-bold text-purple-200 mb-4 flex items-center gap-2">
-        <AlertTriangle className="w-6 h-6 text-yellow-400" />
-        Совместимость PCIe поколений
-      </h2>
-      
-      <div className="prose prose-invert max-w-none text-purple-200/70 space-y-4">
-        <p>
-          PCIe (Peripheral Component Interconnect Express) — это стандарт подключения 
-          высокоскоростных компонентов. Каждое новое поколение удваивает пропускную способность.
-        </p>
-
-        <div className="bg-purple-950/30 border border-purple-400/20 rounded-lg p-4 my-6">
-          <h3 className="text-lg font-semibold text-purple-300 mb-2">
-            ⚠️ Важное предупреждение
-          </h3>
-          <p>
-            Старые видеокарты с PCIe 3.0 будут работать в слотах PCIe 4.0/5.0, 
-            но современные GPU (RTX 4000, RX 7000) могут потерять до 5-10% 
-            производительности при установке в PCIe 3.0.
-          </p>
-        </div>
-      </div>
-
-      {/* Comparison Table */}
-      <div className="mt-8 overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-purple-400/20">
-              <th className="text-left py-3 px-4 text-purple-300">Поколение</th>
-              <th className="text-left py-3 px-4 text-purple-300">Год</th>
-              <th className="text-left py-3 px-4 text-purple-300">Пропускная способность (x16)</th>
-              <th className="text-left py-3 px-4 text-purple-300">Примеры GPU</th>
-            </tr>
-          </thead>
-          <tbody className="text-purple-200/70">
-            <tr className="border-b border-purple-400/10">
-              <td className="py-3 px-4 font-mono">PCIe 3.0</td>
-              <td className="py-3 px-4">2010</td>
-              <td className="py-3 px-4">15.75 GB/s</td>
-              <td className="py-3 px-4">GTX 10/16 series, RTX 2000</td>
-            </tr>
-            <tr className="border-b border-purple-400/10 bg-purple-500/5">
-              <td className="py-3 px-4 font-mono">PCIe 4.0</td>
-              <td className="py-3 px-4">2017</td>
-              <td className="py-3 px-4">31.5 GB/s</td>
-              <td className="py-3 px-4">RTX 3000, RX 6000</td>
-            </tr>
-            <tr className="border-b border-purple-400/10">
-              <td className="py-3 px-4 font-mono">PCIe 5.0</td>
-              <td className="py-3 px-4">2022</td>
-              <td className="py-3 px-4">63 GB/s</td>
-              <td className="py-3 px-4">RTX 4000, RX 7000</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      {/* Performance Impact Chart */}
-      <div className="mt-8 bg-purple-950/20 border border-purple-400/20 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-purple-300 mb-4">
-          Потеря производительности при использовании PCIe 3.0
-        </h3>
-        <div className="space-y-4">
-          {[
-            { gpu: "RTX 4090", loss: 8, color: "from-red-500 to-pink-500" },
-            { gpu: "RTX 4080", loss: 6, color: "from-orange-500 to-yellow-500" },
-            { gpu: "RTX 4070", loss: 4, color: "from-yellow-500 to-green-500" },
-            { gpu: "RTX 4060", loss: 2, color: "from-green-500 to-emerald-500" },
-          ].map((item) => (
-            <div key={item.gpu} className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-purple-200">{item.gpu}</span>
-                <span className="text-purple-300">-{item.loss}%</span>
-              </div>
-              <div className="h-2 bg-purple-950/50 rounded-full overflow-hidden">
-                <div
-                  className={`h-full bg-gradient-to-r ${item.color} rounded-full transition-all duration-1000`}
-                  style={{ width: `${item.loss * 10}%` }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  </motion.div>
-);
-
-// ─── CPU Section ───
-const CPUSection = () => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    className="space-y-6"
-  >
-    <div className="bg-[#0f0f10]/80 backdrop-blur-xl border border-purple-400/20 rounded-xl p-6 md:p-8">
-      <h2 className="text-2xl font-bold text-purple-200 mb-4 flex items-center gap-2">
-        <BookOpen className="w-6 h-6 text-purple-400" />
-        Расшифровка маркировок процессоров
-      </h2>
-
-      {/* Intel Example */}
-      <div className="mb-8">
-        <h3 className="text-xl font-semibold text-purple-300 mb-4">Intel Core</h3>
-        <div className="bg-purple-950/30 border border-purple-400/20 rounded-lg p-6">
-          <div className="flex flex-wrap items-center gap-2 text-lg mb-4">
-            <span className="text-purple-400">Core</span>
-            <span className="text-purple-300">i5</span>
-            <span className="text-purple-200">-</span>
-            <span className="text-pink-400">13</span>
-            <span className="text-purple-200">400</span>
-            <span className="bg-yellow-500/20 text-yellow-300 px-2 py-0.5 rounded text-sm">F</span>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-4 text-sm text-purple-200/70">
-            <div className="space-y-2">
-              <p><strong className="text-purple-300">Core i5:</strong> Средний сегмент</p>
-              <p><strong className="text-purple-300">13:</strong> 13-е поколение (2023)</p>
-            </div>
-            <div className="space-y-2">
-              <p><strong className="text-purple-300">400:</strong> Уровень производительности</p>
-              <p><strong className="text-purple-300">F:</strong> Нет встроенной графики</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* AMD Example */}
-      <div>
-        <h3 className="text-xl font-semibold text-purple-300 mb-4">AMD Ryzen</h3>
-        <div className="bg-purple-950/30 border border-purple-400/20 rounded-lg p-6">
-          <div className="flex flex-wrap items-center gap-2 text-lg mb-4">
-            <span className="text-purple-400">Ryzen</span>
-            <span className="text-purple-300">5</span>
-            <span className="text-purple-200">7</span>
-            <span className="text-pink-400">600</span>
-            <span className="text-purple-200">X</span>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-4 text-sm text-purple-200/70">
-            <div className="space-y-2">
-              <p><strong className="text-purple-300">Ryzen 5:</strong> Средний сегмент</p>
-              <p><strong className="text-purple-300">7:</strong> 7000 серия (Zen 4)</p>
-            </div>
-            <div className="space-y-2">
-              <p><strong className="text-purple-300">600:</strong> Уровень производительности</p>
-              <p><strong className="text-purple-300">X:</strong> Увеличенная частота</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Suffix Table */}
-      <div className="mt-8">
-        <h3 className="text-lg font-semibold text-purple-300 mb-4">Суффиксы процессоров Intel</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-purple-400/20">
-                <th className="text-left py-3 px-4 text-purple-300">Суффикс</th>
-                <th className="text-left py-3 px-4 text-purple-300">Значение</th>
-                <th className="text-left py-3 px-4 text-purple-300">Пример</th>
-              </tr>
-            </thead>
-            <tbody className="text-purple-200/70">
-              <tr className="border-b border-purple-400/10">
-                <td className="py-3 px-4 font-mono bg-yellow-500/10">F</td>
-                <td className="py-3 px-4">Без встроенной графики (нужна видеокарта)</td>
-                <td className="py-3 px-4">i5-13400F</td>
-              </tr>
-              <tr className="border-b border-purple-400/10">
-                <td className="py-3 px-4 font-mono bg-purple-500/10">K</td>
-                <td className="py-3 px-4">Разблокирован для разгона</td>
-                <td className="py-3 px-4">i9-13900K</td>
-              </tr>
-              <tr className="border-b border-purple-400/10">
-                <td className="py-3 px-4 font-mono bg-blue-500/10">KF</td>
-                <td className="py-3 px-4">Разгон + без графики</td>
-                <td className="py-3 px-4">i7-13700KF</td>
-              </tr>
-              <tr>
-                <td className="py-3 px-4 font-mono bg-green-500/10">T</td>
-                <td className="py-3 px-4">Энергоэффективный (35W)</td>
-                <td className="py-3 px-4">i5-13400T</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </motion.div>
-);
-
-// ─── RAM Section ───
-const RAMSection = () => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    className="space-y-6"
-  >
-    <div className="bg-[#0f0f10]/80 backdrop-blur-xl border border-purple-400/20 rounded-xl p-6 md:p-8">
-      <h2 className="text-2xl font-bold text-purple-200 mb-4 flex items-center gap-2">
-        <Zap className="w-6 h-6 text-yellow-400" />
-        Скорость и тайминги ОЗУ
-      </h2>
-
-      <div className="space-y-6 text-purple-200/70">
-        <p>
-          Производительность оперативной памяти зависит от двух параметров: 
-          частоты (МГц) и таймингов (задержек).
-        </p>
-
-        {/* Frequency Impact */}
-        <div className="bg-purple-950/30 border border-purple-400/20 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-purple-300 mb-4">
-            Влияние частоты на производительность
-          </h3>
-          <div className="space-y-4">
-            {[
-              { freq: "DDR4-2666", gaming: 100, productivity: 100 },
-              { freq: "DDR4-3200", gaming: 108, productivity: 105 },
-              { freq: "DDR4-3600", gaming: 112, productivity: 108 },
-              { freq: "DDR5-5600", gaming: 118, productivity: 115 },
-              { freq: "DDR5-6000", gaming: 122, productivity: 118 },
-            ].map((item) => (
-              <div key={item.freq} className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-purple-200 font-mono">{item.freq}</span>
-                  <span className="text-purple-300">
-                    Игры: +{item.gaming - 100}% | Работа: +{item.productivity - 100}%
-                  </span>
-                </div>
-                <div className="flex gap-2">
-                  <div className="flex-1 h-2 bg-purple-950/50 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
-                      style={{ width: `${item.gaming}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Timings Explanation */}
-        <div className="bg-purple-950/30 border border-purple-400/20 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-purple-300 mb-4">
-            Что такое тайминги?
-          </h3>
-          <p className="mb-4">
-            Тайминги — это задержки в тактах между операциями. 
-            Формат: <code className="bg-purple-950 px-2 py-1 rounded text-purple-300">CL-tRCD-tRP-tRAS</code>
-          </p>
-          
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded bg-purple-500/20 flex items-center justify-center flex-shrink-0">
-                  <span className="text-purple-300 font-bold text-sm">CL</span>
-                </div>
-                <div>
-                  <p className="text-purple-200 font-medium">CAS Latency</p>
-                  <p className="text-sm text-purple-200/60">Задержка до начала передачи данных</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded bg-pink-500/20 flex items-center justify-center flex-shrink-0">
-                  <span className="text-pink-300 font-bold text-sm">tRCD</span>
-                </div>
-                <div>
-                  <p className="text-purple-200 font-medium">RAS to CAS Delay</p>
-                  <p className="text-sm text-purple-200/60">Задержка между строкой и столбцом</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded bg-yellow-500/20 flex items-center justify-center flex-shrink-0">
-                  <span className="text-yellow-300 font-bold text-sm">tRP</span>
-                </div>
-                <div>
-                  <p className="text-purple-200 font-medium">RAS Precharge</p>
-                  <p className="text-sm text-purple-200/60">Время подготовки следующей строки</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded bg-green-500/20 flex items-center justify-center flex-shrink-0">
-                  <span className="text-green-300 font-bold text-sm">tRAS</span>
-                </div>
-                <div>
-                  <p className="text-purple-200 font-medium">Active to Precharge</p>
-                  <p className="text-sm text-purple-200/60">Минимальное время активности строки</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Comparison */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-purple-400/20">
-                <th className="text-left py-3 px-4 text-purple-300">Конфигурация</th>
-                <th className="text-left py-3 px-4 text-purple-300">Тайминги</th>
-                <th className="text-left py-3 px-4 text-purple-300">Игры</th>
-                <th className="text-left py-3 px-4 text-purple-300">Работа</th>
-              </tr>
-            </thead>
-            <tbody className="text-purple-200/70">
-              <tr className="border-b border-purple-400/10">
-                <td className="py-3 px-4">DDR4-3200</td>
-                <td className="py-3 px-4 font-mono">CL22-22-22</td>
-                <td className="py-3 px-4">Базовая</td>
-                <td className="py-3 px-4">Базовая</td>
-              </tr>
-              <tr className="border-b border-purple-400/10 bg-purple-500/5">
-                <td className="py-3 px-4">DDR4-3600</td>
-                <td className="py-3 px-4 font-mono">CL16-18-18</td>
-                <td className="py-3 px-4 text-green-400">+5-8%</td>
-                <td className="py-3 px-4 text-green-400">+3-5%</td>
-              </tr>
-              <tr>
-                <td className="py-3 px-4">DDR5-6000</td>
-                <td className="py-3 px-4 font-mono">CL30-36-36</td>
-                <td className="py-3 px-4 text-green-400">+10-15%</td>
-                <td className="py-3 px-4 text-green-400">+8-12%</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </motion.div>
-);
-
-// ─── Storage Section ───
-const StorageSection = () => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    className="space-y-6"
-  >
-    <div className="bg-[#0f0f10]/80 backdrop-blur-xl border border-purple-400/20 rounded-xl p-6 md:p-8">
-      <h2 className="text-2xl font-bold text-purple-200 mb-4 flex items-center gap-2">
-        <HardDrive className="w-6 h-6 text-blue-400" />
-        Типы накопителей
-      </h2>
-
-      <div className="grid md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-purple-950/30 border border-purple-400/20 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-purple-300 mb-3">NVMe SSD (M.2)</h3>
-          <ul className="space-y-2 text-sm text-purple-200/70">
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-green-400 rounded-full" />
-              Скорость: 3000-7000 MB/s
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-green-400 rounded-full" />
-              Подключение: PCIe x4
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-green-400 rounded-full" />
-              Форм-фактор: M.2 2280
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full" />
-              Цена: выше
-            </li>
-          </ul>
-        </div>
-
-        <div className="bg-purple-950/30 border border-purple-400/20 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-purple-300 mb-3">SATA SSD (2.5")</h3>
-          <ul className="space-y-2 text-sm text-purple-200/70">
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-blue-400 rounded-full" />
-              Скорость: 500-550 MB/s
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-blue-400 rounded-full" />
-              Подключение: SATA III
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-blue-400 rounded-full" />
-              Форм-фактор: 2.5"
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-green-400 rounded-full" />
-              Цена: ниже
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      {/* Speed Comparison */}
-      <div className="bg-purple-950/20 border border-purple-400/20 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-purple-300 mb-4">
-          Сравнение скоростей
-        </h3>
-        <div className="space-y-4">
-          {[
-            { type: "NVMe Gen4 (PCIe 4.0)", speed: 7000, color: "from-purple-500 to-pink-500" },
-            { type: "NVMe Gen3 (PCIe 3.0)", speed: 3500, color: "from-blue-500 to-cyan-500" },
-            { type: "SATA SSD", speed: 550, color: "from-green-500 to-emerald-500" },
-            { type: "HDD 7200 RPM", speed: 150, color: "from-gray-500 to-gray-600" },
-          ].map((item) => (
-            <div key={item.type} className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-purple-200">{item.type}</span>
-                <span className="text-purple-300 font-mono">{item.speed} MB/s</span>
-              </div>
-              <div className="h-3 bg-purple-950/50 rounded-full overflow-hidden">
-                <div
-                  className={`h-full bg-gradient-to-r ${item.color} rounded-full transition-all duration-1000`}
-                  style={{ width: `${(item.speed / 7000) * 100}%` }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  </motion.div>
-);
-
-// ─── Cooling Section ───
-const CoolingSection = () => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    className="space-y-6"
-  >
-    <div className="bg-[#0f0f10]/80 backdrop-blur-xl border border-purple-400/20 rounded-xl p-6 md:p-8">
-      <h2 className="text-2xl font-bold text-purple-200 mb-4 flex items-center gap-2">
-        <Thermometer className="w-6 h-6 text-red-400" />
-        TDP и охлаждение
-      </h2>
-
-      <div className="space-y-6 text-purple-200/70">
-        <p>
-          <strong className="text-purple-300">TDP (Thermal Design Power)</strong> — 
-          максимальное количество тепла, которое система охлаждения должна отводить 
-          от процессора или видеокарты.
-        </p>
-
-        {/* TDP Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-purple-400/20">
-                <th className="text-left py-3 px-4 text-purple-300">Компонент</th>
-                <th className="text-left py-3 px-4 text-purple-300">TDP</th>
-                <th className="text-left py-3 px-4 text-purple-300">Рекомендуемое охлаждение</th>
-              </tr>
-            </thead>
-            <tbody className="text-purple-200/70">
-              <tr className="border-b border-purple-400/10">
-                <td className="py-3 px-4">Intel i5-13400F</td>
-                <td className="py-3 px-4 font-mono">65W</td>
-                <td className="py-3 px-4">Боксовый кулер</td>
-              </tr>
-              <tr className="border-b border-purple-400/10">
-                <td className="py-3 px-4">Intel i7-13700K</td>
-                <td className="py-3 px-4 font-mono">125W (253W boost)</td>
-                <td className="py-3 px-4">Башенный кулер / AIO 240mm</td>
-              </tr>
-              <tr className="border-b border-purple-400/10">
-                <td className="py-3 px-4">Intel i9-13900K</td>
-                <td className="py-3 px-4 font-mono">125W (320W boost)</td>
-                <td className="py-3 px-4">AIO 360mm</td>
-              </tr>
-              <tr className="border-b border-purple-400/10">
-                <td className="py-3 px-4">RTX 4070</td>
-                <td className="py-3 px-4 font-mono">200W</td>
-                <td className="py-3 px-4">БП 650W+</td>
-              </tr>
-              <tr>
-                <td className="py-3 px-4">RTX 4090</td>
-                <td className="py-3 px-4 font-mono">450W</td>
-                <td className="py-3 px-4">БП 1000W+</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        {/* Warning */}
-        <div className="bg-red-500/10 border border-red-400/30 rounded-lg p-4">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-            <div>
-              <h4 className="text-red-300 font-semibold mb-1">Важно!</h4>
-              <p className="text-sm">
-                При выборе блока питания добавляйте запас 20-30% к суммарному TDP 
-                всех компонентов. Например, для системы с TDP 400W нужен БП 650-750W.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* PSU Calculator Example */}
-        <div className="bg-purple-950/30 border border-purple-400/20 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-purple-300 mb-4">
-            Пример расчета мощности БП
-          </h3>
-          <div className="space-y-3">
-            {[
-              { comp: "Intel i5-13400F", tdp: 65 },
-              { comp: "RTX 4070", tdp: 200 },
-              { comp: "Материнская плата", tdp: 50 },
-              { comp: "ОЗУ (2 планки)", tdp: 10 },
-              { comp: "SSD + HDD", tdp: 15 },
-              { comp: "Вентиляторы", tdp: 10 },
-            ].map((item) => (
-              <div key={item.comp} className="flex justify-between text-sm">
-                <span className="text-purple-200">{item.comp}</span>
-                <span className="text-purple-300 font-mono">{item.tdp}W</span>
-              </div>
-            ))}
-            <div className="border-t border-purple-400/20 pt-3 mt-3">
-              <div className="flex justify-between font-semibold">
-                <span className="text-purple-200">Итого:</span>
-                <span className="text-purple-300">350W</span>
-              </div>
-              <div className="flex justify-between text-green-400 mt-2">
-                <span>Рекомендуемый БП (с запасом 30%):</span>
-                <span className="font-mono font-bold">650W</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </motion.div>
-);
 
 export default KnowledgeBase;
