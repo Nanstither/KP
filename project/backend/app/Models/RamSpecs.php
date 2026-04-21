@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class RamSpecs extends Model
 {
-    protected $table = 'ram_scecs';
+    protected $table = 'ram_specs';
     protected $primaryKey = 'component_id';
     public $incrementing = false;
 

@@ -49,7 +49,7 @@ class Components extends Model
         return $this->hasOne(RamSpecs::class, 'component_id');
     }
 
-    public function moboSpec(): HasOne
+    public function motherboardSpec(): HasOne
     {
         return $this->hasOne(MotherboardSpecs::class, 'component_id');
     }
@@ -84,5 +84,12 @@ class Components extends Model
     public function supportedFormFactors(): BelongsToMany
     {
         return $this->belongsToMany(FormFactors::class, 'case_form_factor', 'component_id', 'form_factor_id');
+    }
+
+    // Связь N:M: готовый пк ↔ тег (через pivot)
+    public function prebuiltPcs(): BelongsToMany
+    {
+        return $this->belongsToMany(PrebuiltPc::class, 'prebuilt_pc_component')
+                    ->withPivot('role');
     }
 }

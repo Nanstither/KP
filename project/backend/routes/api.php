@@ -1,10 +1,12 @@
 <?php
 
+use App\Models\PrebuiltPcComponent;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\ProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ComponentController;
+use App\Http\Controllers\Api\PrebuiltPcController;
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -18,6 +20,9 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/components', [ComponentController::class, 'index']);
 Route::get('/components/{id}', [ComponentController::class, 'show']);
+
+Route::get('/prebuilt-pcs', [PrebuiltPcController::class, 'index']);
+Route::get('/prebuilt-pcs/{slug}', [PrebuiltPcController::class, 'show']);
 
 // Защищённые роуты
 Route::middleware('auth:sanctum')->group(function () {

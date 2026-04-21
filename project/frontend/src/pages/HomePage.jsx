@@ -4,7 +4,8 @@ import { Monitor, Cpu, Zap, Sparkles, Menu, X } from "lucide-react";
 
 import Navigation from "@/components/Navigation";
 import PremiumPСHero from "@/components/PremiumPСHero";
-import ProductCard from "@/components/ProductCard";
+// import ProductCard from "@/components/ProductCard";
+import PrebuiltPcCard from "@/components/PrebuiltPcCard";
 
 const API_URL = "http://localhost:8000/api";
 
@@ -15,34 +16,32 @@ function HomePage() {
   const [cart, setCart] = useState([]);
 
   useEffect(() => {
-    fetch(`${API_URL}/components`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Ошибка сети");
-        return res.json();
-      })
-      .then((data) => {
-        // Laravel отдаёт плоскую структуру, а ProductCard ждёт specs: { cpu, gpu... }
-        const formatted = data.map((p) => ({
-          id: p.id,
-          name: p.name,
-          price: p.price,
-          image: p.image,
-          inStock: p.in_stock, // Laravel snake_case → React camelCase
-          specs: {
-            cpu: p.cpu,
-            gpu: p.gpu,
-            ram: p.ram,
-            ssd: p.ssd,
-          },
-        }));
-        setProducts(formatted);
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        console.error("Ошибка загрузки товаров:", err);
-        setIsLoading(false);
-      });
-  }, []);
+  // Загружаем готовые ПК вместо компонентов
+  fetch(`${API_URL}/prebuilt-pcs?with=components,tags`)
+    .then((res) => {
+      if (!res.ok) throw new Error("Ошибка сети");
+      return res.json();
+    })
+    .then((data) => {
+      // Laravel возвращает вложенные данные, приводим к нужному формату
+      const formatted = data.map((pc) => ({
+        id: pc.id,
+        name: pc.name,
+        price: pc.price,
+        image: pc.image,
+        description: pc.description,
+        tags: pc.tags || [],
+        // Компоненты уже сгруппированы по ролям благодаря pivot
+        components: pc.components || [],
+      }));
+      setProducts(formatted);
+      setIsLoading(false);
+    })
+    .catch((err) => {
+      console.error("Ошибка загрузки ПК:", err);
+      setIsLoading(false);
+    });
+}, []);
 
   const handleAddToCart = (productId) => {
     setCart((prev) => [...prev, productId]);
@@ -64,11 +63,11 @@ function HomePage() {
         {isLoading ? (
           <div className="text-center text-purple-300 animate-pulse py-12">Загрузка товаров...</div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
+          <div className="w-[1440px] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {products.map((pc) => (
+              <PrebuiltPcCard
+                key={pc.id}
+                pc={pc}
                 onAddToCart={handleAddToCart}
               />
             ))}
