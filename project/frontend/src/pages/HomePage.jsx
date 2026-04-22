@@ -63,7 +63,7 @@ function HomePage() {
         {isLoading ? (
           <div className="text-center text-purple-300 animate-pulse py-12">Загрузка товаров...</div>
         ) : (
-          <div className="w-[1440px] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {products.map((pc) => (
               <PrebuiltPcCard
                 key={pc.id}

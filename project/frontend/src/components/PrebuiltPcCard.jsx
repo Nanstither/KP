@@ -215,16 +215,16 @@ export default function PrebuiltPcCard({ pc, onAddToCart }) {
 
   return (
     <>
-      <article className="group bg-[#0f0f10]/80 border border-purple-400/20 rounded-2xl overflow-hidden 
+      <article className="group bg-[#0f0f10] border border-purple-400/20 rounded-2xl overflow-hidden 
                          hover:border-purple-400/40 hover:shadow-lg hover:shadow-purple-500/10 
                          transition-all duration-300">
         
         {/* Изображение + теги */}
-        <div className="relative aspect-video overflow-hidden bg-slate-800">
+        <div className="relative aspect-video overflow-hidden bg-[#0f0f10]">
           <img 
             src={pc.image || '/placeholder-pc.jpg'} 
             alt={pc.name} 
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="h-full mx-auto object-cover group-hover:scale-110 transition-transform duration-500"
             loading="lazy"
           />
           
