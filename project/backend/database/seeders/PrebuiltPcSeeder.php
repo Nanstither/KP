@@ -50,7 +50,7 @@ class PrebuiltPcSeeder extends Seeder
                 'slug' => 'gaming-starter',
                 'description' => 'Идеальный вход в мир ПК-гейминга. Тянет все современные игры на высоких настройках в 1080p.',
                 'price' => 89990.00,
-                'image' => 'pc_gaming_starter.jpg',
+                'image' => '/store/pngwing.com.png',
                 'is_active' => true,
                 'tags' => ['gaming', 'budget', 'best-value'],
                 'components' => [
@@ -69,7 +69,7 @@ class PrebuiltPcSeeder extends Seeder
                 'slug' => 'work-pro',
                 'description' => 'Мощная рабочая станция для монтажа, 3D-рендеринга и программирования.',
                 'price' => 125000.00,
-                'image' => 'pc_work_pro.jpg',
+                'image' => 'store/pngwing.com (1).png',
                 'is_active' => true,
                 'tags' => ['work', 'flagship'],
                 'components' => [
@@ -86,7 +86,7 @@ class PrebuiltPcSeeder extends Seeder
             [
                 'name' => 'Seasonal RGB',
                 'slug' => 'seasonal-rgb',
-                'image' => 'pc_seasonal.jpg',
+                'image' => 'store/pngwing.com (2).png',
                 'description' => 'Яркая сборка с подсветкой — идеальный подарок или акцент в интерьере.',
                 'price' => 95000.00,
                 'is_active' => true,
