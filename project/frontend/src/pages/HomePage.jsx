@@ -51,7 +51,7 @@ function HomePage() {
   return (
     <div className="w-full min-h-screen">
       <PremiumPСHero />
-      <div className="min-h-screen bg-[#0f0f10]/90 flex items-center justify-center flex-col gap-8">
+      <div className="min-h-screen dark:bg-[#101019] flex items-center justify-center flex-col gap-8">
         <div className="text-center space-y-4 px-6">
           <h2 className="text-4xl font-bold text-white">
             Продолжайте своё путешествие

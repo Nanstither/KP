@@ -27,6 +27,13 @@ class ComponentController extends Controller
 
     public function show($id)
     {
-        return Components::with(['category', 'brand'])->findOrFail($id);
+        $component = Components::with([
+            'brand', 'category',
+            'cpuSpec', 'gpuSpec', 'ramSpec', 'motherboardSpec', 'psuSpec', 'storageSpec', 'coolerSpec', 'caseSpec',
+            'compatibleSockets:id,name', 
+            'supportedFormFactors:id,name'
+        ])->findOrFail($id);
+
+        return response()->json($component);
     }
 }

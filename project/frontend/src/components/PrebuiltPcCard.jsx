@@ -1,124 +1,131 @@
-// src/components/PrebuiltPcCard.jsx
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "react-router-dom";
 import { 
   Cpu, Monitor, Zap, HardDrive, Thermometer, 
-  ChevronDown, ChevronUp, ShoppingCart, X 
+  ChevronDown, X, ShoppingCart, Check, Info 
 } from "lucide-react";
 
-// Иконки для разных типов компонентов
-const ComponentIcon = {
-  cpu: Cpu,
-  gpu: Monitor,
-  ram: Zap,
-  storage: HardDrive,
-  psu: Thermometer,
-  motherboard: Cpu,
-  cooler: Thermometer,
-  case: HardDrive,
+// Иконки и подписи ролей
+const ROLE_CONFIG = {
+  cpu: { icon: Cpu, label: "Процессор" },
+  gpu: { icon: Monitor, label: "Видеокарта" },
+  ram: { icon: Zap, label: "ОЗУ" },
+  motherboard: { icon: HardDrive, label: "Мат. плата" },
+  storage: { icon: HardDrive, label: "Накопитель" },
+  psu: { icon: Thermometer, label: "Блок питания" },
+  cooler: { icon: Thermometer, label: "Охлаждение" },
+  case: { icon: HardDrive, label: "Корпус" },
 };
 
-// Краткое отображение компонента (для главной карточки)
-const CompactComponent = ({ component, role }) => {
-  const Icon = ComponentIcon[role] || Cpu;
-  return (
-    <div className="flex items-center gap-2 text-xs text-purple-200/70">
-      <Icon className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />
-      <span className="truncate">{component?.model || "Не выбран"}</span>
-    </div>
-  );
-};
+// Порядок отображения
+const COMPONENT_ORDER = ['cpu', 'gpu', 'ram', 'motherboard', 'storage', 'psu', 'cooler', 'case'];
 
-// Детали компонента (для модалки, раскрываются по клику)
-const ComponentDetails = ({ component, role }) => {
-  const [expanded, setExpanded] = useState(false);
-  const Icon = ComponentIcon[role] || Cpu;
-
-  // Формируем список характеристик в зависимости от типа
-  const getSpecs = () => {
-    if (!component?.specs) return [];
-    const specs = component.specs;
-    
-    switch (role) {
-      case 'cpu':
-        return [
-          specs.socket && `Сокет: ${specs.socket}`,
-          specs.cores && `${specs.cores} ядер / ${specs.threads} потоков`,
-          specs.base_clock_mhz && `Частота: ${specs.base_clock_mhz} МГц`,
-          specs.tdp_watts && `TDP: ${specs.tdp_watts}W`,
-        ].filter(Boolean);
-      case 'gpu':
-        return [
-          specs.vram_gb && `VRAM: ${specs.vram_gb}GB ${specs.vram_type || ''}`,
-          specs.memory_bus_bit && `Шина: ${specs.memory_bus_bit} бит`,
-          specs.tdp_watts && `TDP: ${specs.tdp_watts}W`,
-          specs.length_mm && `Длина: ${specs.length_mm}мм`,
-        ].filter(Boolean);
-      case 'ram':
-        return [
-          specs.total_capacity_gb && `Объём: ${specs.total_capacity_gb}GB`,
-          specs.speed_mhz && `Частота: ${specs.speed_mhz}МГц`,
-          specs.type && `Тип: ${specs.type}`,
-          specs.latency_cl && `Тайминги: CL${specs.latency_cl}`,
-        ].filter(Boolean);
-      case 'storage':
-        return [
-          specs.type && `Тип: ${specs.type.toUpperCase()}`,
-          specs.capacity_gb && `Объём: ${specs.capacity_gb}GB`,
-          specs.read_speed_mbps && `Чтение: ${specs.read_speed_mbps} МБ/с`,
-        ].filter(Boolean);
-      case 'psu':
-        return [
-          specs.wattage && `Мощность: ${specs.wattage}W`,
-          specs.efficiency && `Сертификат: ${specs.efficiency}`,
-          specs.modularity && `Модульность: ${specs.modularity}`,
-        ].filter(Boolean);
-      default:
-        return [];
-    }
+// Преобразование specs в красивые пары label/value
+const formatSpecs = (specs, role) => {
+  if (!specs) return [];
+  const map = {
+    cpu: [
+      { k: 'socket', l: 'Сокет' }, { k: 'cores', l: 'Ядра' }, { k: 'threads', l: 'Потоки' },
+      { k: 'base_clock_mhz', l: 'Баз. частота', fmt: v => `${v} МГц` }, { k: 'tdp_watts', l: 'TDP', fmt: v => `${v}W` }
+    ],
+    gpu: [
+      { k: 'vram_gb', l: 'VRAM', fmt: v => `${v} GB` }, { k: 'vram_type', l: 'Тип памяти' },
+      { k: 'memory_bus_bit', l: 'Шина', fmt: v => `${v} бит` }, { k: 'tdp_watts', l: 'TDP', fmt: v => `${v}W` }
+    ],
+    ram: [
+      { k: 'total_capacity_gb', l: 'Объём', fmt: v => `${v} GB` }, { k: 'speed_mhz', l: 'Частота', fmt: v => `${v} МГц` },
+      { k: 'type', l: 'Тип' }, { k: 'latency_cl', l: 'Тайминги', fmt: v => `CL${v}` }
+    ],
+    storage: [
+      { k: 'type', l: 'Тип' }, { k: 'capacity_gb', l: 'Объём', fmt: v => `${v} GB` },
+      { k: 'read_speed_mbps', l: 'Чтение', fmt: v => `${v} МБ/с` }, { k: 'write_speed_mbps', l: 'Запись', fmt: v => `${v} МБ/с` }
+    ],
+    psu: [
+      { k: 'wattage', l: 'Мощность', fmt: v => `${v}W` }, { k: 'efficiency', l: 'Сертификат' },
+      { k: 'modularity', l: 'Модульность' }
+    ],
+    motherboard: [
+      { k: 'chipset', l: 'Чипсет' }, 
+      { k: 'ram_type', l: 'Тип ОЗУ' },
+      { k: 'form_factor', l: 'Форм-фактор' }, 
+      { k: 'm2_slots', l: 'Слоты M.2' }
+    ],
+    cooler: [
+      { k: 'tdp_rating_watts', l: 'Рассеивание', fmt: v => `${v}W` }, 
+      { k: 'type', l: 'Тип' },
+      { k: 'fan_count', l: 'Вентиляторы' }
+    ],
+    case: [
+      { k: 'case_type', l: 'Форм-фактор' }, 
+      { k: 'material', l: 'Материал' },
+      { k: 'fans_included', l: 'Вент. в комплекте' }
+    ]
   };
 
-  const specs = getSpecs();
+  return (map[role] || [])
+    .filter(item => specs[item.k] !== undefined && specs[item.k] !== null)
+    .map(item => ({
+      label: item.l,
+      value: item.fmt ? item.fmt(specs[item.k]) : specs[item.k]
+    }));
+};
+
+// Блок компонента в модалке (аккордеон)
+const ComponentBlock = ({ role, data, isExpanded, onToggle }) => {
+  const { icon: Icon, label } = ROLE_CONFIG[role] || { icon: Info, label: role };
+  const specs = formatSpecs(data.specs, role);
 
   return (
-    <div className="border-b border-purple-400/10 last:border-0">
+    <div className="border border-white/10 rounded-xl overflow-hidden bg-[#0f0f10]/80 backdrop-blur-sm">
       <button
-        onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between py-3 px-2 hover:bg-purple-500/5 rounded-lg transition-colors"
+        onClick={onToggle}
+        className="w-full flex items-center justify-between p-4 hover:bg-white/5 transition-colors text-left"
       >
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
-            <Icon className="w-4 h-4 text-purple-400" />
+          <div className="p-2 rounded-lg bg-purple-500/10 text-purple-400">
+            <Icon className="w-5 h-5" />
           </div>
-          <div className="text-left">
-            <p className="text-sm font-medium text-purple-200">{component?.model}</p>
-            <p className="text-xs text-purple-300/50">{component?.brand?.name}</p>
+          <div>
+            <p className="text-sm text-gray-400 font-medium">{label}</p>
+            <p className="text-white font-semibold tracking-wide">{data.model}</p>
           </div>
         </div>
-        {expanded ? (
-          <ChevronUp className="w-4 h-4 text-purple-400" />
-        ) : (
-          <ChevronDown className="w-4 h-4 text-purple-400" />
-        )}
+        {/* Кнопка "Подробнее" */}
+        <Link
+          to={`/components/${data.id}`}
+          onClick={(e) => {
+            e.stopPropagation(); // Чтобы не срабатывал аккордеон при клике на ссылку
+            setIsModalOpen(false); // Закрыть модалку при переходе
+          }}
+          className="ml-auto mr-2 px-2.5 py-1 text-[11px] font-medium text-purple-300 
+                    rounded-md hover:bg-purple-500/10 
+                    hover:text-white transition-all"
+        >
+        <Info/>
+        </Link>
+        <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
+          <ChevronDown className="w-5 h-5 text-gray-500" />
+        </motion.div>
       </button>
 
       <AnimatePresence>
-        {expanded && specs.length > 0 && (
+        {isExpanded && specs.length > 0 && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
             className="overflow-hidden"
           >
-            <ul className="px-11 pb-3 space-y-1 text-xs text-purple-300/60">
-              {specs.map((spec, i) => (
-                <li key={i} className="flex items-center gap-2">
-                  <span className="w-1 h-1 bg-purple-400 rounded-full" />
-                  {spec}
-                </li>
+            <div className="px-4 pb-4 pt-2 grid grid-cols-2 gap-3">
+              {specs.map((s, i) => (
+                <div key={i} className="flex flex-col gap-1 p-2.5 rounded-lg bg-white/[0.03] border border-white/5">
+                  <span className="text-[11px] uppercase tracking-wider text-gray-500 font-medium">{s.label}</span>
+                  <span className="text-sm text-gray-200 font-mono">{s.value}</span>
+                </div>
               ))}
-            </ul>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -126,117 +133,51 @@ const ComponentDetails = ({ component, role }) => {
   );
 };
 
-// Модальное окно "Все характеристики"
-const SpecsModal = ({ isOpen, onClose, components }) => {
-  // Порядок отображения компонентов
-  const order = ['cpu', 'gpu', 'ram', 'motherboard', 'storage', 'psu', 'cooler', 'case'];
-  
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Затемнение фона */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
-          />
-          
-          {/* Модалка */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
-                       w-[95%] max-w-md max-h-[80vh] overflow-hidden
-                       bg-[#0f0f10] border border-purple-400/20 rounded-2xl z-50 shadow-2xl"
-          >
-            {/* Заголовок */}
-            <div className="flex items-center justify-between p-4 border-b border-purple-400/10">
-              <h3 className="text-lg font-semibold text-purple-200">Все характеристики</h3>
-              <button 
-                onClick={onClose}
-                className="p-1.5 hover:bg-purple-500/10 rounded-lg transition-colors"
-              >
-                <X className="w-5 h-5 text-purple-300" />
-              </button>
-            </div>
-            
-            {/* Список компонентов */}
-            <div className="p-2 overflow-y-auto max-h-[60vh]">
-              {order.map((role) => {
-                const component = components[role];
-                if (!component) return null;
-                return (
-                  <ComponentDetails 
-                    key={role} 
-                    component={component} 
-                    role={role} 
-                  />
-                );
-              })}
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
-  );
-};
-
 // Основная карточка
 export default function PrebuiltPcCard({ pc, onAddToCart }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [expandedRole, setExpandedRole] = useState(null);
   const [isAdded, setIsAdded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Преобразуем массив компонентов в объект по ролям
-//   const componentsByRole = pc.components?.reduce((acc, item) => {
-//     acc[item.pivot?.role || item.role] = item;
-//     return acc;
-//   }, {}) || {};
-  const componentsByRole = pc.components || {};
+  // Данные уже приходят объектом по ролям благодаря контроллеру
+  const components = pc.components || {};
 
   const handleAddToCart = async () => {
     if (isAdded || isLoading) return;
     setIsLoading(true);
-    
-    // Имитация запроса
-    await new Promise(res => setTimeout(res, 500));
-    
-    if (onAddToCart) onAddToCart(pc.id);
+    await new Promise(res => setTimeout(res, 400));
+    if (onAddToCart) onAddToCart(pc);
     setIsAdded(true);
     setIsLoading(false);
-    
-    // Сброс через 2 секунды (для демо)
     setTimeout(() => setIsAdded(false), 2000);
   };
 
+  const toggleExpand = (role) => setExpandedRole(prev => prev === role ? null : role);
+
   return (
     <>
-      <article className="group bg-[#0f0f10] border border-purple-400/20 rounded-2xl overflow-hidden 
-                         hover:border-purple-400/40 hover:shadow-lg hover:shadow-purple-500/10 
-                         transition-all duration-300">
+      {/* Карточка */}
+      <article className="group relative bg-[#0f0f10] border border-white/10 rounded-2xl overflow-hidden 
+                          hover:border-purple-500/30 hover:shadow-[0_0_40px_rgba(168,85,247,0.08)] 
+                          transition-all duration-300">
         
-        {/* Изображение + теги */}
-        <div className="relative aspect-video overflow-hidden bg-[#0f0f10]">
+        {/* Изображение */}
+        <div className="relative aspect-[4/3] overflow-hidden bg-[#0a0a0c]">
           <img 
             src={pc.image || '/placeholder-pc.jpg'} 
             alt={pc.name} 
-            className="h-full mx-auto object-cover group-hover:scale-110 transition-transform duration-500"
+            className="mx-auto scale-90 h-full object-center object-cover opacity-90 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500"
             loading="lazy"
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f10] via-transparent to-transparent" />
           
-          {/* Теги поверх изображения */}
+          {/* Теги */}
           {pc.tags?.length > 0 && (
             <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
-              {pc.tags.slice(0, 2).map((tag) => (
-                <span 
-                  key={tag.id}
-                  className="px-2 py-0.5 text-[10px] font-medium rounded-full 
-                             bg-purple-500/20 text-purple-300 border border-purple-400/30"
-                >
+              {pc.tags.slice(0, 2).map(tag => (
+                <span key={tag.slug} className="px-2 py-0.5 text-[10px] font-medium rounded-md 
+                                               bg-black/40 backdrop-blur-md text-gray-300 border border-white/10">
                   {tag.name}
                 </span>
               ))}
@@ -245,68 +186,111 @@ export default function PrebuiltPcCard({ pc, onAddToCart }) {
         </div>
 
         {/* Контент */}
-        <div className="p-5 space-y-4">
-          
-          {/* Название и цена */}
-          <div>
-            <h3 className="text-lg font-bold text-white mb-1 line-clamp-1">{pc.name}</h3>
-            <p className="text-xl font-semibold bg-gradient-to-r from-purple-300 to-pink-300 
-                         bg-clip-text text-transparent">
-              {pc.price?.toLocaleString('ru-RU')} ₽
+        <div className="p-5 space-y-5">
+          {/* Заголовок и цена */}
+          <div className="space-y-1">
+            <h3 className="text-lg font-bold text-white tracking-tight line-clamp-1">{pc.name}</h3>
+            <p className="text-2xl font-semibold bg-gradient-to-r from-purple-300 via-pink-300 to-purple-400 bg-clip-text text-transparent">
+              {Number(pc.price).toLocaleString('ru-RU')} ₽
             </p>
           </div>
 
-          {/* 3 ключевых компонента */}
-          <div className="space-y-2">
-            <CompactComponent component={componentsByRole.cpu} role="cpu" />
-            <CompactComponent component={componentsByRole.gpu} role="gpu" />
-            <CompactComponent component={componentsByRole.ram} role="ram" />
+          {/* Быстрые характеристики (чипы) */}
+          <div className="grid grid-cols-3 gap-2">
+            {['cpu', 'gpu', 'ram'].map(role => {
+              const data = components[role];
+              const { icon: Icon } = ROLE_CONFIG[role];
+              return (
+                <div key={role} className="flex flex-col items-center justify-center p-2.5 rounded-xl 
+                                          bg-white/[0.03] border border-white/5 text-center">
+                  <Icon className="w-4 h-4 text-purple-400 mb-1.5" />
+                  <span className="text-[11px] text-gray-400 leading-tight line-clamp-2 font-mono">
+                    {data?.model || '—'}
+                  </span>
+                </div>
+              );
+            })}
           </div>
 
-          {/* Кнопка "Все характеристики" */}
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="w-full py-2 text-sm text-purple-300 hover:text-purple-200 
-                       border border-purple-400/30 rounded-lg hover:bg-purple-500/10 
-                       transition-all duration-200"
-          >
-            Все характеристики →
-          </button>
-
-          {/* Кнопка "В корзину" */}
-          <button
-            onClick={handleAddToCart}
-            disabled={isLoading}
-            className={`w-full py-3 rounded-xl font-medium transition-all duration-200 
-                       flex items-center justify-center gap-2 ${
-              isAdded
-                ? "bg-green-500/20 text-green-300 border border-green-500/30"
-                : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-md hover:shadow-purple-500/25"
-            }`}
-          >
-            {isLoading ? (
-              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-              </svg>
-            ) : isAdded ? (
-              <>✓ В корзине</>
-            ) : (
-              <>
-                <ShoppingCart className="w-4 h-4" />
-                В корзину
-              </>
-            )}
-          </button>
+          {/* Кнопки */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="flex-1 py-2.5 text-sm font-medium text-gray-300 border border-white/10 rounded-xl 
+                         hover:bg-white/5 hover:text-white transition-all duration-200"
+            >
+              Характеристики
+            </button>
+            <button
+              onClick={handleAddToCart}
+              disabled={isLoading}
+              className={`flex-1 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 flex items-center justify-center gap-2
+                         ${isAdded 
+                           ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
+                           : 'bg-purple-600 hover:bg-purple-500 text-white shadow-[0_0_20px_rgba(147,51,234,0.3)] hover:shadow-purple-500/20'}`}
+            >
+              {isLoading ? (
+                <span className="animate-spin w-4 h-4 border-2 border-white/30 border-t-white rounded-full" />
+              ) : isAdded ? (
+                <> <Check className="w-4 h-4" /> Готово </>
+              ) : (
+                <> <ShoppingCart className="w-4 h-4" /> В корзину </>
+              )}
+            </button>
+          </div>
         </div>
       </article>
 
       {/* Модальное окно */}
-      <SpecsModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        components={componentsByRole} 
-      />
+      <AnimatePresence>
+        {isModalOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsModalOpen(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 20 }}
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
+                         w-[95%] max-w-lg max-h-[85vh] overflow-hidden
+                         bg-[#0f0f10] border border-white/10 rounded-2xl z-50 shadow-2xl"
+            >
+              {/* Шапка модалки */}
+              <div className="flex items-center justify-between p-5 border-b border-white/10">
+                <div>
+                  <h3 className="text-lg font-semibold text-white">{pc.name}</h3>
+                  <p className="text-sm text-gray-500">Полная конфигурация сборки</p>
+                </div>
+                <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+                  <X className="w-5 h-5 text-gray-400" />
+                </button>
+              </div>
+
+              {/* Список компонентов */}
+              <div className="p-4 space-y-3 overflow-y-auto max-h-[65vh] [scrollbar-gutter:stable]">
+                {COMPONENT_ORDER.map(role => {
+                  const data = components[role];
+                  if (!data) return null;
+                  return (
+                    <ComponentBlock
+                      key={role}
+                      role={role}
+                      data={data}
+                      isExpanded={expandedRole === role}
+                      onToggle={() => toggleExpand(role)}
+                    />
+                  );
+                })}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 }
