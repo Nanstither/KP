@@ -17,6 +17,7 @@ const Navigation = () => {
     { name: "О нас", to: "/about" },
     { name: "Конфигуратор", to: "/config" },
     { name: "База знаний", to: "/knowledge" },
+    { name: "Корзина", to: "/cart" },
     // { name: "Вход", to: "/login" },
     ...(user 
       ? [{ name: "Выход", to: "#", action: logout, isLogout: true }] 

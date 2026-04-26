@@ -2,8 +2,9 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Check, X, Cpu, Monitor, Zap, HardDrive, Thermometer, Info } from "lucide-react";
+import { STORAGE_URL, API_URL } from "@/lib/config";
 
-const API_URL = "http://localhost:8000/api";
+// const API_URL = "http://localhost:8000/api";
 
 export default function ComponentDetailPage() {
   const { id } = useParams();
@@ -59,7 +60,7 @@ export default function ComponentDetailPage() {
   const formattedSpecs = formatSpecs();
 
   return (
-    <div className="min-h-screen bg-[#101019] text-gray-200">
+    <div className="min-h-screen pt-20 bg-[#101019] text-gray-200">
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         {/* Навигация назад */}
         <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors">
@@ -70,7 +71,7 @@ export default function ComponentDetailPage() {
           {/* Левая колонка: Фото + Цена */}
           <div className="space-y-4">
             <div className="aspect-square rounded-2xl overflow-hidden border border-white/10 bg-[#0a0a0c]">
-              <img src={data.image || '/placeholder.jpg'} alt={data.model} className="w-full h-full object-cover" />
+              <img src={`${STORAGE_URL}/${data.image}`} alt={data.model} onError={(e) => {e.target.onerror = null; e.target.src = '/placeholder-pc.png';}} className="w-full h-full object-cover" />
             </div>
             <div className="flex items-end justify-between">
               <div>

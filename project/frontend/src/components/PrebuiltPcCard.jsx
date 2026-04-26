@@ -5,6 +5,7 @@ import {
   Cpu, Monitor, Zap, HardDrive, Thermometer, 
   ChevronDown, X, ShoppingCart, Check, Info 
 } from "lucide-react";
+import { STORAGE_URL, API_URL } from "@/lib/config";
 
 // Иконки и подписи ролей
 const ROLE_CONFIG = {
@@ -165,8 +166,9 @@ export default function PrebuiltPcCard({ pc, onAddToCart }) {
         {/* Изображение */}
         <div className="relative aspect-[4/3] overflow-hidden bg-[#0a0a0c]">
           <img 
-            src={pc.image || '/placeholder-pc.jpg'} 
+            src={`${STORAGE_URL}/${pc.image}`} 
             alt={pc.name} 
+            onError={(e) => {e.target.onerror = null; e.target.src = '/placeholder-pc.png';}}
             className="mx-auto scale-90 h-full object-center object-cover opacity-90 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500"
             loading="lazy"
           />
