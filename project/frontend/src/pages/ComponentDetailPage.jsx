@@ -29,7 +29,7 @@ export default function ComponentDetailPage() {
     if (data.cpu_spec) return { label: "Процессор", icon: Cpu, specs: data.cpu_spec };
     if (data.gpu_spec) return { label: "Видеокарта", icon: Monitor, specs: data.gpu_spec };
     if (data.ram_spec) return { label: "ОЗУ", icon: Zap, specs: data.ram_spec };
-    if (data.mobo_spec) return { label: "Мат. плата", icon: Cpu, specs: data.mobo_spec };
+    if (data.motherboard_spec) return { label: "Мат. плата", icon: Cpu, specs: data.motherboard_spec };
     if (data.psu_spec) return { label: "Блок питания", icon: Thermometer, specs: data.psu_spec };
     if (data.storage_spec) return { label: "Накопитель", icon: HardDrive, specs: data.storage_spec };
     if (data.cooler_spec) return { label: "Охлаждение", icon: Thermometer, specs: data.cooler_spec };

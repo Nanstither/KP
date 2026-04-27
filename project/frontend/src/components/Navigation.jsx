@@ -57,12 +57,13 @@ const Navigation = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="flex items-center gap-2"
             >
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                <Monitor className="w-6 h-6 text-white" />
+              {/* <div className="w-auto h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                <Monitor className="w-6 h-6 text-white" />                
               </div>
               <span className="ml-2 text-xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
                   TECH LAB
-              </span>
+              </span> */}
+              <img src="/logo.svg" alt="TechLab" className="transition h-20 w-auto [mask-image:linear-gradient(to_bottom,white_50%,transparent_100%)] hover:scale-[0.95]"/>
             </motion.div>
           </Link>
           
