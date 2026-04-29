@@ -38,5 +38,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Менеджер + Админ
     Route::middleware('role:manager')->group(function () {
         Route::get('/manager/orders', fn() => response()->json(['msg' => 'Manager panel']));
+        
+        // ✅ Обновление и удаление компонентов
+        Route::patch('admin/components/{component}', [ComponentController::class, 'update']);
+        Route::delete('admin/components/{component}', [ComponentController::class, 'destroy']);
     });
 });

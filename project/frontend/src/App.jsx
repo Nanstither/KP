@@ -9,6 +9,7 @@ import LoginPage from '@/pages/LoginPage';
 import AdminPanel from '@/pages/admin/AdminPanel';
 import KnowledgeBase from '@/pages/KnowledgeBase';
 import ComponentDetailPage from '@/pages/ComponentDetailPage';
+import ComponentEdit from '@/pages/admin/ComponentEdit';
 import '@/App.css';
 
 // Компонент для защиты роутов
@@ -53,6 +54,7 @@ export default function App() {
             element={
               <ProtectedRoute allowedRoles={['admin', 'manager']}>
                 <AdminPanel />
+                <Route path="/admin/components/:id/edit" element={<ComponentEdit />} />
               </ProtectedRoute>
             } 
           />

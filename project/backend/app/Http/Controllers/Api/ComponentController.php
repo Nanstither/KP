@@ -36,4 +36,28 @@ class ComponentController extends Controller
 
         return response()->json($component);
     }
+
+    // Обновление в таблице админ-панели
+    public function update(Request $request, Components $component) {
+        $validated = $request->validate([
+            'price' => 'required|numeric|min:0',
+            'stock' => 'required|integer|min:0',
+        ]);
+        $component->update($validated);
+        return response()->json($component);
+    }
+
+    public function destroy(Components $component)
+    {
+        try {
+            // Благодаря cascadeOnDelete() в миграциях, 
+            // связанные записи удалятся автоматически
+            $component->delete();
+            
+            return response()->json(['message' => 'Компонент удалён'], 200);
+        } catch (\Exception $e) {
+            \Log::error('Delete error: ' . $e->getMessage());
+            return response()->json(['message' => 'Ошибка удаления'], 500);
+        }
+    }
 }
