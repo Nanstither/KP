@@ -19,7 +19,7 @@ class PrebuiltPc extends Model
     // Связь с компонентами. withPivot('role') позволит узнать, CPU это или GPU
     public function components(): BelongsToMany
     {
-        return $this->belongsToMany(Components::class, 'prebuilt_pc_component', 'prebuilt_pc_id', 'component_id')
+        return $this->belongsToMany(Component::class, 'prebuilt_pc_component', 'prebuilt_pc_id', 'component_id')
                     // ->using(PrebuiltPcComponent::class)
                     ->withPivot('role');
     }

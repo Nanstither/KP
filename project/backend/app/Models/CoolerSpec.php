@@ -4,26 +4,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class StorageSpecs extends Model
+class CoolerSpec extends Model
 {
-    protected $table = 'storage_specs';
+    protected $table = 'cooler_specs';
     protected $primaryKey = 'component_id';
     public $incrementing = false;
 
     protected $fillable = [
-        'component_id', 'type', 'capacity_gb',
-        'read_speed_mbps', 'write_speed_mbps', 'form_factor',
+        'component_id', 'tdp_rating_watts', 'type', 'fan_count',
     ];
 
     protected $casts = [
         'component_id' => 'integer',
-        'capacity_gb' => 'integer',
-        'read_speed_mbps' => 'integer',
-        'write_speed_mbps' => 'integer',
+        'tdp_rating_watts' => 'integer',
+        'fan_count' => 'integer',
     ];
 
     public function component(): BelongsTo
     {
-        return $this->belongsTo(Components::class, 'component_id');
+        return $this->belongsTo(Component::class, 'component_id');
     }
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import api from '@/services/api';
 import {
   Cpu, Monitor, Zap, Package, Settings, Users, LogOut, Plus,
@@ -336,6 +337,7 @@ function WarehouseChart({ components }) {
 // ==========================================
 
 function ComponentsTab({ components, setComponents, loading, search, setSearch, categoryFilter, setCategoryFilter, stockFilter, setStockFilter, page, setPage, perPage, setPerPage }) {
+  const navigate = useNavigate();
   const [editingId, setEditingId] = useState(null);
   const [editValues, setEditValues] = useState({ price: 0, stock: 0 });
   const [saving, setSaving] = useState(false);
@@ -450,7 +452,14 @@ function ComponentsTab({ components, setComponents, loading, search, setSearch, 
                 return (
                   <tr key={c.id} className={`hover:bg-white/[0.02] transition-colors ${isEditing ? 'bg-purple-500/5' : ''}`}>
                     <td className="px-4 py-3 text-gray-500">#{c.id}</td>
-                    <td className="px-4 py-3 font-medium text-gray-200">{c.model}</td>
+                    <td className="px-4 py-3">
+                    <button 
+                      onClick={() => navigate(`/admin/components/${c.id}/edit`)}
+                      className="cursor-pointer text-purple-400 hover:text-purple-300 font-medium transition-colors"
+                    >
+                      {c.model}
+                    </button>
+                  </td>
                     <td className="px-4 py-3 text-gray-400">{c.category?.name || '—'}</td>
                     
                     {/* ЦЕНА */}

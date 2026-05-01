@@ -4,7 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class MotherboardSpecs extends Model
+class MotherboardSpec extends Model
 {
     protected $table = 'motherboard_specs';
     protected $primaryKey = 'component_id';
@@ -27,11 +27,16 @@ class MotherboardSpecs extends Model
 
     public function component(): BelongsTo
     {
-        return $this->belongsTo(Components::class, 'component_id');
+        return $this->belongsTo(Component::class, 'component_id');
     }
 
     public function socket(): BelongsTo
     {
         return $this->belongsTo(Socket::class);
+    }
+
+    public function formFactor(): BelongsTo
+    {
+        return $this->belongsTo(FormFactor::class, 'form_factor_id');
     }
 }

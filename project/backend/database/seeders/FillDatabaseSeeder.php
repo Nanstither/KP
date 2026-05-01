@@ -179,7 +179,7 @@ class FillDatabaseSeeder extends Seeder
 
             DB::table('cpu_specs')->insert([
                 'component_id' => $id,
-                'socket' => $cpu['socket'] == $sLGA1700 ? 'LGA1700' : ($cpu['socket'] == $sAM5 ? 'AM5' : 'AM4'),
+                'socket_id' => $cpu['socket'],
                 'cores' => $cpu['cores'],
                 'threads' => $cpu['threads'],
                 'base_clock_mhz' => $cpu['base'],

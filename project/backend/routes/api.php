@@ -42,5 +42,8 @@ Route::middleware('auth:sanctum')->group(function () {
         // ✅ Обновление и удаление компонентов
         Route::patch('admin/components/{component}', [ComponentController::class, 'update']);
         Route::delete('admin/components/{component}', [ComponentController::class, 'destroy']);
+
+        Route::get('admin/components/{component}/edit', [ComponentController::class, 'edit']);
+        Route::put('admin/components/{component}', [ComponentController::class, 'updateFull']);
     });
 });

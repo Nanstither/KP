@@ -54,10 +54,10 @@ export default function App() {
             element={
               <ProtectedRoute allowedRoles={['admin', 'manager']}>
                 <AdminPanel />
-                <Route path="/admin/components/:id/edit" element={<ComponentEdit />} />
               </ProtectedRoute>
             } 
           />
+          <Route path="/admin/components/:id/edit" element={<ComponentEdit />} />
           <Route path="*" element={<Navigate to="/"/>} />
         </Routes>
       </main>

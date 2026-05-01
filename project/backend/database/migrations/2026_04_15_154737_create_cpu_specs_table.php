@@ -10,7 +10,8 @@ return new class extends Migration
     {
         Schema::create('cpu_specs', function (Blueprint $table) {
             $table->foreignId('component_id')->primary()->constrained('components')->cascadeOnDelete();
-            $table->string('socket');
+            // $table->string('socket');
+            $table->foreignId('socket_id')->constrained('sockets')->cascadeOnDelete();
             $table->integer('cores');
             $table->integer('threads');
             $table->decimal('base_clock_mhz', 5, 1);

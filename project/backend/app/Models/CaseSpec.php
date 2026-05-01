@@ -4,7 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class CaseSpecs extends Model
+class CaseSpec extends Model
 {
     protected $table = 'case_specs';
     protected $primaryKey = 'component_id';
@@ -29,6 +29,6 @@ class CaseSpecs extends Model
 
     public function component(): BelongsTo
     {
-        return $this->belongsTo(Components::class, 'component_id');
+        return $this->belongsTo(Component::class, 'component_id');
     }
 }

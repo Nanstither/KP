@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Components extends Model
+class Component extends Model
 {
     protected $fillable = [
         'category_id',
@@ -30,48 +30,48 @@ class Components extends Model
 
     public function brand(): BelongsTo
     {
-        return $this->belongsTo(Brands::class);
+        return $this->belongsTo(Brand::class);
     }
 
     // Связи 1:1 со спецификациями (по типу компонента)
     public function cpuSpec(): HasOne
     {
-        return $this->hasOne(CpuSpecs::class, 'component_id');
+        return $this->hasOne(CpuSpec::class, 'component_id');
     }
 
     public function gpuSpec(): HasOne
     {
-        return $this->hasOne(GpuSpecs::class, 'component_id');
+        return $this->hasOne(GpuSpec::class, 'component_id');
     }
 
     public function ramSpec(): HasOne
     {
-        return $this->hasOne(RamSpecs::class, 'component_id');
+        return $this->hasOne(RamSpec::class, 'component_id');
     }
 
     public function motherboardSpec(): HasOne
     {
-        return $this->hasOne(MotherboardSpecs::class, 'component_id');
+        return $this->hasOne(MotherboardSpec::class, 'component_id');
     }
 
     public function psuSpec(): HasOne
     {
-        return $this->hasOne(PsuSpecs::class, 'component_id');
+        return $this->hasOne(PsuSpec::class, 'component_id');
     }
 
     public function storageSpec(): HasOne
     {
-        return $this->hasOne(StorageSpecs::class, 'component_id');
+        return $this->hasOne(StorageSpec::class, 'component_id');
     }
 
     public function coolerSpec(): HasOne
     {
-        return $this->hasOne(CoolerSpecs::class, 'component_id');
+        return $this->hasOne(CoolerSpec::class, 'component_id');
     }
 
     public function caseSpec(): HasOne
     {
-        return $this->hasOne(CaseSpecs::class, 'component_id');
+        return $this->hasOne(CaseSpec::class, 'component_id');
     }
 
     // Связь N:M: кулер ↔ сокеты (через pivot)
@@ -83,7 +83,7 @@ class Components extends Model
     // Связь N:M: корпус ↔ форм-факторы (через pivot)
     public function supportedFormFactors(): BelongsToMany
     {
-        return $this->belongsToMany(FormFactors::class, 'case_form_factor', 'component_id', 'form_factor_id');
+        return $this->belongsToMany(FormFactor::class, 'case_form_factor', 'component_id', 'form_factor_id');
     }
 
     // Связь N:M: готовый пк ↔ тег (через pivot)
