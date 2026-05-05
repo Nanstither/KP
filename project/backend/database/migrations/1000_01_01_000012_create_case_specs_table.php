@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('case_specs', function (Blueprint $table) {
             $table->foreignId('component_id')->primary()->constrained('components')->cascadeOnDelete();
             
-            $table->string('case_type'); // mid_tower, full_tower, mini_itx, open_frame
+            $table->foreignId('case_type_id')->constrained('case_types')->cascadeOnDelete(); // mid_tower, full_tower, mini_itx, open_frame
 
             $table->integer('top_fan_slots')->default(2); // сколько вентиляторов можно поставить сверху
             
@@ -25,7 +25,7 @@ return new class extends Migration
             $table->integer('front_usb_c')->default(0);
             $table->boolean('front_audio_jack')->default(true);
 
-            $table->string('material')->default('steel');
+            $table->foreignId('material_id')->constrained('materials')->cascadeOnDelete();
 
             $table->timestamps();
         });

@@ -11,7 +11,7 @@ class CpuSpec extends Model
     public $incrementing = false;
 
     protected $fillable = [
-        'component_id', 'socket', 'cores', 'threads',
+        'component_id', 'socket_id', 'cores', 'threads',
         'base_clock_mhz', 'boost_clock_mhz', 'tdp_watts',
     ];
 
@@ -29,8 +29,8 @@ class CpuSpec extends Model
         return $this->belongsTo(Component::class, 'component_id');
     }
 
-    // public function socket()    
-    // { 
-    //     return $this->belongsTo(Socket::class); 
-    // }
+    public function socket()    
+    { 
+        return $this->belongsTo(Socket::class); 
+    }
 }

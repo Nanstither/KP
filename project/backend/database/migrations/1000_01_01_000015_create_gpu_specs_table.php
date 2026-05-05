@@ -11,7 +11,8 @@ return new class extends Migration
         Schema::create('gpu_specs', function (Blueprint $table) {
             $table->foreignId('component_id')->primary()->constrained('components')->cascadeOnDelete();
             $table->integer('vram_gb');
-            $table->string('vram_type'); // GDDR6, GDDR6X ...
+            // $table->string('vram_type'); // GDDR6, GDDR6X ...
+            $table->foreignId('vram_type_id')->constrained('vram_types')->cascadeOnDelete();
             $table->integer('memory_bus_bit');
             $table->integer('tdp_watts');
             $table->integer('length_mm');

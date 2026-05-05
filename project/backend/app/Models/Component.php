@@ -75,15 +75,25 @@ class Component extends Model
     }
 
     // Связь N:M: кулер ↔ сокеты (через pivot)
-    public function compatibleSockets(): BelongsToMany
+    public function compatibleSockets()
     {
-        return $this->belongsToMany(Socket::class, 'cooler_socket', 'component_id', 'socket_id');
+        return $this->belongsToMany(
+            \App\Models\Socket::class,
+            'cooler_socket',
+            'component_id',
+            'socket_id'
+        )->withTimestamps();
     }
 
     // Связь N:M: корпус ↔ форм-факторы (через pivot)
-    public function supportedFormFactors(): BelongsToMany
+    public function supportedFormFactors()
     {
-        return $this->belongsToMany(FormFactor::class, 'case_form_factor', 'component_id', 'form_factor_id');
+        return $this->belongsToMany(
+            \App\Models\FormFactor::class,
+            'case_form_factor',
+            'component_id',
+            'form_factor_id'
+        )->withTimestamps();
     }
 
     // Связь N:M: готовый пк ↔ тег (через pivot)

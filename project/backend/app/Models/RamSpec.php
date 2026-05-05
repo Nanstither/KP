@@ -12,7 +12,7 @@ class RamSpec extends Model
 
     protected $fillable = [
         'component_id', 'total_capacity_gb', 'speed_mhz',
-        'type', 'latency_cl', 'modules_count',
+        'ram_type_id', 'latency_cl', 'modules_count',
     ];
 
     protected $casts = [
@@ -27,4 +27,5 @@ class RamSpec extends Model
     {
         return $this->belongsTo(Component::class, 'component_id');
     }
+    public function ramType() { return $this->belongsTo(RamType::class); }
 }

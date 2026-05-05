@@ -11,9 +11,9 @@ class CaseSpec extends Model
     public $incrementing = false;
 
     protected $fillable = [
-        'component_id', 'case_type', 'top_fan_slots',
+        'component_id', 'case_type_id', 'top_fan_slots',
         'fans_included', 'drive_bays_3_5', 'drive_bays_2_5',
-        'front_usb_a', 'front_usb_c', 'front_audio_jack', 'material',
+        'front_usb_a', 'front_usb_c', 'front_audio_jack', 'material_id',
     ];
 
     protected $casts = [
@@ -31,4 +31,6 @@ class CaseSpec extends Model
     {
         return $this->belongsTo(Component::class, 'component_id');
     }
+    public function caseType() { return $this->belongsTo(CaseType::class); }
+    public function material() { return $this->belongsTo(Material::class); }
 }

@@ -159,7 +159,7 @@ export default function AdminPanel() {
                 />
               )}
               {activeTab === 'orders' && <PlaceholderComponent title="Заказы" icon={Package} />}
-              {activeTab === 'settings' && <PlaceholderComponent title="Настройки" icon={Settings} />}
+              {activeTab === 'settings' && <SettingsTab />}
             </AnimatePresence>
           </div>
         </div>
@@ -545,6 +545,67 @@ function ComponentsTab({ components, setComponents, loading, search, setSearch, 
             </div>
           </div>
         )}
+      </div>
+    </motion.div>
+  );
+}
+
+// ==========================================
+// ⚙️ SETTINGS TAB
+// ==========================================
+function SettingsTab() {
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
+      <h2 className="text-xl font-bold text-white">Настройки системы</h2>
+
+      {/* 1. Конфигурация характеристик */}
+      <div className="bg-[#141416] border border-white/10 rounded-xl p-6">
+        <h3 className="text-lg font-semibold text-white mb-2">Конфигурация компонентов</h3>
+        <p className="text-gray-400 text-sm mb-4">
+          Управление выпадающими списками и ограничениями для характеристик (материалы, частоты, сокеты и т.д.). 
+          Данные будут подгружаться из справочников.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {[
+            { title: 'Материалы корпусов', desc: 'steel_glass, aluminum, tempered_glass...' },
+            { title: 'Типы ОЗУ (DDR)', desc: 'DDR4, DDR5, LPDDR5...' },
+            { title: 'Форм-факторы плат', desc: 'ATX, mATX, ITX, E-ATX...' },
+            { title: 'Сокеты процессоров', desc: 'LGA1700, AM5, AM4...' }
+          ].map((item) => (
+            <div key={item.title} className="bg-[#0a0a0c] border border-white/10 rounded-lg p-4 flex justify-between items-center hover:border-purple-500/30 transition-colors cursor-pointer">
+              <div>
+                <p className="text-gray-200 font-medium">{item.title}</p>
+                <p className="text-xs text-gray-500 mt-1">{item.desc}</p>
+              </div>
+              <span className="text-purple-400 text-sm font-medium">Настроить →</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 2. Общие параметры */}
+      <div className="bg-[#141416] border border-white/10 rounded-xl p-6">
+        <h3 className="text-lg font-semibold text-white mb-4">Общие параметры</h3>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between py-2 border-b border-white/5">
+            <span className="text-gray-300">Автоматический пересчёт цен в сборках</span>
+            <div className="w-11 h-6 bg-purple-600 rounded-full relative cursor-pointer">
+              <div className="w-5 h-5 bg-white rounded-full absolute top-0.5 right-0.5 shadow transition-all"></div>
+            </div>
+          </div>
+          <div className="flex items-center justify-between py-2 border-b border-white/5">
+            <span className="text-gray-300">Режим обслуживания (скрыть сайт)</span>
+            <div className="w-11 h-6 bg-gray-600 rounded-full relative cursor-pointer">
+              <div className="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 shadow transition-all"></div>
+            </div>
+          </div>
+          <div className="flex items-center justify-between py-2">
+            <span className="text-gray-300">Логирование действий менеджеров</span>
+            <div className="w-11 h-6 bg-purple-600 rounded-full relative cursor-pointer">
+              <div className="w-5 h-5 bg-white rounded-full absolute top-0.5 right-0.5 shadow transition-all"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </motion.div>
   );

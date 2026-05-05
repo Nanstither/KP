@@ -11,7 +11,7 @@ class GpuSpec extends Model
     public $incrementing = false;
 
     protected $fillable = [
-        'component_id', 'vram_gb', 'vram_type', 'memory_bus_bit',
+        'component_id', 'vram_gb', 'vram_type_id', 'memory_bus_bit',
         'tdp_watts', 'length_mm', 'width_mm',
         'pcie_slots_required', 'pcie_gen', 'power_requires',
     ];
@@ -30,4 +30,6 @@ class GpuSpec extends Model
     {
         return $this->belongsTo(Component::class, 'component_id');
     }
+
+    public function vramType() { return $this->belongsTo(VramType::class); }
 }

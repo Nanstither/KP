@@ -12,7 +12,8 @@ return new class extends Migration
             $table->foreignId('component_id')->primary()->constrained('components')->cascadeOnDelete();
             $table->integer('total_capacity_gb');
             $table->integer('speed_mhz');
-            $table->string('type'); // DDR4, DDR5
+            // $table->string('type'); // DDR4, DDR5
+            $table->foreignId('ram_type_id')->constrained('ram_types')->cascadeOnDelete(); 
             $table->integer('latency_cl');
             $table->integer('modules_count')->default(2); // 1, 2, 4
             $table->timestamps();
