@@ -45,5 +45,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('admin/components/{component}/edit', [ComponentController::class, 'edit']);
         Route::put('admin/components/{component}', [ComponentController::class, 'updateFull']);
+
+        Route::get('admin/components/create', [ComponentController::class, 'createRefs']);
+        Route::post('admin/components', [ComponentController::class, 'storeFull']);
     });
 });

@@ -10,6 +10,7 @@ import AdminPanel from '@/pages/admin/AdminPanel';
 import KnowledgeBase from '@/pages/KnowledgeBase';
 import ComponentDetailPage from '@/pages/ComponentDetailPage';
 import ComponentEdit from '@/pages/admin/ComponentEdit';
+import ComponentCreate from './pages/admin/ComponentCreate';
 import '@/App.css';
 
 // Компонент для защиты роутов
@@ -58,6 +59,7 @@ export default function App() {
             } 
           />
           <Route path="/admin/components/:id/edit" element={<ComponentEdit />} />
+          <Route path="/admin/components/create" element={<ComponentCreate />} />
           <Route path="*" element={<Navigate to="/"/>} />
         </Routes>
       </main>

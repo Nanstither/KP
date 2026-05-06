@@ -420,6 +420,8 @@ function ComponentsTab({ components, setComponents, loading, search, setSearch, 
             <option value="motherboard">Платы</option>
             <option value="storage">Накопители</option>
             <option value="psu">БП</option>
+            <option value="cooler">Кулеры</option>
+            <option value="case">Корпуса</option>
           </select>
           <select value={stockFilter} onChange={e => { setStockFilter(e.target.value); setPage(1); }} className={`border rounded-lg px-3 py-2 text-sm focus:outline-none ${stockFilter === 'low' ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-[#0a0a0c] border-white/10 text-gray-200'}`}>
             <option value="all">Наличие</option>
@@ -427,7 +429,7 @@ function ComponentsTab({ components, setComponents, loading, search, setSearch, 
             <option value="out">Нет в наличии</option>
           </select>
         </div>
-        <button className="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+        <button onClick={() => navigate('/admin/components/create')} className="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
           <Plus className="w-4 h-4" /> Добавить
         </button>
       </div>
