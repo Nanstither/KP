@@ -8,7 +8,7 @@ class Socket extends Model
 {
     protected $table = 'sockets'; // можно убрать, если таблица называется ровно 'sockets'
     protected $fillable = ['name'];
-    public $timestamps = false; // убери, если в таблице есть created_at/updated_at
+    // public $timestamps = false; // убери, если в таблице есть created_at/updated_at
 
     public function coolers(): BelongsToMany
     {

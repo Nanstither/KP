@@ -255,4 +255,84 @@ class ComponentController extends Controller
 
         return response()->json(['message' => 'Компонент успешно создан']);
     }
+
+    // ✅ Получение списка справочника
+    public function getRefs($type)
+    {
+        // Используем ::class для получения полного имени класса
+        $models = [
+            'sockets' => Socket::class,
+            'ram_types' => RamType::class,
+            'form_factors' => FormFactor::class,
+            'materials' => Material::class,
+        ];
+        
+        if (!isset($models[$type])) {
+            return response()->json([], 404);
+        }
+        
+        // ✅ Используем ::select() (статический вызов) вместо ->select()
+        return response()->json($models[$type]::select('id', 'name')->get());
+    }
+
+    // ✅ Создание записи
+    public function storeRef(Request $request, $type)
+    {
+        $validated = $request->validate(['name' => 'required|string|max:50']);
+        
+        $models = [
+            'sockets' => Socket::class,
+            'ram_types' => RamType::class,
+            'form_factors' => FormFactor::class,
+            'materials' => Material::class,
+        ];
+        
+        if (!isset($models[$type])) {
+            return response()->json(['message' => 'Invalid type'], 404);
+        }
+        
+        // ✅ Создаем через ::create()
+        $item = $models[$type]::create(['name' => $validated['name']]);
+        return response()->json($item, 201);
+    }
+
+    // ✅ Обновление записи
+    public function updateRef(Request $request, $type, $id)
+    {
+        $validated = $request->validate(['name' => 'required|string|max:50']);
+        
+        $models = [
+            'sockets' => Socket::class,
+            'ram_types' => RamType::class,
+            'form_factors' => FormFactor::class,
+            'materials' => Material::class,
+        ];
+        
+        if (!isset($models[$type])) {
+            return response()->json(['message' => 'Invalid type'], 404);
+        }
+        
+        // ✅ Находим и обновляем
+        $item = $models[$type]::findOrFail($id);
+        $item->update(['name' => $validated['name']]);
+        return response()->json($item);
+    }
+
+    // ✅ Удаление записи
+    public function deleteRef($type, $id)
+    {
+        $models = [
+            'sockets' => Socket::class,
+            'ram_types' => RamType::class,
+            'form_factors' => FormFactor::class,
+            'materials' => Material::class,
+        ];
+        
+        if (!isset($models[$type])) {
+            return response()->json(['message' => 'Invalid type'], 404);
+        }
+        
+        $models[$type]::findOrFail($id)->delete();
+        return response()->json(['message' => 'Deleted']);
+    }
 }

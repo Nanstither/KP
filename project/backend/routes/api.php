@@ -33,6 +33,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin/dashboard', fn() => response()->json(['msg' => 'Admin panel']));
         // Здесь будут CRUD для компонентов, категорий и т.д.
+        // Простой CRUD для справочников
+        Route::get('/admin/refs/{type}', [ComponentController::class, 'getRefs']);
+        Route::post('/admin/refs/{type}', [ComponentController::class, 'storeRef']);
+        Route::put('/admin/refs/{type}/{id}', [ComponentController::class, 'updateRef']);
+        Route::delete('/admin/refs/{type}/{id}', [ComponentController::class, 'deleteRef']);
     });
 
     // Менеджер + Админ
