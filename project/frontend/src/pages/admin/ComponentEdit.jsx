@@ -9,7 +9,10 @@ const imageTemplates = {
         { label: 'Intel Core i5', path: `${STORAGE_URL}/images/components/cpu/Intel_Core_i5.svg` },
         { label: 'Intel Core i7', path: `${STORAGE_URL}/images/components/cpu/Intel_Core_i7.svg` },
         { label: 'Intel Core i9', path: `${STORAGE_URL}/images/components/cpu/Intel_Core_i9.svg` },
-        { label: 'AMD Ryzen 7', path: `${STORAGE_URL}/images/components/cpu/AMD-Ryzen-7.svg` }
+        { label: 'AMD Ryzen 3', path: `${STORAGE_URL}/images/components/cpu/Ryzen_3.jpg` },
+        { label: 'AMD Ryzen 5', path: `${STORAGE_URL}/images/components/cpu/Ryzen_5.jpg` },
+        { label: 'AMD Ryzen 7', path: `${STORAGE_URL}/images/components/cpu/Ryzen_7.jpg` },
+        { label: 'AMD Ryzen 9', path: `${STORAGE_URL}/images/components/cpu/Ryzen_9.jpg` },
   ],
   gpu: [{ label: 'NVIDIA RTX 4060', path: 'images/components/gpu/RTX_4060.jpg' }],
   ram: [{ label: 'DDR4 Kit', path: 'images/components/ram/DDR4_Kit.jpg' }],
