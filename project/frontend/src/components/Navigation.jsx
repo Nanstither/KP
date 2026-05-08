@@ -10,7 +10,7 @@ const Navigation = () => {
   const { user, logout } = useAuth();
 
   const navItems = [
-    { name: "Главная", to: "/" },
+    // { name: "Главная", to: "/" },
     { name: "Каталог", to: "/catalog" },
     { name: "Услуги", to: "/services" },
     { name: "Контакты", to: "/contact" },
