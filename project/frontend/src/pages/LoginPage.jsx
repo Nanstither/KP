@@ -4,6 +4,47 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
 import { User, Mail, Lock, UserPlus, LogIn, AlertCircle } from 'lucide-react';
 
+// ─── Компонент фона с частицами ───
+const ParticlesBackground = () => {
+  const particles = Array.from({ length: 50 }, (_, i) => ({
+    id: i,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    size: Math.random() * 4 + 2,
+    duration: Math.random() * 15 + 10,
+    delay: Math.random() * 5,
+    opacity: Math.random() * 0.2 + 0.05,
+  }));
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          className="absolute rounded-full bg-purple-400/30"
+          style={{
+            left: `${p.x}%`,
+            top: `${p.y}%`,
+            width: p.size,
+            height: p.size,
+          }}
+          animate={{
+            y: [0, -30, 0],
+            x: [0, 15, 0],
+            opacity: [p.opacity, p.opacity / 2, p.opacity],
+          }}
+          transition={{
+            duration: p.duration,
+            repeat: Infinity,
+            ease: 'easeInOut',
+            delay: p.delay,
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
 export default function LoginPage() {
   const [isRegistering, setIsRegistering] = useState(false);
   const [formData, setFormData] = useState({
@@ -47,20 +88,23 @@ export default function LoginPage() {
     <div className="min-h-screen bg-[#0f0f10] flex items-center justify-center p-4 overflow-hidden relative">
       {/* Фоновый градиент */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0f0f10] to-[#0f0f10] pointer-events-none" />
+      <ParticlesBackground />
 
       {/* ГЛАВНЫЙ КОНТЕЙНЕР (Окно) */}
       <motion.div
         layout
-        className="relative w-full max-w-[900px] h-[580px] bg-[#141416] rounded-3xl shadow-2xl shadow-purple-500/10 overflow-hidden border border-white/10"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="relative w-full max-w-[900px] h-[580px] bg-[#141416] rounded-3xl shadow-2xl shadow-purple-500/10 overflow-hidden border border-white/10 z-10"
       >
         {/* --- СЛОЙ ФОРМ (Находятся под оверлеем) --- */}
         <div className="absolute inset-0 flex">
           
-          {/* 🟣 ФОРМА ВХОДА (Сдвигается влево при регистрации) */}
+          {/* 🟣 ФОРМА ВХОДА (Справа, уезжает ВПРАВО при регистрации) */}
           <motion.div
-            animate={{ x: isRegistering ? '-100%' : '0%' }}
+            className="w-1/2 h-full flex flex-col items-center justify-center p-10 absolute right-0"
+            animate={{ x: isRegistering ? '100%' : '0%' }}
             transition={{ duration: 0.6, type: 'spring', stiffness: 100, damping: 20 }}
-            className="w-1/2 flex flex-col items-center justify-center p-10"
             style={{ pointerEvents: isRegistering ? 'none' : 'auto' }}
           >
             <h2 className="text-3xl font-bold text-white mb-2">Добро пожаловать</h2>
@@ -113,11 +157,11 @@ export default function LoginPage() {
             </form>
           </motion.div>
 
-          {/* 🟣 ФОРМА РЕГИСТРАЦИИ (Сдвигается вправо при входе) */}
+          {/* 🟣 ФОРМА РЕГИСТРАЦИИ (Слева, приезжает СЛЕВА при регистрации) */}
           <motion.div
-            animate={{ x: isRegistering ? '0%' : '100%' }} // Изначально скрыт за левым краем
+            className="w-1/2 h-full flex flex-col items-center justify-center p-10 absolute left-0"
+            animate={{ x: isRegistering ? '0%' : '-100%' }}
             transition={{ duration: 0.6, type: 'spring', stiffness: 100, damping: 20 }}
-            className="w-1/2 flex flex-col items-center justify-center p-10"
             style={{ pointerEvents: isRegistering ? 'auto' : 'none' }}
           >
             <h2 className="text-3xl font-bold text-white mb-2">Создать аккаунт</h2>
@@ -160,7 +204,7 @@ export default function LoginPage() {
                   required
                 />
               </div>
-               <div className="relative">
+              <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                 <input
                   name="password_confirmation"
@@ -196,11 +240,11 @@ export default function LoginPage() {
         </div>
 
         {/* --- OVERLAY (СКОЛЬЗЯЩИЙ БЛОК) --- */}
-        {/* Он лежит поверх форм и двигается в противоположную сторону */}
+        {/* Изначально слева (0%), при регистрации уезжает направо (100%) */}
         <motion.div
-          animate={{ x: isRegistering ? '0%' : '100%' }} // Изначально справа, при регистрации едет влево
+          animate={{ x: isRegistering ? '100%' : '0%' }}
           transition={{ duration: 0.6, type: 'spring', stiffness: 100, damping: 20 }}
-          className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-br from-purple-700 to-indigo-900 rounded-3xl shadow-2xl z-20 flex flex-col items-center justify-center text-center p-10 overflow-hidden"
+          className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-br from-purple-700 to-indigo-900 rounded-3xl shadow-2xl z-20 flex items-center justify-center text-center p-10 overflow-hidden"
         >
           {/* Декоративные пятна света */}
           <div className="absolute -top-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
@@ -208,6 +252,7 @@ export default function LoginPage() {
 
           <AnimatePresence mode="wait">
             {isRegistering ? (
+              // Текст когда мы на странице регистрации (Кнопка "Войти")
               <motion.div
                 key="welcome-back"
                 initial={{ opacity: 0, y: 20 }}
@@ -228,6 +273,7 @@ export default function LoginPage() {
                 </button>
               </motion.div>
             ) : (
+              // Текст когда мы на странице входа (Кнопка "Регистрация")
               <motion.div
                 key="new-here"
                 initial={{ opacity: 0, y: 20 }}
