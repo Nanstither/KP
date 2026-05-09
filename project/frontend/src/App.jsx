@@ -11,6 +11,7 @@ import KnowledgeBase from '@/pages/KnowledgeBase';
 import ComponentDetailPage from '@/pages/ComponentDetailPage';
 import ComponentEdit from '@/pages/admin/ComponentEdit';
 import ComponentCreate from './pages/admin/ComponentCreate';
+import CartPage from './pages/CartPage';
 import '@/App.css';
 
 // Компонент для защиты роутов
@@ -47,6 +48,7 @@ export default function App() {
           <Route path="/catalog" element={<CatalogPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/knowledge" element={<KnowledgeBase />} />
+          <Route path="/cart" element={<CartPage />} />
           <Route path="/components/:id" element={<ComponentDetailPage />} />
           
           {/* Защищённые админ-роуты */}

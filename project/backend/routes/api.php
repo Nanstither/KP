@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ComponentController;
 use App\Http\Controllers\Api\PrebuiltPcController;
+use App\Http\Controllers\Api\CartController;
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -28,6 +29,11 @@ Route::get('/prebuilt-pcs/{slug}', [PrebuiltPcController::class, 'show']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::get('/cart', [CartController::class, 'index']);
+    Route::post('/cart', [CartController::class, 'store']);
+    Route::put('/cart/{id}', [CartController::class, 'update']); // Редактирование сборки
+    Route::delete('/cart/{id}', [CartController::class, 'destroy']);
 
     // Админка (только admin)
     Route::middleware('role:admin')->group(function () {
