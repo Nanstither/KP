@@ -6,7 +6,7 @@ import { User, Mail, Lock, UserPlus, LogIn, AlertCircle } from 'lucide-react';
 
 // ─── Компонент фона с частицами ───
 const ParticlesBackground = () => {
-  const particles = Array.from({ length: 50 }, (_, i) => ({
+  const particles = Array.from({ length: 100 }, (_, i) => ({
     id: i,
     x: Math.random() * 100,
     y: Math.random() * 100,
@@ -21,7 +21,7 @@ const ParticlesBackground = () => {
       {particles.map((p) => (
         <motion.div
           key={p.id}
-          className="absolute rounded-full bg-purple-400/30"
+          className="absolute rounded-full bg-white"
           style={{
             left: `${p.x}%`,
             top: `${p.y}%`,
@@ -29,8 +29,8 @@ const ParticlesBackground = () => {
             height: p.size,
           }}
           animate={{
-            y: [0, -30, 0],
-            x: [0, 15, 0],
+            y: [0, -30*2, 0],
+            x: [0, 15*2, 0],
             opacity: [p.opacity, p.opacity / 2, p.opacity],
           }}
           transition={{
@@ -85,7 +85,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0f10] flex items-center justify-center p-4 overflow-hidden relative">
+    <div className="min-h-screen bg-[#101019] flex items-center justify-center p-4 overflow-hidden relative">
       {/* Фоновый градиент */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0f0f10] to-[#0f0f10] pointer-events-none" />
       <ParticlesBackground />
