@@ -15,14 +15,29 @@ class ComponentController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Component::with(['category', 'brand']);
+        $query = Component::with([
+            'category', 
+            'brand',
+            // ✅ ВСЕ спецификации — названия должны ТОЧНО совпадать с методами в модели
+            'cpuSpec', 
+            'gpuSpec', 
+            'ramSpec', 
+            'motherboardSpec', 
+            'psuSpec', 
+            'storageSpec', 
+            'coolerSpec', 
+            'caseSpec'  // ← Вот это критично!
+        ]);
+        
         if ($request->has('category')) {
             $query->whereHas('category', fn($q) => $q->where('slug', $request->category));
         }
+        
         if ($request->boolean('in_stock')) {
             $query->where('stock', '>', 0);
         }
-        return $query->get();
+        
+        return $query->get(); // ← Вернёт компоненты со всеми spec
     }
 
     public function show($id)
