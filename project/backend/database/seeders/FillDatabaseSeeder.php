@@ -67,7 +67,7 @@ class FillDatabaseSeeder extends Seeder
             'NZXT', 'be quiet!', 'Seasonic', 'EVGA', 'Western Digital',
             'Crucial', 'G.Skill', 'Thermaltake', 'Cooler Master',
             'Thermalright', 'Arctic', 'Lian Li', 'Phanteks', 'Fractal Design',
-            'Sabrent', 'ADATA', 'SK Hynix',
+            'Sabrent', 'ADATA', 'SK Hynix', 'Seagate',
         ];
         foreach ($brands as $brand) {
             DB::table('brands')->insert(['name' => $brand, 'created_at' => now(), 'updated_at' => now()]);
@@ -93,6 +93,7 @@ class FillDatabaseSeeder extends Seeder
         $bThermaltake = DB::table('brands')->where('name', 'Thermaltake')->first()->id;
         $bAdata = DB::table('brands')->where('name', 'ADATA')->first()->id;
         $bSKHynix = DB::table('brands')->where('name', 'SK Hynix')->first()->id;
+        $bSeagate = DB::table('brands')->where('name', 'Seagate')->first()->id;
 
         // ========== 3. СОКЕТЫ ==========
         DB::table('sockets');
@@ -233,7 +234,7 @@ class FillDatabaseSeeder extends Seeder
         DB::table('components')->where('category_id', $catRam)->delete();
 
         $rams = [
-            ['brand' => $bCorsair, 'model' => 'Vengeance LPX 16GB DDR4 3200', 'price' => 4500, 'cap' => 16, 'speed' => 3200, 'type' => 'DDR4', 'cl' => 16, 'mod' => 2],
+            ['brand' => $bCorsair, 'model' => 'Vengeance LPX 16GB DDR4 3200', 'price' => 4500, 'cap' => 16, 'speed' => 3200, 'type' => 'DDR4', 'cl' => 16, 'mod' => 1],
             ['brand' => $bGSkill, 'model' => 'Trident Z5 RGB 32GB DDR5 6400', 'price' => 15500, 'cap' => 32, 'speed' => 6400, 'type' => 'DDR5', 'cl' => 32, 'mod' => 2],
             ['brand' => $bKingston, 'model' => 'Fury Beast 32GB DDR4 3200', 'price' => 8500, 'cap' => 32, 'speed' => 3200, 'type' => 'DDR4', 'cl' => 16, 'mod' => 2],
         ];
@@ -314,6 +315,8 @@ class FillDatabaseSeeder extends Seeder
         $storages = [
             ['brand' => $bSamsung, 'model' => '990 PRO 1TB', 'price' => 9500, 'type' => 'nvme', 'cap' => 1000, 'read' => 7450, 'write' => 6900, 'ff' => 'm.2_2280'],
             ['brand' => $bWesternDigital, 'model' => 'WD Blue SN580 1TB', 'price' => 5500, 'type' => 'nvme', 'cap' => 1000, 'read' => 4150, 'write' => 4150, 'ff' => 'm.2_2280'],
+            ['brand' => $bSamsung, 'model' => '870 EVO 1TB', 'price' => 7500, 'type' => 'sata', 'cap' => 1000, 'read' => 560, 'write' => 530, 'ff' => '2.5'],
+            ['brand' => $bSeagate, 'model' => 'Barracuda 2TB', 'price' => 4500, 'type' => 'sata', 'cap' => 2000, 'read' => 190, 'write' => 190, 'ff' => '3.5'],
         ];
         foreach ($storages as $stor) {
             $id = DB::table('components')->insertGetId([
