@@ -1,10 +1,12 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { STORAGE_URL, API_URL } from "@/lib/config";
 import api from "@/services/api";
 import {
   Monitor, Cpu, HardDrive, Fan, Battery,
   MemoryStick, ChevronRight, Check, ArrowLeft, X,
-  ShoppingBag, LayoutGrid
+  ShoppingBag, LayoutGrid, Home
 } from "lucide-react";
 
 // Маппинг иконок под slug категории
@@ -30,23 +32,27 @@ const formatSpecs = (item, categoryId) => {
   if (!spec) return "";
   
   switch(categoryId) {
-    case 'case':
-      if (spec.top_fan_slots) specs.push(`Верх. вентиляторы: ${spec.top_fan_slots}`);
-      if (spec.fans_included) specs.push(`В комплекте: ${spec.fans_included} вентилятора`);
-      if (spec.drive_bays_3_5) specs.push(`3.5" отсеки: ${spec.drive_bays_3_5}`);
-      if (spec.drive_bays_2_5) specs.push(`2.5" отсеки: ${spec.drive_bays_2_5}`);
-      if (spec.front_usb_a) specs.push(`USB-A: ${spec.front_usb_a}`);
-      if (spec.front_usb_c) specs.push(`USB-C: ${spec.front_usb_c}`);
-      if (spec.max_gpu_length) specs.push(`GPU: до ${spec.max_gpu_length}мм`);
-      if (spec.max_cooler_height) specs.push(`Кулер: до ${spec.max_cooler_height}мм`);
-      if (spec.max_psu_length) specs.push(`БП: до ${spec.max_psu_length}мм`);
-      break;
+    // case 'case':
+    //   if (spec.case_type_id) specs.push(`Тип корпуса: ${spec.case_type_id}`);
+    //   if (spec.top_fan_slots) specs.push(`Верх. вентиляторы: ${spec.top_fan_slots}`);
+    //   if (spec.fans_included) specs.push(`В комплекте: ${spec.fans_included} вентилятора`);
+    //   if (spec.drive_bays_3_5) specs.push(`3.5 отсеки: ${spec.drive_bays_3_5}`);
+    //   if (spec.drive_bays_2_5) specs.push(`2.5 отсеки: ${spec.drive_bays_2_5}`);
+    //   if (spec.front_usb_a) specs.push(`USB-A: ${spec.front_usb_a}`);
+    //   if (spec.front_usb_c) specs.push(`USB-C: ${spec.front_usb_c}`);
+    //   // if (spec.max_gpu_length) specs.push(`GPU: до ${spec.max_gpu_length}мм`);
+    //   // if (spec.max_cooler_height) specs.push(`Кулер: до ${spec.max_cooler_height}мм`);
+    //   // if (spec.max_psu_length) specs.push(`БП: до ${spec.max_psu_length}мм`);
+    //   break;
       
     case 'motherboard':
     case 'mb':
-      if (spec.socket_id) specs.push(`Socket: ${spec.socket_id}`); // Если socket_id
-      if (spec.chipset) specs.push(spec.chipset);
-      if (spec.form_factor) specs.push(spec.form_factor);
+      if (spec.socket_id) specs.push(`Сокет: ${spec.socket_id}`); // Если socket_id
+      // if (spec.chipset) specs.push(spec.chipset);
+      if (spec.form_factor_id) specs.push(`Форм-фактор: ${spec.form_factor_id}`);
+      if (spec.ram_type_id) specs.push(`Поддерживаемая ОЗУ: ${spec.ram_type_id}`);
+      if (spec.m2_slots) specs.push(`Количество слотов M2: ${spec.m2_slots}`);
+      if (spec.pcie_gen) specs.push(`PCIE Gen: ${spec.pcie_gen}`);
       break;
       
     case 'cpu':
@@ -66,26 +72,30 @@ const formatSpecs = (item, categoryId) => {
       break;
       
     case 'ram':
-      if (spec.capacity) specs.push(spec.capacity);
-      if (spec.type) specs.push(spec.type);
+      if (spec.total_capacity_gb) specs.push(`Общий обьем: ${spec.total_capacity_gb}`);
+      if (spec.modules_count) specs.push(`Кол-во модулей: ${spec.modules_count}`);
+      if (spec.ram_type_id) specs.push(spec.ram_type_id);
       if (spec.speed_mhz) specs.push(`${spec.speed_mhz} MHz`);
       break;
       
     case 'psu':
-      if (spec.watts) specs.push(`${spec.watts}W`);
+      if (spec.wattage) specs.push(`${spec.wattage}W`);
       if (spec.efficiency) specs.push(spec.efficiency);
+      if (spec.modularity) specs.push(`Модульность: ${spec.modularity}`);
       break;
       
     case 'cooler':
       if (spec.type) specs.push(spec.type);
-      if (spec.tdp_watts) specs.push(`${spec.tdp_watts}W TDP`);
-      if (spec.height_mm) specs.push(`${spec.height_mm}mm`);
+      if (spec.tdp_rating_watts) specs.push(`${spec.tdp_rating_watts}W TDP`);
+      // if (spec.height_mm) specs.push(`${spec.height_mm}mm`);
+      if (spec.fan_count) specs.push(`Кол-во вентиляторов: ${spec.fan_count}`);
       break;
       
     case 'storage':
-      if (spec.type) specs.push(spec.type);
+      if (spec.type) specs.push(spec.type); 
       if (spec.capacity_gb) specs.push(`${spec.capacity_gb} GB`);
-      if (spec.speed_read_mbps) specs.push(`${spec.speed_read_mbps} MB/s`);
+      if (spec.read_speed_mbps) specs.push(`Скорость чтения: ${spec.read_speed_mbps} MB/s`);
+      if (spec.write_speed_mbps) specs.push(`Скорость записи: ${spec.write_speed_mbps} MB/s`);
       break;
       
     default:
@@ -105,6 +115,7 @@ export default function ConfiguratorPage() {
   const [products, setProducts] = useState({});
   const [loading, setLoading] = useState(true);
 
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -173,14 +184,20 @@ export default function ConfiguratorPage() {
       <header className="absolute top-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
         <div className="flex gap-3 pointer-events-auto">
           <motion.button 
+            whileTap={{ scale: 0.95 }} 
+            onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/')}
+            className="cursor-pointer flex items-center gap-2 px-5 py-2.5 bg-[#141416] border border-white/10 hover:border-purple-500/50 rounded-full shadow-lg backdrop-blur-md transition-colors text-sm font-medium">
+            <ArrowLeft className="w-4 h-4"/> Обратно
+          </motion.button>
+          <motion.button 
             whileTap={{ scale: 0.95 }}
             onClick={() => { setIsCaseSelectorOpen(!isCaseSelectorOpen); setSelectedCategory(null); }}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#141416] border border-white/10 hover:border-purple-500/50 rounded-full shadow-lg backdrop-blur-md transition-colors text-sm font-medium"
+            className="cursor-pointer flex items-center gap-2 px-5 py-2.5 bg-[#141416] border border-white/10 hover:border-purple-500/50 rounded-full shadow-lg backdrop-blur-md transition-colors text-sm font-medium"
           >
             <LayoutGrid className="w-4 h-4 text-purple-400" /> Сменить корпус
           </motion.button>
 
-          <div className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full shadow-lg shadow-purple-500/20 text-sm font-bold text-white">
+          <div className="cursor-pointer flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-full shadow-lg shadow-purple-500/20 transition-colors duration-300 text-sm font-bold text-white">
             <ShoppingBag className="w-4 h-4" /> Конфигурация
           </div>
         </div>
@@ -193,12 +210,11 @@ export default function ConfiguratorPage() {
             key={selectedCase?.id}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            src={selectedCase?.image || "/placeholder.svg"} 
+            src={`${STORAGE_URL}/${selectedCase?.image}` || "/placeholder.svg"} 
             alt={selectedCase?.model}
             onError={(e) => { e.target.src = "/placeholder.svg"; }}
-            className="max-h-[80vh] object-contain drop-shadow-2xl relative z-10 scale-140"
+            className="h-130 aspect-[4/4] object-cover drop-shadow-2xl relative z-10 rounded-2xl"
           />
-
           <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 z-20 bg-black/60 backdrop-blur-md border border-white/10 px-6 py-3 rounded-2xl flex flex-col items-center">
             <span className="text-xs text-gray-400 uppercase tracking-widest mb-1">{selectedCase?.model || "Корпус не выбран"}</span>
             <span className="text-2xl font-bold text-white font-mono">{Number(totalPrice).toLocaleString('ru-RU')} ₽</span>
@@ -231,12 +247,13 @@ export default function ConfiguratorPage() {
                   const spec = c.case_spec || {}; 
                   
                   const specItems = [
-                    spec.max_gpu_length && `GPU: до ${spec.max_gpu_length}мм`,
-                    spec.max_cooler_height && `Кулер: до ${spec.max_cooler_height}мм`,
-                    spec.top_fan_slots && `Вентиляторы: ${spec.top_fan_slots}`,
-                    spec.fans_included && `В комплекте: ${spec.fans_included}`,
-                    spec.drive_bays_3_5 && `3.5": ${spec.drive_bays_3_5}`,
-                    spec.drive_bays_2_5 && `2.5": ${spec.drive_bays_2_5}`,
+                    // spec.max_gpu_length && `GPU: до ${spec.max_gpu_length}мм`,
+                    // spec.max_cooler_height && `Кулер: до ${spec.max_cooler_height}мм`,
+                    spec.case_type_id && `Тип корпуса: ${spec.case_type_id}`,
+                    spec.top_fan_slots && `Мест для верхних вентиляторов: ${spec.top_fan_slots}`,
+                    spec.fans_included && `Вентиляторов комплекте: ${spec.fans_included}`,
+                    spec.drive_bays_3_5 && `Мест для дисков 3.5: ${spec.drive_bays_3_5}`,
+                    spec.drive_bays_2_5 && `Мест для дисков 2.5: ${spec.drive_bays_2_5}`,
                     spec.front_usb_a && `USB-A: ${spec.front_usb_a}`,
                     spec.front_usb_c && `USB-C: ${spec.front_usb_c}`,
                   ].filter(Boolean);
@@ -245,17 +262,17 @@ export default function ConfiguratorPage() {
                     <button
                       key={c.id}
                       onClick={() => { setSelectedCase(c); setIsCaseSelectorOpen(false); }}
-                      className={`relative flex flex-col h-[320px] p-4 rounded-xl border transition-all text-left group ${
+                      className={`relative flex flex-col p-4 rounded-xl border transition-all text-left group ${
                         selectedCase?.id === c.id 
                           ? "bg-purple-600/10 border-purple-500 ring-1 ring-purple-500/50" 
                           : "bg-[#0a0a0c] border-white/5 hover:border-white/20 hover:bg-[#111114]"
                       }`}
                     >
                       {/* Картинка */}
-                      <div className="h-28 bg-[#050505] rounded-lg mb-3 flex items-center justify-center overflow-hidden flex-shrink-0">
+                      <div className="bg-[#050505] rounded-lg mb-3 flex items-center justify-center overflow-hidden flex-shrink-0">
                         <img 
-                          src={c.image || "/placeholder.svg"} 
-                          className="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity" 
+                          src={`${STORAGE_URL}/${c.image}` || "/placeholder.svg"} 
+                          className="w-full h-full aspect-[4/4] object-cover opacity-80 group-hover:opacity-100 transition-opacity" 
                           onError={(e) => { e.target.src = "/placeholder.svg"; }} 
                         />
                       </div>
@@ -268,11 +285,11 @@ export default function ConfiguratorPage() {
 
                       {/* Характеристики */}
                       <div className="flex-1 pt-2 border-t border-white/5 overflow-hidden">
-                        <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-1.5">Параметры:</p>
-                        <ul className="space-y-1">
+                        <p className="text-[12px] text-gray-500 uppercase tracking-wide mb-1.5">Параметры:</p>
+                        <ul className="space-y-0">
                           {specItems.length > 0 ? (
                             specItems.map((s, i) => (
-                              <li key={i} className="text-[10px] text-gray-400 flex items-start gap-1.5">
+                              <li key={i} className="text-[12px] text-gray-400 flex items-start gap-1.5">
                                 <span className="text-purple-500 mt-px flex-shrink-0">•</span>
                                 <span className="line-clamp-1">{s}</span>
                               </li>

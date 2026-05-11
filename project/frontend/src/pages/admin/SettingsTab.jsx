@@ -103,7 +103,7 @@ export default function SettingsTab() {
               {refs[card.key]?.length > 0 ? refs[card.key].map(item => (
                 <div key={item.id} className="flex items-center justify-between bg-[#0a0a0c] border border-white/5 rounded-lg px-3 py-2 group">
                   <span className="text-sm text-gray-300">{item.name}</span>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex gap-1 opacity-15 group-hover:opacity-100 transition-opacity">
                     <button onClick={() => openModal(card.key, item)} className="p-1.5 text-gray-400 hover:text-purple-300 hover:bg-white/5 rounded">
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>

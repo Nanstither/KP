@@ -186,7 +186,7 @@ class FillDatabaseSeeder extends Seeder
             $id = DB::table('components')->insertGetId([
                 'category_id' => $catCpu, 'brand_id' => $cpu['brand'], 'model' => $cpu['model'],
                 'price' => $cpu['price'], 'stock' => rand(5, 50),
-                'image' => 'components/cpu_' . Str::slug($cpu['model']) . '.jpg',
+                'image' => 'images/components/cpu/' . Str::slug($cpu['model']) . '.jpg',
                 'created_at' => now(), 'updated_at' => now(),
             ]);
             DB::table('cpu_specs')->insert([
@@ -210,7 +210,7 @@ class FillDatabaseSeeder extends Seeder
             $id = DB::table('components')->insertGetId([
                 'category_id' => $catGpu, 'brand_id' => $gpu['brand'], 'model' => $gpu['model'],
                 'price' => $gpu['price'], 'stock' => rand(3, 30),
-                'image' => 'components/gpu_' . Str::slug($gpu['model']) . '.jpg',
+                'image' => 'images/components/gpu/' . Str::slug($gpu['model']) . '.jpg',
                 'created_at' => now(), 'updated_at' => now(),
             ]);
             // ✅ Используем ID из справочника vram_types
@@ -241,7 +241,7 @@ class FillDatabaseSeeder extends Seeder
             $id = DB::table('components')->insertGetId([
                 'category_id' => $catRam, 'brand_id' => $ram['brand'], 'model' => $ram['model'],
                 'price' => $ram['price'], 'stock' => rand(10, 60),
-                'image' => 'components/ram_' . Str::slug($ram['model']) . '.jpg',
+                'image' => 'images/components/ram/' . Str::slug($ram['model']) . '.jpg',
                 'created_at' => now(), 'updated_at' => now(),
             ]);
             // ✅ Используем ID из справочника ram_types
@@ -269,7 +269,7 @@ class FillDatabaseSeeder extends Seeder
             $id = DB::table('components')->insertGetId([
                 'category_id' => $catMobo, 'brand_id' => $mobo['brand'], 'model' => $mobo['model'],
                 'price' => $mobo['price'], 'stock' => rand(5, 25),
-                'image' => 'components/mobo_' . Str::slug($mobo['model']) . '.jpg',
+                'image' => 'images/components/motherboard/' . Str::slug($mobo['model']) . '.jpg',
                 'created_at' => now(), 'updated_at' => now(),
             ]);
             // ✅ Используем ID из справочника ram_types
@@ -298,7 +298,7 @@ class FillDatabaseSeeder extends Seeder
             $id = DB::table('components')->insertGetId([
                 'category_id' => $catPsu, 'brand_id' => $psu['brand'], 'model' => $psu['model'],
                 'price' => $psu['price'], 'stock' => rand(8, 40),
-                'image' => 'components/psu_' . Str::slug($psu['model']) . '.jpg',
+                'image' => 'images/components/psu/' . Str::slug($psu['model']) . '.jpg',
                 'created_at' => now(), 'updated_at' => now(),
             ]);
             DB::table('psu_specs')->insert([
@@ -319,7 +319,7 @@ class FillDatabaseSeeder extends Seeder
             $id = DB::table('components')->insertGetId([
                 'category_id' => $catStorage, 'brand_id' => $stor['brand'], 'model' => $stor['model'],
                 'price' => $stor['price'], 'stock' => rand(10, 60),
-                'image' => 'components/storage_' . Str::slug($stor['model']) . '.jpg',
+                'image' => 'images/components/storage/' . Str::slug($stor['model']) . '.jpg',
                 'created_at' => now(), 'updated_at' => now(),
             ]);
             DB::table('storage_specs')->insert([
@@ -342,7 +342,7 @@ class FillDatabaseSeeder extends Seeder
                 'category_id' => $catCooler, 
                 'brand_id' => DB::table('brands')->where('name', $cool['brand'])->first()->id,
                 'model' => $cool['model'], 'price' => $cool['price'], 'stock' => rand(10, 50),
-                'image' => 'components/cooler_' . Str::slug($cool['model']) . '.jpg',
+                'image' => 'images/components/cooler/' . Str::slug($cool['model']) . '.jpg',
                 'created_at' => now(), 'updated_at' => now(),
             ]);
             DB::table('cooler_specs')->insert([
@@ -368,7 +368,7 @@ class FillDatabaseSeeder extends Seeder
                 'category_id' => $catCase, 
                 'brand_id' => DB::table('brands')->where('name', $case['brand'])->first()->id,
                 'model' => $case['model'], 'price' => $case['price'], 'stock' => rand(5, 25),
-                'image' => 'components/case_' . Str::slug($case['model']) . '.jpg',
+                'image' => 'images/components/case/' . Str::slug($case['model']) . '.jpg',
                 'created_at' => now(), 'updated_at' => now(),
             ]);
             

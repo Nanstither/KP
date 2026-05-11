@@ -37,7 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Админка (только admin)
     Route::middleware('role:admin')->group(function () {
-        Route::get('/admin/dashboard', fn() => response()->json(['msg' => 'Admin panel']));
+        // Route::get('/admin/dashboard', fn() => response()->json(['msg' => 'Admin panel']));
         // Здесь будут CRUD для компонентов, категорий и т.д.
         // Простой CRUD для справочников
         Route::get('/admin/refs/{type}', [ComponentController::class, 'getRefs']);

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "@/services/api";
-import { STORAGE_URL } from "@/lib/config";
+import { STORAGE_URL, API_URL } from "@/lib/config";
 import { useAuth } from "@/context/AuthContext"; // ✅ Импортируем Auth
 import { Search, Monitor, Cpu, Filter, ShoppingCart, Loader2, LogIn, UserPlus, X } from "lucide-react";
 
@@ -261,7 +261,7 @@ function ProductCard({ item, view, index, isAdding, onAdd }) {
             </button>
           ) : (
             <button 
-              onClick={() => navigate('/configurator')} 
+              onClick={() => navigate(`/components/${item.id}`)} 
               className="p-2.5 bg-gray-600/10 text-gray-400 hover:bg-gray-600 hover:text-white rounded-lg transition-all"
               title="Комплектующие добавляются через Конфигуратор"
             >

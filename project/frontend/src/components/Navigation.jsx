@@ -12,11 +12,11 @@ const Navigation = () => {
   const navItems = [
     // { name: "Главная", to: "/" },
     { name: "Каталог", to: "/catalog" },
-    { name: "Услуги", to: "/services" },
-    { name: "Контакты", to: "/contact" },
-    { name: "О нас", to: "/about" },
+    // { name: "Услуги", to: "/services" },
+    // { name: "Контакты", to: "/contact" },
     { name: "Конфигуратор", to: "/config" },
     { name: "База знаний", to: "/knowledge" },
+    { name: "О нас", to: "/about" },
     { name: "Корзина", to: "/cart" },
     // { name: "Вход", to: "/login" },
     ...(user 
@@ -25,7 +25,7 @@ const Navigation = () => {
     ),
   ];
 
-  if (user?.role === 'admin') {
+  if (user?.role === 'admin' || user?.role === 'manager') {
     navItems.push({ name: "Админ", to: "/admin" });
   }
 

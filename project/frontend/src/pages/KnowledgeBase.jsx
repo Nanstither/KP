@@ -362,7 +362,7 @@ const KnowledgeBase = () => {
                       <div className="grid grid-cols-auto gap-6">
                         <div className="grid size-10 grid-cols-1 grid-rows-1 place-content-center border-1 border-transparent [border-image:linear-gradient(60deg,theme(colors.purple.300),theme(colors.pink.500))_1] font-mono text-[16px]/7 font-medium text-gray-950 dark:border-white/50 dark:text-white my-auto">
                           <div className="col-start-1 row-start-1 grid place-content-center">
-                            <div className="h-10 w-7 bg-white dark:bg-[#101019]">
+                            <div className="h-10 w-7 bg-gray-50 dark:bg-[#101019]">
                             </div>
                           </div>
                           <div className="col-start-1 row-start-1 grid place-content-center tracking-widest bg-gradient-to-r from-purple-300 to-pink-400 bg-clip-text text-transparent">
@@ -376,7 +376,7 @@ const KnowledgeBase = () => {
                       <div className="grid grid-cols-auto gap-6">
                         <div className="grid size-10 grid-cols-1 grid-rows-1 place-content-center border-1 border-transparent [border-image:linear-gradient(60deg,theme(colors.purple.300),theme(colors.pink.500))_1] font-mono text-[16px]/7 font-medium text-gray-950 dark:border-white/50 dark:text-white my-auto">
                           <div className="col-start-1 row-start-1 grid place-content-center">
-                            <div className="h-10 w-7 bg-white dark:bg-[#101019]">
+                            <div className="h-10 w-7 bg-gray-50 dark:bg-[#101019]">
                             </div>
                           </div>
                           <div className="col-start-1 row-start-1 grid place-content-center tracking-widest bg-gradient-to-r from-purple-300 to-pink-400 bg-clip-text text-transparent">
@@ -390,7 +390,7 @@ const KnowledgeBase = () => {
                       <div className="grid grid-cols-auto gap-6">
                         <div className="grid size-10 grid-cols-1 grid-rows-1 place-content-center border-1 border-transparent [border-image:linear-gradient(60deg,theme(colors.purple.300),theme(colors.pink.500))_1] font-mono text-[16px]/7 font-medium text-gray-950 dark:border-white/50 dark:text-white my-auto">
                           <div className="col-start-1 row-start-1 grid place-content-center">
-                            <div className="h-10 w-7 bg-white dark:bg-[#101019]">
+                            <div className="h-10 w-7 bg-gray-50 dark:bg-[#101019]">
                             </div>
                           </div>
                           <div className="col-start-1 row-start-1 grid place-content-center tracking-widest bg-gradient-to-r from-purple-300 to-pink-400 bg-clip-text text-transparent">
