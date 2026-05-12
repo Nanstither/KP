@@ -6,9 +6,10 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('role')->default('user')->after('email');
+            // $table->string('role')->default('user')->after('email');
             // Валидация на уровне кода, чтобы не усложнять схему БД
             // Допустимые значения: 'user', 'manager', 'admin'
+            $table->enum('role', ['user', 'manager', 'admin'])->default('user')->after('email');
         });
     }
 
