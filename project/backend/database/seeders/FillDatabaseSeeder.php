@@ -363,8 +363,8 @@ class FillDatabaseSeeder extends Seeder
         DB::table('case_form_factor');
         DB::table('components')->where('category_id', $catCase)->delete();
         $cases = [
-            ['brand' => 'NZXT', 'model' => 'H5 Flow', 'price' => 8500, 'type' => 'mid_tower', 'top_slots' => 2, 'fans' => 3, 'ffs' => [$ffATX, $ffMATX, $ffITX]],
-            ['brand' => 'Lian Li', 'model' => 'O11 Dynamic EVO', 'price' => 15500, 'type' => 'full_tower', 'top_slots' => 3, 'fans' => 0, 'ffs' => [$ffATX, $ffEATX]],
+            ['brand' => 'NZXT', 'model' => 'H5 Flow', 'price' => 8500, 'type' => 'mid_tower', 'top_slots' => 2, 'fans' => 3, 'ffs' => [$ffATX, $ffMATX, $ffITX], 'max_length_gpu' => 385, 'height' => 450, 'width' => 210, 'length' => 460],
+            ['brand' => 'Lian Li', 'model' => 'O11 Dynamic EVO', 'price' => 15500, 'type' => 'full_tower', 'top_slots' => 3, 'fans' => 0, 'ffs' => [$ffATX, $ffEATX], 'max_length_gpu' => 422, 'height' => 459, 'width' => 285, 'length' => 472],
         ];
         foreach ($cases as $case) {
             $id = DB::table('components')->insertGetId([
@@ -385,6 +385,10 @@ class FillDatabaseSeeder extends Seeder
                 'top_fan_slots' => $case['top_slots'], 'fans_included' => $case['fans'],
                 'drive_bays_3_5' => rand(2, 4), 'drive_bays_2_5' => rand(3, 6),
                 'front_usb_a' => 2, 'front_usb_c' => 1, 'front_audio_jack' => true,
+                'max_length_gpu' => $case['max_length_gpu'] ?? null,
+                'height' => $case['height'] ?? null,
+                'width' => $case['width'] ?? null,
+                'length' => $case['length'] ?? null,
                 'created_at' => now(), 'updated_at' => now(),
             ]);
             

@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 html {
   scroll-behavior: smooth; /* Плавный скролл к якорям */
 }
@@ -46,7 +48,7 @@ body {
   }
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
     --text: #9ca3af;
     --text-h: #f3f4f6;

@@ -27,6 +27,11 @@ return new class extends Migration
 
             $table->foreignId('material_id')->constrained('materials')->cascadeOnDelete();
 
+            $table->integer('max_length_gpu')->nullable()->comment('Макс. длина видеокарты (мм)');
+            $table->integer('height')->nullable()->comment('Высота корпуса (мм)');
+            $table->integer('width')->nullable()->comment('Ширина корпуса (мм)');
+            $table->integer('length')->nullable()->comment('Глубина/длина корпуса (мм)');
+
             $table->timestamps();
         });
 

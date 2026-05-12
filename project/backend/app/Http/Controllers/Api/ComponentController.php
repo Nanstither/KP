@@ -26,7 +26,9 @@ class ComponentController extends Controller
             'psuSpec', 
             'storageSpec', 
             'coolerSpec', 
-            'caseSpec'  // ← Вот это критично!
+            'caseSpec',  // ← Вот это критично!
+            'compatibleSockets:id,name',
+            'supportedFormFactors:id,name'
         ]);
         
         if ($request->has('category')) {

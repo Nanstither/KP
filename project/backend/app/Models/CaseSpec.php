@@ -14,6 +14,7 @@ class CaseSpec extends Model
         'component_id', 'case_type_id', 'top_fan_slots',
         'fans_included', 'drive_bays_3_5', 'drive_bays_2_5',
         'front_usb_a', 'front_usb_c', 'front_audio_jack', 'material_id',
+        'max_length_gpu', 'height', 'width', 'length'
     ];
 
     protected $casts = [
@@ -25,6 +26,10 @@ class CaseSpec extends Model
         'front_usb_a' => 'integer',
         'front_usb_c' => 'integer',
         'front_audio_jack' => 'boolean',
+        'max_length_gpu' => 'integer',
+        'height' => 'integer',
+        'width' => 'integer',
+        'length' => 'integer',
     ];
 
     public function component(): BelongsTo
