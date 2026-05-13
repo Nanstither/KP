@@ -345,20 +345,13 @@ export default function ConfiguratorPage() {
         components: componentIds
       };
 
-      if (user?.isAuth) {
-        // Авторизованный пользователь - отправляем на сервер
-        await api.post('/cart', payload);
-        alert('Сборка успешно добавлена в корзину!');
-        navigate('/cart'); // Переход в корзину
-      } else {
-        // Неавторизованный пользователь - сохраняем в localStorage
-        const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
-        guestCart.push(payload);
-        localStorage.setItem('guest_cart', JSON.stringify(guestCart));
-        alert('Сборка добавлена в корзину (доступна до входа в аккаунт). При авторизации данные будут перенесены.');
-        // Можно также перейти в локальную корзину или просто закрыть модалку
-        // navigate('/cart'); // Если есть страница корзины с поддержкой гостевого режима
-      }
+      // Отправляем на сервер (теперь доступно и для гостей)
+      // Session-ID добавляется автоматически через interceptor в api.js
+      const response = await api.post('/cart', payload);
+      
+      alert('Сборка успешно добавлена в корзину!');
+      navigate('/cart'); // Переход в корзину
+      
     } catch (error) {
       console.error('Ошибка при добавлении в корзину:', error);
       alert(error.response?.data?.message || 'Не удалось добавить сборку в корзину');

@@ -10,14 +10,23 @@ use Illuminate\Support\Facades\DB;
 class CartController extends Controller
 {
     /**
-     * Получить корзину текущего пользователя
+     * Получить корзину текущего пользователя или гостя
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
+        $sessionId = $request->header('X-Session-ID');
         
-        // firstOrCreate: находит корзину или создает новую, если её нет
-        $cart = Cart::firstOrCreate(['user_id' => $user->id]);
+        if ($user) {
+            // Авторизованный пользователь: ищем корзину по user_id
+            $cart = Cart::firstOrCreate(['user_id' => $user->id]);
+        } else {
+            // Гость: ищем корзину по session_id или создаем новую
+            if (!$sessionId) {
+                return response()->json(['message' => 'Session ID required for guest'], 400);
+            }
+            $cart = Cart::firstOrCreate(['session_id' => $sessionId]);
+        }
 
         // Загружаем элементы корзины + компоненты внутри них (для сборок)
         // Связь component нужна, чтобы на фронте показать картинку и название детали
@@ -49,7 +58,19 @@ class CartController extends Controller
         ]);
 
         $user = auth()->user();
-        $cart = Cart::firstOrCreate(['user_id' => $user->id]);
+        $sessionId = $request->header('X-Session-ID');
+        
+        if ($user) {
+            // Авторизованный пользователь
+            $cart = Cart::firstOrCreate(['user_id' => $user->id]);
+        } else {
+            // Гость
+            if (!$sessionId) {
+                return response()->json(['message' => 'Session ID required for guest'], 400);
+            }
+            $cart = Cart::firstOrCreate(['session_id' => $sessionId]);
+        }
+        
         $type = $request->input('type');
 
         return DB::transaction(function () use ($request, $cart, $type) {
@@ -115,9 +136,21 @@ class CartController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $cartItem = CartItem::where('id', $id)
-            ->whereHas('cart', fn($q) => $q->where('user_id', auth()->id()))
-            ->firstOrFail();
+        $user = auth()->user();
+        $sessionId = $request->header('X-Session-ID');
+        
+        $query = CartItem::where('id', $id);
+        
+        if ($user) {
+            $query->whereHas('cart', fn($q) => $q->where('user_id', $user->id));
+        } else {
+            if (!$sessionId) {
+                return response()->json(['message' => 'Session ID required'], 400);
+            }
+            $query->whereHas('cart', fn($q) => $q->where('session_id', $sessionId));
+        }
+        
+        $cartItem = $query->firstOrFail();
 
         // Разрешаем редактировать ТОЛЬКО кастомные сборки
         if ($cartItem->type !== 'custom') {
@@ -162,11 +195,23 @@ class CartController extends Controller
     /**
      * Удаление товара из корзины
      */
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
-        $cartItem = CartItem::where('id', $id)
-            ->whereHas('cart', fn($q) => $q->where('user_id', auth()->id()))
-            ->firstOrFail();
+        $user = auth()->user();
+        $sessionId = $request->header('X-Session-ID');
+        
+        $query = CartItem::where('id', $id);
+        
+        if ($user) {
+            $query->whereHas('cart', fn($q) => $q->where('user_id', $user->id));
+        } else {
+            if (!$sessionId) {
+                return response()->json(['message' => 'Session ID required'], 400);
+            }
+            $query->whereHas('cart', fn($q) => $q->where('session_id', $sessionId));
+        }
+        
+        $cartItem = $query->firstOrFail();
 
         $cartItem->delete(); // Каскадное удаление удалит и компоненты сборки
         
