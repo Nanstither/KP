@@ -416,7 +416,7 @@ export default function ConfiguratorPage() {
       {/* 🔵 ЛЕВАЯ ПАНЕЛЬ: Статус конфигурации */}
       <div className="w-[360px] flex-shrink-0 flex flex-col border-r border-gray-200 dark:border-white/10 bg-white dark:bg-[#141416] z-40 relative shadow-lg dark:shadow-none">
         <div className="p-5 border-b border-gray-200 dark:border-white/10">
-          <h2 className="font-bold text-gray-900 dark:text-white text-lg mb-1">Статус сборки</h2>
+          <h2 className="font-bold text-gray-900 dark:!text-white text-lg mb-1">Статус сборки</h2>
           <p className="text-xs text-gray-500 dark:text-gray-400">Проверка совместимости</p>
         </div>
         
@@ -585,7 +585,7 @@ export default function ConfiguratorPage() {
             </div>
             <motion.button 
               onClick={toggleTheme} 
-              className="cursor-pointer flex aspect-square items-center justify-center p-2.5 rounded-full border border-gray-200 dark:border-white/100 bg-white dark:bg-[#141416] hover:border-purple-400 shadow-lg backdrop-blur-md transition-colors"
+              className="cursor-pointer flex aspect-square items-center justify-center p-2.5 rounded-full border border-gray-200 dark:border-white/10 bg-white dark:bg-[#141416] hover:border-purple-400 shadow-lg backdrop-blur-md transition-colors"
             >
               {isDark ? <Sun className="w-4 h-4 text-yellow-500" /> : <Moon className="w-4 h-4 text-purple-600" />}
             </motion.button>
