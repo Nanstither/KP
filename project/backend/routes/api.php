@@ -25,13 +25,19 @@ Route::get('/components/{id}', [ComponentController::class, 'show']);
 Route::get('/prebuilt-pcs', [PrebuiltPcController::class, 'index']);
 Route::get('/prebuilt-pcs/{slug}', [PrebuiltPcController::class, 'show']);
 
+use App\Http\Controllers\Api\UserController;
+
 // Защищённые роуты (только для авторизованных)
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    // Админка (только admin)
+    // Управление пользователями (только admin)
     Route::middleware('role:admin')->group(function () {
+        Route::get('/users', [UserController::class, 'index']);
+        Route::put('/users/{user}/role', [UserController::class, 'updateRole']);
+        Route::delete('/users/{user}', [UserController::class, 'destroy']);
+        
         // Route::get('/admin/dashboard', fn() => response()->json(['msg' => 'Admin panel']));
         // Здесь будут CRUD для компонентов, категорий и т.д.
         // Простой CRUD для справочников
