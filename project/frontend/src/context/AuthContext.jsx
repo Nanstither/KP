@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useContext } from 'react';
-import api from '@/services/api';
+import api, { initAPI } from '@/services/api';
 
 const AuthContext = createContext(null);
 
@@ -9,6 +9,7 @@ export function AuthProvider({ children }) {
 
   // Проверка авторизации при загрузке
   useEffect(() => {
+    initAPI(); // Устанавливаем CSRF-cookie при старте
     checkAuth();
   }, []);
 
@@ -16,6 +17,8 @@ export function AuthProvider({ children }) {
     try {
       const response = await api.get('/me');
       setUser(response.data.user);
+      // При успешной авторизации очищаем session_id гостя, так как теперь работаем через сессию Laravel
+      localStorage.removeItem('session_id');
     } catch (error) {
       setUser(null);
     } finally {
@@ -26,6 +29,8 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     const response = await api.post('/login', { email, password });
     setUser(response.data.user);
+    // Очищаем session_id гостя после входа
+    localStorage.removeItem('session_id');
     return response.data.user;
   };
 
@@ -37,6 +42,8 @@ export function AuthProvider({ children }) {
       password_confirmation,
     });
     setUser(response.data.user);
+    // Очищаем session_id гостя после регистрации
+    localStorage.removeItem('session_id');
     return response.data.user;
   };
 
