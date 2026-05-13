@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -8,6 +8,11 @@ import CatalogPage from '@/pages/CatalogPage';
 import LoginPage from '@/pages/LoginPage';
 import AdminPanel from '@/pages/admin/AdminPanel';
 import KnowledgeBase from '@/pages/KnowledgeBase';
+import ComponentDetailPage from '@/pages/ComponentDetailPage';
+import ComponentEdit from '@/pages/admin/ComponentEdit';
+import ComponentCreate from './pages/admin/ComponentCreate';
+import CartPage from './pages/CartPage';
+import ConfiguratorPage from './pages/ConfiguratorPage';
 import '@/App.css';
 
 // Компонент для защиты роутов
@@ -34,9 +39,11 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 };
 
 export default function App() {
+  const location = useLocation();
+  const isAppPage = location.pathname.includes("config");
   return (
     <div>
-      <Navigation />
+      {!isAppPage && <Navigation />}
       <main>
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -44,6 +51,9 @@ export default function App() {
           <Route path="/catalog" element={<CatalogPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/knowledge" element={<KnowledgeBase />} />
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/components/:id" element={<ComponentDetailPage />} />
+          <Route path="/config" element={<ConfiguratorPage />} />
           
           {/* Защищённые админ-роуты */}
           <Route 
@@ -54,10 +64,12 @@ export default function App() {
               </ProtectedRoute>
             } 
           />
+          <Route path="/admin/components/:id/edit" element={<ComponentEdit />} />
+          <Route path="/admin/components/create" element={<ComponentCreate />} />
           <Route path="*" element={<Navigate to="/"/>} />
         </Routes>
       </main>
-    <Footer/>
+    {!isAppPage && <Footer />}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import {
   Target, Globe, Users, Cpu, Monitor, Zap,
   Code, Eye, MessageCircle, Clock
 } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 
 export default function AboutPage() {
   // Статистика
@@ -280,9 +281,11 @@ export default function AboutPage() {
                   <button className="px-8 py-3 rounded-lg font-medium transition-all cursor-pointer bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-purple-500/25 active:scale-95">
                     Связаться с нами
                   </button>
-                  <button className="px-8 py-3 rounded-lg font-medium transition-all cursor-pointer border border-purple-400/30 text-purple-300 hover:bg-purple-500/10 active:scale-95">
-                    Перейти в каталог
-                  </button>
+                  <Link to="/catalog">
+                    <button className="px-8 py-3 rounded-lg font-medium transition-all cursor-pointer border border-purple-400/30 text-purple-300 hover:bg-purple-500/10 active:scale-95">
+                      Перейти в каталог
+                    </button>
+                  </Link>
                 </div>
               </motion.div>
 
