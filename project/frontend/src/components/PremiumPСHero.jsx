@@ -21,7 +21,7 @@ const ParticlesBackground = () => {
       {particles.map((p) => (
         <motion.div
           key={p.id}
-          className="absolute rounded-full bg-white/50"
+          className="absolute rounded-full bg-pink-400 dark:bg-white/50"
           style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.size, height: p.size }}
           animate={{
             y: [0, -50, 0],
@@ -90,9 +90,9 @@ export default function PremiumPCHero() {
 // ============================================================
 
   return (
-    <div ref={containerRef} id="home" className="relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-slate-950 via-purple-950/20 to-pink-950/20">
+    <div ref={containerRef} id="home" className="relative min-h-screen w-full overflow-hidden bg-linear-to-br from-pink-100 via-white to-blue-100 dark:from-slate-950 dark:via-purple-950/20 dark:to-pink-950/20">
       <ParticlesBackground />
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-t dark:from-slate-950/90 dark:via-transparent dark:to-transparent" />
 
       <motion.div 
         style={{ opacity: smoothOpacity, scale: smoothScale, y: smoothY }} 
