@@ -292,6 +292,56 @@ export default function ConfiguratorPage() {
 
   // 1. Объяви состояние (сразу после других useState)
   const [isDark, setIsDark] = useState(true); // true = тёмная тема по умолчанию
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+
+  // Функция добавления сборки в корзину
+  const handleAddToCart = async () => {
+    setIsAddingToCart(true);
+    try {
+      // Собираем ID всех выбранных компонентов
+      const componentIds = [];
+      
+      // Добавляем корпус
+      if (selectedCase?.id) {
+        componentIds.push(selectedCase.id);
+      }
+      
+      // Добавляем остальные компоненты из build
+      Object.values(build).forEach(({ item, quantity }) => {
+        if (item?.id) {
+          for (let i = 0; i < quantity; i++) {
+            componentIds.push(item.id);
+          }
+        }
+      });
+      
+      if (componentIds.length === 0) {
+        alert('Сборка пуста');
+        setIsAddingToCart(false);
+        return;
+      }
+      
+      // Генерируем имя сборки
+      const cpuModel = build.cpu?.item?.model || 'Без CPU';
+      const gpuModel = build.gpu?.item?.model || 'Без GPU';
+      const buildName = `Сборка: ${cpuModel} + ${gpuModel}`;
+      
+      // Отправляем на backend
+      await api.post('/cart', {
+        type: 'custom',
+        name: buildName,
+        components: componentIds
+      });
+      
+      alert('Сборка успешно добавлена в корзину!');
+      navigate('/cart'); // Переход в корзину
+    } catch (error) {
+      console.error('Ошибка при добавлении в корзину:', error);
+      alert(error.response?.data?.message || 'Не удалось добавить сборку в корзину');
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
 
   // 2. Эффект переключения класса на <html>
   useEffect(() => {
@@ -456,10 +506,19 @@ export default function ConfiguratorPage() {
             <span className="text-2xl font-bold text-white font-mono">{Number(totalPrice).toLocaleString('ru-RU')} ₽</span>
           </div>
           <button
-            onClick={() => alert("Отправка в корзину!")}
-            className="w-full py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:opacity-90 shadow-lg shadow-purple-500/20"
+            onClick={handleAddToCart}
+            disabled={isAddingToCart}
+            className={`w-full py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:opacity-90 shadow-lg shadow-purple-500/20 ${isAddingToCart ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            <ShoppingBag className="w-5 h-5" /> Добавить в корзину
+            {isAddingToCart ? (
+              <>
+                <span className="animate-spin">⏳</span> Добавление...
+              </>
+            ) : (
+              <>
+                <ShoppingBag className="w-5 h-5" /> Добавить в корзину
+              </>
+            )}
           </button>
         </div>
       </div>
