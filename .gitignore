@@ -1,1 +1,1 @@
-Nothing should be ignored since the only change is a modification to a source code file (.jsx) without any build artifacts, dependencies, or temporary files present in the changes.
+(project/frontend/src/pages/admin/UsersTab.jsx)
