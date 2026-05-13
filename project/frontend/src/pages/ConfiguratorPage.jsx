@@ -459,7 +459,7 @@ export default function ConfiguratorPage() {
             </div>
             <motion.button 
               onClick={() => setIsDark(!isDark)} 
-              className="flex aspect-square items-center justify-center p-2.5 rounded-full border border-white/10 bg-gray-200 dark:bg-[#141416] hover:bg-gray-300 dark:hover:border-purple-400 dark:hover:bg-[#141416] shadow-lg backdrop-blur-md transition-colors"
+              className="cursor-pointer flex aspect-square items-center justify-center p-2.5 rounded-full border border-white/100 bg-gray-200 dark:bg-[#141416] hover:border-purple-400 shadow-lg backdrop-blur-md transition-colors"
             >
               {isDark ? <Sun className="w-4 h-4 text-white-400" /> : <Moon className="w-4 h-4 text-purple-400" />}
             </motion.button>

@@ -35,6 +35,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/cart/{id}', [CartController::class, 'update']); // Редактирование сборки
     Route::delete('/cart/{id}', [CartController::class, 'destroy']);
 
+    Route::post('/cart/add', [CartController::class, 'storeBuild']);
+
     // Админка (только admin)
     Route::middleware('role:admin')->group(function () {
         // Route::get('/admin/dashboard', fn() => response()->json(['msg' => 'Admin panel']));
