@@ -25,6 +25,29 @@ const ICON_MAP = {
   case: <LayoutGrid className="w-5 h-5" />,
 };
 
+// 🔹 Глобальная функция переключения темы
+const toggleGlobalTheme = () => {
+  const html = document.documentElement;
+  const isDark = !html.classList.contains('dark');
+  
+  if (isDark) {
+    html.classList.add('dark');
+    localStorage.setItem('theme', 'dark');
+  } else {
+    html.classList.remove('dark');
+    localStorage.setItem('theme', 'light');
+  }
+  
+  return isDark;
+};
+
+// 🔹 Получение текущей темы
+const getInitialTheme = () => {
+  const saved = localStorage.getItem('theme');
+  if (saved) return saved === 'dark';
+  return true; // по умолчанию тёмная
+};
+
 const formatSpecs = (item, categoryId) => {
   const specs = [];
   const specKey = `${categoryId}_spec`;
@@ -291,7 +314,7 @@ export default function ConfiguratorPage() {
   };
 
   // 1. Объяви состояние (сразу после других useState)
-  const [isDark, setIsDark] = useState(true); // true = тёмная тема по умолчанию
+  const [isDark, setIsDark] = useState(getInitialTheme); // true = тёмная тема по умолчанию
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [user, setUser] = useState(null); // Состояние пользователя
 
@@ -306,6 +329,12 @@ export default function ConfiguratorPage() {
       setUser({ isAuth: false });
     }
   }, []);
+
+  // Функция переключения темы (локальная + глобальная синхронизация)
+  const toggleTheme = () => {
+    const newIsDark = toggleGlobalTheme();
+    setIsDark(newIsDark);
+  };
 
   // Функция добавления сборки в корзину
   const handleAddToCart = async () => {
@@ -555,7 +584,7 @@ export default function ConfiguratorPage() {
               <ShoppingBag className="w-4 h-4" /> Конфигурация
             </div>
             <motion.button 
-              onClick={() => setIsDark(!isDark)} 
+              onClick={toggleTheme} 
               className="cursor-pointer flex aspect-square items-center justify-center p-2.5 rounded-full border border-gray-200 dark:border-white/100 bg-white dark:bg-[#141416] hover:border-purple-400 shadow-lg backdrop-blur-md transition-colors"
             >
               {isDark ? <Sun className="w-4 h-4 text-yellow-500" /> : <Moon className="w-4 h-4 text-purple-600" />}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Menu, X, Monitor } from "lucide-react";
+import { Menu, X, Monitor, Sun, Moon } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
@@ -8,6 +8,29 @@ const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user, logout } = useAuth();
+  
+  // Состояние темы
+  const [isDark, setIsDark] = useState(() => {
+    const saved = localStorage.getItem('theme');
+    return saved !== 'light'; // по умолчанию тёмная
+  });
+
+  // Синхронизация с глобальной темой
+  useEffect(() => {
+    const html = document.documentElement;
+    if (isDark) {
+      html.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      html.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDark]);
+
+  // Обработчик переключения темы
+  const toggleTheme = () => {
+    setIsDark(!isDark);
+  };
 
   const navItems = [
     // { name: "Главная", to: "/" },
@@ -93,6 +116,15 @@ const Navigation = () => {
                 )}
               </motion.p>
             ))}
+            
+            {/* Кнопка переключения темы */}
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={toggleTheme}
+              className="flex aspect-square items-center justify-center p-2 rounded-full border border-purple-400/30 bg-white/5 dark:bg-white/10 hover:border-purple-400 transition-colors"
+            >
+              {isDark ? <Sun className="w-4 h-4 text-yellow-500" /> : <Moon className="w-4 h-4 text-purple-600" />}
+            </motion.button>
           </div>
           
           {/* Кнопка мобильного меню */}
@@ -136,6 +168,16 @@ const Navigation = () => {
                 )}
               </motion.p>
             ))}
+            
+            {/* Кнопка переключения темы в мобильном меню */}
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => { toggleTheme(); setIsOpen(false); }}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-purple-400/30 bg-white/5 dark:bg-white/10 hover:border-purple-400 transition-colors w-full mt-2"
+            >
+              {isDark ? <Sun className="w-4 h-4 text-yellow-500" /> : <Moon className="w-4 h-4 text-purple-600" />}
+              <span className="text-sm text-purple-200/70">{isDark ? 'Светлая тема' : 'Тёмная тема'}</span>
+            </motion.button>
           </motion.div>
         )}
       </div>
