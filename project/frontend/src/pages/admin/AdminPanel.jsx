@@ -69,7 +69,7 @@ export default function AdminPanel() {
   const lowStockCount = components.filter(c => c.stock > 0 && c.stock <= 5).length;
 
   return (
-    <div className="min-h-screen bg-[#0f0f10] text-gray-200 p-6 pt-30">
+    <div className="min-h-screen bg-gradient-to-tr from-pink-200 via-orange-100 to-blue-200 dark:bg-[#0f0f10] text-gray-200 p-6 pt-30">
       <div className="max-w-7xl mx-auto space-y-6">
 
         {/* --- KPI BAR (Всегда виден) --- */}
