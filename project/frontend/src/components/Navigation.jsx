@@ -86,7 +86,7 @@ const Navigation = () => {
               <span className="ml-2 text-xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
                   TECH LAB
               </span> */}
-              <img src="/logo.svg" alt="TechLab" className="transition h-20 w-auto [mask-image:linear-gradient(to_bottom,white_50%,transparent_100%)] hover:scale-[0.95]"/>
+              <img src="/logo.svg" alt="TechLab" className=" transition h-20 w-auto  hover:scale-[0.95]"/>
             </motion.div>
           </Link>
           
@@ -99,11 +99,11 @@ const Navigation = () => {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 * index }}
-                className="text-sm text-purple-200/70 hover:text-purple-300 transition-colors relative group block"
+                className="text-sm rounded-xl dark:bg-transparent p-2.5 text-purple-200/70 hover:text-purple-300 transition-colors relative group block"
               >
                 {item.isLogout ? (
                   <>
-                    <button onClick={item.action} className="text-purple-200/70 hover:text-red-400 transition-colors cursor-pointer">
+                    <button onClick={item.action} className="text-purple-200/70 group-hover:text-red-400 transition-colors cursor-pointer">
                       {item.name}
                     </button>
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-red-400/80 to-red-400/60 group-hover:w-full transition-all duration-300" />

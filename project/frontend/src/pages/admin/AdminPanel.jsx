@@ -69,7 +69,7 @@ export default function AdminPanel() {
   const lowStockCount = components.filter(c => c.stock > 0 && c.stock <= 5).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-tr from-pink-200 via-orange-100 to-blue-200 dark:bg-[#0f0f10] text-gray-200 p-6 pt-30">
+    <div className="min-h-screen bg-gradient-to-tr from-pink-100 via-orange-50 to-blue-100 dark:bg-none dark:bg-[#0f0f10] text-gray-200 p-6 pt-30">
       <div className="max-w-7xl mx-auto space-y-6">
 
         {/* --- KPI BAR (Всегда виден) --- */}
@@ -96,32 +96,34 @@ export default function AdminPanel() {
           
           {/* Сайдбар */}
           <motion.aside initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="lg:col-span-1">
-            <nav className="sticky top-24 space-y-1 bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 rounded-xl p-2 shadow-sm">
-              {[
-                { id: 'dashboard', label: 'Дашборд', icon: TrendingUp },
-                { id: 'components', label: 'Компоненты', icon: Cpu },
-                { id: 'orders', label: 'Заказы', icon: Package },
-                ...(user?.role === 'admin' ? [{ id: 'users', label: 'Пользователи', icon: Users }] : []),
-                ...(user?.role === 'admin' ? [{ id: 'settings', label: 'Настройки', icon: Settings }] : [])
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => handleTabChange(tab.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                    activeTab === tab.id
-                      ? 'bg-purple-100 dark:bg-purple-600/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-200'
-                  }`}
-                >
-                  <tab.icon className="w-4 h-4" />
-                  {tab.label}
-                </button>
-              ))}
-            </nav>
-            <div className='sticky top-80 bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 rounded-xl p-2 mt-4 shadow-sm'>
-              <p className="text-sm text-gray-600 dark:text-gray-400 text-left">
-                Приветствую, {user?.name} <br /> <span className='text-[12px] text-purple-600 dark:text-purple-300/[0.75]'>( {user?.role === 'admin' ? 'Администратор' : 'Менеджер'} )</span>
-              </p>
+            <div className='sticky top-24'>
+              <nav className="space-y-1 bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 rounded-xl p-2 shadow-sm">
+                {[
+                  { id: 'dashboard', label: 'Дашборд', icon: TrendingUp },
+                  { id: 'components', label: 'Компоненты', icon: Cpu },
+                  { id: 'orders', label: 'Заказы', icon: Package },
+                  ...(user?.role === 'admin' ? [{ id: 'users', label: 'Пользователи', icon: Users }] : []),
+                  ...(user?.role === 'admin' ? [{ id: 'settings', label: 'Настройки', icon: Settings }] : [])
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => handleTabChange(tab.id)}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
+                      activeTab === tab.id
+                        ? 'bg-purple-100 dark:bg-purple-600/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30'
+                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-200'
+                    }`}
+                  >
+                    <tab.icon className="w-4 h-4" />
+                    {tab.label}
+                  </button>
+                ))}
+              </nav>
+              <div className='bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 rounded-xl p-2 mt-4 shadow-sm'>
+                <p className="text-sm text-gray-600 dark:text-gray-400 text-left">
+                  Приветствую, {user?.name} <br /> <span className='text-[12px] text-purple-600 dark:text-purple-300/[0.75]'>( {user?.role === 'admin' ? 'Администратор' : 'Менеджер'} )</span>
+                </p>
+              </div>
             </div>
           </motion.aside>
 
