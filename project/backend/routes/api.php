@@ -25,17 +25,10 @@ Route::get('/components/{id}', [ComponentController::class, 'show']);
 Route::get('/prebuilt-pcs', [PrebuiltPcController::class, 'index']);
 Route::get('/prebuilt-pcs/{slug}', [PrebuiltPcController::class, 'show']);
 
-// Защищённые роуты
+// Защищённые роуты (только для авторизованных)
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
-
-    Route::get('/cart', [CartController::class, 'index']);
-    Route::post('/cart', [CartController::class, 'store']);
-    Route::put('/cart/{id}', [CartController::class, 'update']); // Редактирование сборки
-    Route::delete('/cart/{id}', [CartController::class, 'destroy']);
-
-    Route::post('/cart/add', [CartController::class, 'storeBuild']);
 
     // Админка (только admin)
     Route::middleware('role:admin')->group(function () {
@@ -63,3 +56,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('admin/components', [ComponentController::class, 'storeFull']);
     });
 });
+
+// Публичные роуты корзины (доступны всем)
+Route::get('/cart', [CartController::class, 'index']);
+Route::post('/cart', [CartController::class, 'store']);
+Route::put('/cart/{id}', [CartController::class, 'update']); // Редактирование сборки
+Route::delete('/cart/{id}', [CartController::class, 'destroy']);
