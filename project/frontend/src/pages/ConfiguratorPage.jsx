@@ -294,7 +294,7 @@ export default function ConfiguratorPage() {
   const allCases = products.case || [];
 
   return (
-    <div className="flex w-full h-screen bg-gray-400 dark:bg-[#0f0f10] text-gray-200 overflow-hidden select-none">
+    <div className="flex w-full h-screen bg-white dark:bg-[#0f0f10] text-gray-200 overflow-hidden select-none">
       
       {/* 🔵 ЛЕВАЯ ПАНЕЛЬ: Статус конфигурации */}
       <div className="w-[360px] flex-shrink-0 flex flex-col border-r border-white/10 bg-gray-700 dark:bg-[#141416] z-40 relative">
@@ -475,7 +475,7 @@ export default function ConfiguratorPage() {
               onError={(e) => { e.target.src = "/placeholder.svg"; }}
               className="h-[600px] aspect-[1/1] object-cover drop-shadow-2xl rounded-2xl"
             />
-            <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 z-20 bg-white dark:bg-black/80 backdrop-blur-md border border-white/10 px-6 py-2 rounded-full flex flex-col items-center">
+            <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 z-20 bg-white dark:bg-black/80 backdrop-blur-md border border-white/10 px-6 py-2 rounded-full shadow-lg flex flex-col items-center">
               <span className="text-xs text-gray-600 dark:text-gray-400 uppercase tracking-widest">{selectedCase?.model || "Корпус не выбран"}</span>
             </div>
           </div>
@@ -484,7 +484,7 @@ export default function ConfiguratorPage() {
         {/* Модалка выбора корпусов */}
         <AnimatePresence>
           {isCaseSelectorOpen && (
-            <motion.div initial={{ y: 420, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 420, opacity: 0 }} transition={{ type: "spring", damping: 25 }} className="absolute bottom-0 left-0 right-0 bg-[#141416] border-t border-white/10 z-40 min-h-[420px] shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+            <motion.div initial={{ y: 420, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 420, opacity: 0 }} transition={{ type: "spring", damping: 25 }} className="absolute bottom-0 left-0 right-0 bg-gray-800 dark:bg-[#141416] border-t border-white/10 z-40 min-h-[420px] shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
               <div className="p-6 h-full overflow-y-auto custom-scrollbar">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Выберите корпус</h3>
