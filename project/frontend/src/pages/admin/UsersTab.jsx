@@ -34,7 +34,10 @@ export default function UsersTab() {
   };
 
   useEffect(() => {
-    fetchUsers();
+    const timer = setTimeout(() => {
+      fetchUsers();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [searchTerm, filterRole]);
 
   const handleSearchChange = (e) => {
