@@ -293,6 +293,19 @@ export default function ConfiguratorPage() {
   // 1. Объяви состояние (сразу после других useState)
   const [isDark, setIsDark] = useState(true); // true = тёмная тема по умолчанию
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [user, setUser] = useState(null); // Состояние пользователя
+
+  // Проверка авторизации при загрузке
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      // Если токен есть, считаем пользователя авторизованным
+      // В реальном приложении здесь можно сделать запрос /me для получения данных
+      setUser({ isAuth: true });
+    } else {
+      setUser({ isAuth: false });
+    }
+  }, []);
 
   // Функция добавления сборки в корзину
   const handleAddToCart = async () => {
@@ -326,15 +339,26 @@ export default function ConfiguratorPage() {
       const gpuModel = build.gpu?.item?.model || 'Без GPU';
       const buildName = `Сборка: ${cpuModel} + ${gpuModel}`;
       
-      // Отправляем на backend
-      await api.post('/cart', {
+      const payload = {
         type: 'custom',
         name: buildName,
         components: componentIds
-      });
-      
-      alert('Сборка успешно добавлена в корзину!');
-      navigate('/cart'); // Переход в корзину
+      };
+
+      if (user?.isAuth) {
+        // Авторизованный пользователь - отправляем на сервер
+        await api.post('/cart', payload);
+        alert('Сборка успешно добавлена в корзину!');
+        navigate('/cart'); // Переход в корзину
+      } else {
+        // Неавторизованный пользователь - сохраняем в localStorage
+        const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+        guestCart.push(payload);
+        localStorage.setItem('guest_cart', JSON.stringify(guestCart));
+        alert('Сборка добавлена в корзину (доступна до входа в аккаунт). При авторизации данные будут перенесены.');
+        // Можно также перейти в локальную корзину или просто закрыть модалку
+        // navigate('/cart'); // Если есть страница корзины с поддержкой гостевого режима
+      }
     } catch (error) {
       console.error('Ошибка при добавлении в корзину:', error);
       alert(error.response?.data?.message || 'Не удалось добавить сборку в корзину');
@@ -365,28 +389,28 @@ export default function ConfiguratorPage() {
   const allCases = products.case || [];
 
   return (
-    <div className="flex w-full h-screen bg-white dark:bg-[#0f0f10] text-gray-200 overflow-hidden select-none">
+    <div className="flex w-full h-screen bg-gray-50 dark:bg-[#0f0f10] text-gray-800 dark:text-gray-200 overflow-hidden select-none">
       
       {/* 🔵 ЛЕВАЯ ПАНЕЛЬ: Статус конфигурации */}
-      <div className="w-[360px] flex-shrink-0 flex flex-col border-r border-white/10 bg-gray-700 dark:bg-[#141416] z-40 relative">
-        <div className="p-5 border-b border-white/10">
-          <h2 className="font-bold !text-white text-lg mb-1">Статус сборки</h2>
-          <p className="text-xs text-gray-500">Проверка совместимости</p>
+      <div className="w-[360px] flex-shrink-0 flex flex-col border-r border-gray-200 dark:border-white/10 bg-white dark:bg-[#141416] z-40 relative shadow-lg dark:shadow-none">
+        <div className="p-5 border-b border-gray-200 dark:border-white/10">
+          <h2 className="font-bold text-gray-900 dark:text-white text-lg mb-1">Статус сборки</h2>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Проверка совместимости</p>
         </div>
         
         <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-5">
           {/* 🔹 ПУНКТ 1: КОРПУС */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-gray-300 uppercase tracking-wide">Корпус</span>
-              <div className="h-px flex-1 bg-white/10 ml-3"></div>
+              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Корпус</span>
+              <div className="h-px flex-1 bg-gray-200 dark:bg-white/10 ml-3"></div>
             </div>
-            <div className={`pl-2 border-l-2 transition-colors ${selectedCase ? 'border-green-500/50 bg-green-500/5' : 'border-gray-600/30 bg-gray-800/20'} rounded-r-lg p-2`}>
+            <div className={`pl-2 border-l-2 transition-colors ${selectedCase ? 'border-green-500/50 bg-green-50 dark:bg-green-500/5' : 'border-gray-300 dark:border-gray-600/30 bg-gray-100 dark:bg-gray-800/20'} rounded-r-lg p-2`}>
               <div className="flex items-center justify-between mb-1">
-                <span className={`text-xs font-medium truncate max-w-[200px] ${selectedCase ? 'text-green-300' : 'text-gray-500'}`}>
+                <span className={`text-xs font-medium truncate max-w-[200px] ${selectedCase ? 'text-green-700 dark:text-green-300' : 'text-gray-400 dark:text-gray-500'}`}>
                   {selectedCase ? selectedCase.model : '—'}
                 </span>
-                {selectedCase ? <Check className="w-4 h-4 text-green-400" /> : <span className="text-gray-600 text-xs">Ожидание</span>}
+                {selectedCase ? <Check className="w-4 h-4 text-green-600 dark:text-green-400" /> : <span className="text-gray-400 dark:text-gray-600 text-xs">Ожидание</span>}
               </div>
             </div>
           </div>
@@ -500,10 +524,10 @@ export default function ConfiguratorPage() {
           })}
         </div>
 
-        <div className="p-5 border-t border-white/10 bg-gray-700 dark:bg-[#141416] space-y-4">
+        <div className="p-5 border-t border-gray-200 dark:border-white/10 bg-white dark:bg-[#141416] space-y-4">
           <div className="flex justify-between items-end">
-            <span className="text-gray-400 text-sm">Итого:</span>
-            <span className="text-2xl font-bold text-white font-mono">{Number(totalPrice).toLocaleString('ru-RU')} ₽</span>
+            <span className="text-gray-600 dark:text-gray-400 text-sm">Итого:</span>
+            <span className="text-2xl font-bold text-gray-900 dark:text-white font-mono">{Number(totalPrice).toLocaleString('ru-RU')} ₽</span>
           </div>
           <button
             onClick={handleAddToCart}
@@ -528,20 +552,20 @@ export default function ConfiguratorPage() {
         {/* Хедер с кнопками */}
         <header className="absolute top-6 left-0 right-72 z-50 flex justify-center pointer-events-none">
           <div className="flex gap-3 pointer-events-auto">
-            <motion.button whileTap={{ scale: 0.95 }} onClick={() => navigate(-1)} className="cursor-pointer flex items-center gap-2 px-5 py-2.5 bg-gray-200 dark:bg-[#141416] text-black dark:text-white border border-white/10 hover:border-purple-500/50 rounded-full shadow-lg backdrop-blur-md transition-colors text-sm font-medium">
+            <motion.button whileTap={{ scale: 0.95 }} onClick={() => navigate(-1)} className="cursor-pointer flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-[#141416] text-gray-900 dark:text-white border border-gray-200 dark:border-white/10 hover:border-purple-500/50 rounded-full shadow-lg backdrop-blur-md transition-colors text-sm font-medium">
               <ArrowLeft className="w-4 h-4" /> Обратно
             </motion.button>
-            <motion.button whileTap={{ scale: 0.95 }} onClick={() => { setIsCaseSelectorOpen(!isCaseSelectorOpen); setSelectedCategory(null); }} className="cursor-pointer flex items-center gap-2 px-5 py-2.5 bg-gray-200 dark:bg-[#141416] text-black dark:text-white border border-white/10 hover:border-purple-500/50 rounded-full shadow-lg backdrop-blur-md transition-colors text-sm font-medium">
-              <LayoutGrid className="w-4 h-4 text-purple-400" /> Сменить&nbsp;корпус
+            <motion.button whileTap={{ scale: 0.95 }} onClick={() => { setIsCaseSelectorOpen(!isCaseSelectorOpen); setSelectedCategory(null); }} className="cursor-pointer flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-[#141416] text-gray-900 dark:text-white border border-gray-200 dark:border-white/10 hover:border-purple-500/50 rounded-full shadow-lg backdrop-blur-md transition-colors text-sm font-medium">
+              <LayoutGrid className="w-4 h-4 text-purple-600 dark:text-purple-400" /> Сменить&nbsp;корпус
             </motion.button>
             <div className="cursor-pointer flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-full shadow-lg shadow-purple-500/60 dark:shadow-purple-500/20 transition-colors duration-300 text-sm font-bold text-white">
               <ShoppingBag className="w-4 h-4" /> Конфигурация
             </div>
             <motion.button 
               onClick={() => setIsDark(!isDark)} 
-              className="cursor-pointer flex aspect-square items-center justify-center p-2.5 rounded-full border border-white/100 bg-gray-200 dark:bg-[#141416] hover:border-purple-400 shadow-lg backdrop-blur-md transition-colors"
+              className="cursor-pointer flex aspect-square items-center justify-center p-2.5 rounded-full border border-gray-200 dark:border-white/100 bg-white dark:bg-[#141416] hover:border-purple-400 shadow-lg backdrop-blur-md transition-colors"
             >
-              {isDark ? <Sun className="w-4 h-4 text-white-400" /> : <Moon className="w-4 h-4 text-purple-400" />}
+              {isDark ? <Sun className="w-4 h-4 text-yellow-500" /> : <Moon className="w-4 h-4 text-purple-600" />}
             </motion.button>
           </div>
         </header>
@@ -564,20 +588,20 @@ export default function ConfiguratorPage() {
         {/* Модалка выбора корпусов */}
         <AnimatePresence>
           {isCaseSelectorOpen && (
-            <motion.div initial={{ y: 420, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 420, opacity: 0 }} transition={{ type: "spring", damping: 25 }} className="absolute bottom-0 left-0 right-0 bg-gray-800 dark:bg-[#141416] border-t border-white/10 z-40 min-h-[420px] shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+            <motion.div initial={{ y: 420, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 420, opacity: 0 }} transition={{ type: "spring", damping: 25 }} className="absolute bottom-0 left-0 right-0 bg-white dark:bg-[#141416] border-t border-gray-200 dark:border-white/10 z-40 min-h-[420px] shadow-[0_-10px_40px_rgba(0,0,0,0.2)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
               <div className="p-6 h-full overflow-y-auto custom-scrollbar">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Выберите корпус</h3>
-                  <button onClick={() => setIsCaseSelectorOpen(false)} className="p-2 hover:bg-white/10 rounded-full"><X className="w-5 h-5 text-gray-400" /></button>
+                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-400 uppercase tracking-wider">Выберите корпус</h3>
+                  <button onClick={() => setIsCaseSelectorOpen(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-full"><X className="w-5 h-5 text-gray-600 dark:text-gray-400" /></button>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                   {allCases.map(c => (
-                    <button key={c.id} onClick={() => { setSelectedCase(c); setIsCaseSelectorOpen(false); }} className={`relative flex flex-col p-4 rounded-xl border transition-all text-left group ${selectedCase?.id === c.id ? "bg-purple-600/10 border-purple-500 ring-1 ring-purple-500/50" : "bg-[#0a0a0c] border-white/5 hover:border-white/20 hover:bg-[#111114]"}`}>
-                      <div className="bg-[#050505] rounded-lg mb-3 flex items-center justify-center overflow-hidden flex-shrink-0 aspect-video">
+                    <button key={c.id} onClick={() => { setSelectedCase(c); setIsCaseSelectorOpen(false); }} className={`relative flex flex-col p-4 rounded-xl border transition-all text-left group ${selectedCase?.id === c.id ? "bg-purple-600/10 border-purple-500 ring-1 ring-purple-500/50" : "bg-gray-50 dark:bg-[#0a0a0c] border-gray-200 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/20 hover:bg-gray-100 dark:hover:bg-[#111114]"}`}>
+                      <div className="bg-gray-200 dark:bg-[#050505] rounded-lg mb-3 flex items-center justify-center overflow-hidden flex-shrink-0 aspect-video">
                         <img src={`${STORAGE_URL}/${c.image}` || "/placeholder.svg"} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" onError={(e) => { e.target.src = "/placeholder.svg"; }} />
                       </div>
-                      <p className="font-medium text-white text-sm leading-tight line-clamp-2">{c.model}</p>
-                      <p className="text-purple-300 text-xs font-mono mt-1">{Number(c.price).toLocaleString('ru-RU')} ₽</p>
+                      <p className="font-medium text-gray-900 dark:text-white text-sm leading-tight line-clamp-2">{c.model}</p>
+                      <p className="text-purple-600 dark:text-purple-300 text-xs font-mono mt-1">{Number(c.price).toLocaleString('ru-RU')} ₽</p>
                       {selectedCase?.id === c.id && <div className="absolute top-3 right-3 bg-purple-500 rounded-full p-1.5 shadow-lg"><Check className="w-3 h-3 text-white" /></div>}
                     </button>
                   ))}
@@ -588,12 +612,12 @@ export default function ConfiguratorPage() {
         </AnimatePresence>
 
         {/* 🔵 ПРАВАЯ ПАНЕЛЬ: Выбор компонентов */}
-        <motion.aside animate={{ width: selectedCategory ? 660 : 320 }} transition={{ type: "spring", stiffness: 120, damping: 22 }} className="absolute top-0 right-0 h-full bg-[#141416] border-l border-white/10 z-40 flex overflow-hidden shadow-2xl">
+        <motion.aside animate={{ width: selectedCategory ? 660 : 320 }} transition={{ type: "spring", stiffness: 120, damping: 22 }} className="absolute top-0 right-0 h-full bg-white dark:bg-[#141416] border-l border-gray-200 dark:border-white/10 z-40 flex overflow-hidden shadow-2xl dark:shadow-none">
           {/* Левая часть правой панели: Список категорий */}
-          <div className="w-[320px] flex-shrink-0 flex flex-col border-r border-white/10 bg-gray-700 dark:bg-[#141416]">
-            <div className="p-4 h-16 border-b border-white/10 flex items-center justify-between">
-              <span className="font-bold text-white text-sm">Комплектующие</span>
-              {Object.keys(build).length > 0 && <span className="text-xs text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full">{Object.keys(build).length} выбр.</span>}
+          <div className="w-[320px] flex-shrink-0 flex flex-col border-r border-gray-200 dark:border-white/10 bg-white dark:bg-[#141416]">
+            <div className="p-4 h-16 border-b border-gray-200 dark:border-white/10 flex items-center justify-between">
+              <span className="font-bold text-gray-900 dark:text-white text-sm">Комплектующие</span>
+              {Object.keys(build).length > 0 && <span className="text-xs text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-500/10 px-2 py-0.5 rounded-full">{Object.keys(build).length} выбр.</span>}
             </div>
             <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1">
               {categories.map(cat => {
@@ -611,32 +635,32 @@ export default function ConfiguratorPage() {
                     }} 
                     className={`w-full flex flex-col items-start p-3 rounded-xl border transition-all group cursor-pointer ${
                       isSelected ? "bg-purple-600/10 border-purple-500/40" : 
-                      isPicked ? "bg-white/10 border-white/10" : 
-                      "bg-black/[0.4] dark:bg-[#0a0a0c] border-white/5 hover:bg-[#1a1a1d] hover:border-white/20"
+                      isPicked ? "bg-gray-100 dark:bg-white/10 border-gray-200 dark:border-white/10" : 
+                      "bg-gray-50 dark:bg-[#0a0a0c] border-gray-200 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-[#1a1a1d] hover:border-gray-300 dark:hover:border-white/20"
                     }`}
                   >
                     <div className="flex items-center justify-between w-full mb-1">
                       <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg ${isPicked ? 'bg-white/10 text-white' : isSelected ? 'bg-purple-500/20 text-purple-300' : 'bg-white/5 text-gray-500 group-hover:text-gray-300'}`}>
+                        <div className={`p-2 rounded-lg ${isPicked ? 'bg-purple-500/20 text-purple-600 dark:bg-white/10 dark:text-white' : isSelected ? 'bg-purple-500/20 text-purple-600 dark:text-purple-300' : 'bg-gray-100 dark:bg-white/5 text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300'}`}>
                           {cat.icon}
                         </div>
-                        <span className={`text-sm font-medium ${isPicked ? 'text-white' : isSelected ? 'text-white' : 'text-gray-400 group-hover:text-gray-200'}`}>
+                        <span className={`text-sm font-medium ${isPicked ? 'text-gray-900 dark:text-white' : isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200'}`}>
                           {cat.name}
                         </span>
                       </div>
-                      {isPicked ? <Check className="w-4 h-4 text-gray-400" /> : <ChevronRight className={`w-4 h-4 transition-transform ${isSelected ? 'rotate-90 text-purple-400' : 'text-gray-600 group-hover:text-gray-400'}`} />}
+                      {isPicked ? <Check className="w-4 h-4 text-gray-500 dark:text-gray-400" /> : <ChevronRight className={`w-4 h-4 transition-transform ${isSelected ? 'rotate-90 text-purple-500 dark:text-purple-400' : 'text-gray-400 dark:text-gray-600 group-hover:text-gray-500 dark:group-hover:text-gray-400'}`} />}
                     </div>
                     
                     {cat.id === 'storage' ? (
                       <div className="flex flex-col gap-1 mt-1 ml-11 w-full">
-                        {build.nvme?.item && <span className="text-xs text-gray-300 truncate">NVMe: {build.nvme.item.model}</span>}
-                        {build.sata?.item && <span className="text-xs text-gray-300 truncate">SATA: {build.sata.item.model}</span>}
+                        {build.nvme?.item && <span className="text-xs text-gray-700 dark:text-gray-300 truncate">NVMe: {build.nvme.item.model}</span>}
+                        {build.sata?.item && <span className="text-xs text-gray-700 dark:text-gray-300 truncate">SATA: {build.sata.item.model}</span>}
                       </div>
                     ) : (
                       isPicked && selectedItem && (
                         <div className="flex items-center justify-between w-full mt-1 ml-11">
-                          <span className="text-xs text-gray-400 truncate max-w-[140px]">{selectedItem.model}</span>
-                          {qty > 1 && <span className="text-xs font-mono text-purple-400 bg-purple-500/10 px-1.5 rounded">x{qty}</span>}
+                          <span className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[140px]">{selectedItem.model}</span>
+                          {qty > 1 && <span className="text-xs font-mono text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-500/10 px-1.5 rounded">x{qty}</span>}
                         </div>
                       )
                     )}
@@ -649,17 +673,17 @@ export default function ConfiguratorPage() {
           {/* Правая часть правой панели: Список товаров */}
           <AnimatePresence>
             {selectedCategory && (
-              <motion.div initial={{ width: 0, opacity: 0 }} animate={{ width: 340, opacity: 1 }} exit={{ width: 0, opacity: 0 }} transition={{ type: "spring", stiffness: 120, damping: 22 }} className="flex-shrink-0 overflow-hidden bg-[#0f0f10]">
+              <motion.div initial={{ width: 0, opacity: 0 }} animate={{ width: 340, opacity: 1 }} exit={{ width: 0, opacity: 0 }} transition={{ type: "spring", stiffness: 120, damping: 22 }} className="flex-shrink-0 overflow-hidden bg-gray-50 dark:bg-[#0f0f10]">
                 <div className="w-[340px] h-full flex flex-col">
-                  <div className="p-4 h-16 border-b border-white/10 flex items-center justify-between bg-gray-700 dark:bg-[#141416]">
+                  <div className="p-4 h-16 border-b border-gray-200 dark:border-white/10 flex items-center justify-between bg-white dark:bg-[#141416]">
                     <div className="flex items-center gap-2">
-                      <button onClick={() => setSelectedCategory(null)} className="p-1 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white"><ArrowLeft className="w-4 h-4" /></button>
-                      <span className="font-semibold text-white text-sm">{categories.find(c => c.id === selectedCategory)?.name}</span>
+                      <button onClick={() => setSelectedCategory(null)} className="p-1 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"><ArrowLeft className="w-4 h-4" /></button>
+                      <span className="font-semibold text-gray-900 dark:text-white text-sm">{categories.find(c => c.id === selectedCategory)?.name}</span>
                     </div>
-                    <button onClick={() => setSelectedCategory(null)} className="p-1 hover:bg-white/10 rounded-lg text-gray-400"><X className="w-4 h-4" /></button>
+                    <button onClick={() => setSelectedCategory(null)} className="p-1 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg text-gray-600 dark:text-gray-400"><X className="w-4 h-4" /></button>
                   </div>
 
-                  <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2 dark:bg-transparent bg-gray-700/80">
+                  <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2 dark:bg-transparent bg-gray-100 dark:bg-gray-700/80">
                     {selectedCategory === 'storage' ? (
                       (() => {
                         const sortedItems = getSortedProducts('storage');
@@ -683,23 +707,23 @@ export default function ConfiguratorPage() {
                                 className={`w-full p-3 rounded-xl border text-left transition-all relative ${
                                   isDisabled ? "opacity-40 cursor-not-allowed grayscale" :
                                   isSelected ? "bg-purple-600/10 border-purple-500 ring-1 ring-purple-500/30 cursor-pointer" :
-                                  "bg-gray-600/40 dark:bg-[#141416] border-white/5 hover:border-white/20 hover:bg-[#1a1a1d] cursor-pointer"
+                                  "bg-white dark:bg-[#141416] border-gray-200 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/20 hover:bg-gray-50 dark:hover:bg-[#1a1a1d] cursor-pointer"
                                 }`}
                               >
                                 <div className="flex justify-between items-start mb-1">
-                                  <span className={`text-sm font-semibold ${isSelected ? 'text-purple-300' : isDisabled ? 'text-gray-500' : 'text-white'}`}>{item.model}</span>
-                                  <span className={`text-xs font-mono ${isDisabled ? 'text-gray-600' : 'text-gray-300'}`}>{Number(item.price).toLocaleString('ru-RU')} ₽</span>
+                                  <span className={`text-sm font-semibold ${isSelected ? 'text-purple-600 dark:text-purple-300' : isDisabled ? 'text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-white'}`}>{item.model}</span>
+                                  <span className={`text-xs font-mono ${isDisabled ? 'text-gray-400 dark:text-gray-600' : 'text-gray-700 dark:text-gray-300'}`}>{Number(item.price).toLocaleString('ru-RU')} ₽</span>
                                 </div>
-                                {specsString && <div className={`text-[10px] mb-2 line-clamp-2 ${isDisabled ? 'text-gray-600' : 'text-gray-500'}`}>{specsString}</div>}
+                                {specsString && <div className={`text-[10px] mb-2 line-clamp-2 ${isDisabled ? 'text-gray-400 dark:text-gray-600' : 'text-gray-500 dark:text-gray-400'}`}>{specsString}</div>}
                                 {isSelected && !isDisabled && (
-                                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/10">
-                                    <span className="text-xs text-gray-400">Кол-во:</span>
-                                    <div className="flex items-center gap-2 bg-[#0a0a0c] rounded-lg p-1">
-                                      <button onClick={(e) => { e.stopPropagation(); updateQuantity(type, -1); }} className="p-1 hover:bg-white/10 rounded text-gray-400 hover:text-white disabled:opacity-30" disabled={currentQty <= 1}><Minus className="w-3 h-3" /></button>
-                                      <span className="text-xs font-mono w-4 text-center text-white">{currentQty}</span>
-                                      <button onClick={(e) => { e.stopPropagation(); updateQuantity(type, 1); }} className="p-1 hover:bg-white/10 rounded text-gray-400 hover:text-white disabled:opacity-30" disabled={currentQty >= limit}><Plus className="w-3 h-3" /></button>
+                                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-200 dark:border-white/10">
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">Кол-во:</span>
+                                    <div className="flex items-center gap-2 bg-gray-100 dark:bg-[#0a0a0c] rounded-lg p-1">
+                                      <button onClick={(e) => { e.stopPropagation(); updateQuantity(type, -1); }} className="p-1 hover:bg-gray-200 dark:hover:bg-white/10 rounded text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white disabled:opacity-30" disabled={currentQty <= 1}><Minus className="w-3 h-3" /></button>
+                                      <span className="text-xs font-mono w-4 text-center text-gray-900 dark:text-white">{currentQty}</span>
+                                      <button onClick={(e) => { e.stopPropagation(); updateQuantity(type, 1); }} className="p-1 hover:bg-gray-200 dark:hover:bg-white/10 rounded text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white disabled:opacity-30" disabled={currentQty >= limit}><Plus className="w-3 h-3" /></button>
                                     </div>
-                                    <span className="text-[10px] text-gray-500">Макс: {limit}</span>
+                                    <span className="text-[10px] text-gray-400 dark:text-gray-500">Макс: {limit}</span>
                                   </div>
                                 )}
                               </div>
@@ -716,13 +740,13 @@ export default function ConfiguratorPage() {
 
                         return (
                           <>
-                            <button onClick={() => setActiveStorageType('nvme')} className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-bold transition-all ${isNvmeActive ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30' : 'bg-gray-600 dark:bg-[#0a0a0c] text-gray-500 hover:text-gray-300 border border-transparent'}`}>
+                            <button onClick={() => setActiveStorageType('nvme')} className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-bold transition-all ${isNvmeActive ? 'bg-purple-600/20 text-purple-600 dark:text-purple-300 border border-purple-500/30' : 'bg-gray-100 dark:bg-[#0a0a0c] text-gray-600 dark:text-gray-500 hover:text-gray-800 dark:hover:text-gray-300 border border-transparent'}`}>
                               <span>NVMe SSD (M.2)</span>
                               <span className="text-xs font-mono opacity-70">{build.nvme?.quantity || 0} / {limits.nvme}</span>
                             </button>
                             {isNvmeActive && nvmeItems.length > 0 && <div className="space-y-2 mt-2 mb-4 pl-2 border-l-2 border-purple-500/30">{nvmeItems.map(item => renderDiskCard(item, 'nvme'))}</div>}
 
-                            <button onClick={() => setActiveStorageType('sata')} className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-bold transition-all ${isSataActive ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30' : 'bg-gray-600 dark:bg-[#0a0a0c] text-gray-500 hover:text-gray-300 border border-transparent'}`}>
+                            <button onClick={() => setActiveStorageType('sata')} className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-bold transition-all ${isSataActive ? 'bg-purple-600/20 text-purple-600 dark:text-purple-300 border border-purple-500/30' : 'bg-gray-100 dark:bg-[#0a0a0c] text-gray-600 dark:text-gray-500 hover:text-gray-800 dark:hover:text-gray-300 border border-transparent'}`}>
                               <span>SATA SSD / HDD</span>
                               <span className="text-xs font-mono opacity-70">{build.sata?.quantity || 0} / {limits.sata}</span>
                             </button>
@@ -746,23 +770,23 @@ export default function ConfiguratorPage() {
                               className={`w-full p-3 rounded-xl border text-left transition-all relative ${
                                 isDisabled ? "opacity-40 cursor-not-allowed grayscale" :
                                 isSelected ? "bg-purple-600/10 border-purple-500 ring-1 ring-purple-500/30 cursor-pointer" :
-                                "bg-gray-600/40 dark:bg-[#141416] border-white/5 hover:border-white/20 hover:bg-[#1a1a1d] cursor-pointer"
+                                "bg-white dark:bg-[#141416] border-gray-200 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/20 hover:bg-gray-50 dark:hover:bg-[#1a1a1d] cursor-pointer"
                               }`}
                             >
                               <div className="flex justify-between items-start mb-1">
-                                <span className={`text-sm font-semibold ${isSelected ? 'text-purple-300' : isDisabled ? 'text-gray-500' : 'text-white'}`}>{item.model}</span>
-                                <span className={`text-xs font-mono ${isDisabled ? 'text-gray-600' : 'text-gray-300'}`}>{Number(item.price).toLocaleString('ru-RU')} ₽</span>
+                                <span className={`text-sm font-semibold ${isSelected ? 'text-purple-600 dark:text-purple-300' : isDisabled ? 'text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-white'}`}>{item.model}</span>
+                                <span className={`text-xs font-mono ${isDisabled ? 'text-gray-400 dark:text-gray-600' : 'text-gray-700 dark:text-gray-300'}`}>{Number(item.price).toLocaleString('ru-RU')} ₽</span>
                               </div>
-                              {specsString && <div className={`text-[10px] mb-2 line-clamp-2 ${isDisabled ? 'text-gray-600' : 'text-gray-500'}`}>{specsString}</div>}
+                              {specsString && <div className={`text-[10px] mb-2 line-clamp-2 ${isDisabled ? 'text-gray-400 dark:text-gray-600' : 'text-gray-500 dark:text-gray-400'}`}>{specsString}</div>}
                               {isSelected && !isDisabled && (
-                                <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/10">
-                                  <span className="text-xs text-gray-400">Кол-во:</span>
-                                  <div className="flex items-center gap-2 bg-[#0a0a0c] rounded-lg p-1">
-                                    <button onClick={(e) => { e.stopPropagation(); updateQuantity('ram', -1); }} className="p-1 hover:bg-white/10 rounded text-gray-400 hover:text-white disabled:opacity-30" disabled={currentQty <= 1}><Minus className="w-3 h-3" /></button>
-                                    <span className="text-xs font-mono w-4 text-center text-white">{currentQty}</span>
-                                    <button onClick={(e) => { e.stopPropagation(); updateQuantity('ram', 1); }} className="p-1 hover:bg-white/10 rounded text-gray-400 hover:text-white disabled:opacity-30" disabled={currentQty >= maxQty}><Plus className="w-3 h-3" /></button>
+                                <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-200 dark:border-white/10">
+                                  <span className="text-xs text-gray-500 dark:text-gray-400">Кол-во:</span>
+                                  <div className="flex items-center gap-2 bg-gray-100 dark:bg-[#0a0a0c] rounded-lg p-1">
+                                    <button onClick={(e) => { e.stopPropagation(); updateQuantity('ram', -1); }} className="p-1 hover:bg-gray-200 dark:hover:bg-white/10 rounded text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white disabled:opacity-30" disabled={currentQty <= 1}><Minus className="w-3 h-3" /></button>
+                                    <span className="text-xs font-mono w-4 text-center text-gray-900 dark:text-white">{currentQty}</span>
+                                    <button onClick={(e) => { e.stopPropagation(); updateQuantity('ram', 1); }} className="p-1 hover:bg-gray-200 dark:hover:bg-white/10 rounded text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white disabled:opacity-30" disabled={currentQty >= maxQty}><Plus className="w-3 h-3" /></button>
                                   </div>
-                                  <span className="text-[10px] text-gray-500">Макс: {maxQty}</span>
+                                  <span className="text-[10px] text-gray-400 dark:text-gray-500">Макс: {maxQty}</span>
                                 </div>
                               )}
                             </div>
@@ -790,14 +814,14 @@ export default function ConfiguratorPage() {
                               className={`w-full p-3 rounded-xl border text-left transition-all relative ${
                                 isDisabled ? "opacity-40 cursor-not-allowed grayscale" :
                                 isSelected ? "bg-purple-600/10 border-purple-500 ring-1 ring-purple-500/30 cursor-pointer" :
-                                "bg-gray-600/40 dark:bg-[#141416] border-white/5 hover:border-white/20 hover:bg-[#1a1a1d] cursor-pointer"
+                                "bg-white dark:bg-[#141416] border-gray-200 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/20 hover:bg-gray-50 dark:hover:bg-[#1a1a1d] cursor-pointer"
                               }`}
                             >
                               <div className="flex justify-between items-start mb-1">
-                                <span className={`text-sm font-semibold ${isSelected ? 'text-purple-300' : isDisabled ? 'text-gray-500' : 'text-white'}`}>{item.model}</span>
-                                <span className={`text-xs font-mono ${isDisabled ? 'text-gray-600' : 'text-gray-300'}`}>{Number(item.price).toLocaleString('ru-RU')} ₽</span>
+                                <span className={`text-sm font-semibold ${isSelected ? 'text-purple-600 dark:text-purple-300' : isDisabled ? 'text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-white'}`}>{item.model}</span>
+                                <span className={`text-xs font-mono ${isDisabled ? 'text-gray-400 dark:text-gray-600' : 'text-gray-700 dark:text-gray-300'}`}>{Number(item.price).toLocaleString('ru-RU')} ₽</span>
                               </div>
-                              {specsString && <div className={`text-[10px] mb-1 line-clamp-2 ${isDisabled ? 'text-gray-600' : 'text-gray-500'}`}>{specsString}</div>}
+                              {specsString && <div className={`text-[10px] mb-1 line-clamp-2 ${isDisabled ? 'text-gray-400 dark:text-gray-600' : 'text-gray-500 dark:text-gray-400'}`}>{specsString}</div>}
                               {isSelected && !isDisabled && (
                                 <div className="absolute top-2 right-2 bg-purple-500 rounded-full p-1 shadow-lg">
                                   <Check className="w-3 h-3 text-white" />
