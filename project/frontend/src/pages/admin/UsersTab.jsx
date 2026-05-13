@@ -96,25 +96,15 @@ export default function UsersTab() {
 
   return (
     <div className="space-y-6">
-      {/* Заголовок */}
-      <div className="bg-[#141416] border border-white/10 rounded-xl p-6">
-        <h2 className="text-xl font-semibold text-white flex items-center gap-3">
-          <UsersIcon className="w-6 h-6 text-purple-400" />
-          Управление пользователями
-        </h2>
-        <p className="text-gray-400 text-sm mt-1">
-          Просмотр, редактирование ролей и удаление пользователей
-        </p>
-      </div>
-
       {/* Фильтры и поиск */}
-      <div className="bg-[#141416] border border-white/10 rounded-xl p-4">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-grow">
+      <div className="bg-[#141416] border border-white/10 rounded-xl p-4 flex flex-col sm:flex-row gap-4 justify-between items-center">
+        <h2 className="text-lg font-semibold text-white w-full sm:w-auto">Пользователи</h2>
+        <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+          <div className="relative flex-grow sm:flex-grow-0 sm:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
             <input
               type="text"
-              placeholder="Поиск по имени или email..."
+              placeholder="Поиск..."
               value={searchTerm}
               onChange={handleSearchChange}
               className="w-full pl-10 pr-4 py-2.5 bg-[#0f0f10] border border-white/10 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all"
@@ -170,9 +160,9 @@ export default function UsersTab() {
                             onChange={(e) => setNewRole(e.target.value)}
                             className="px-3 py-1.5 bg-[#0f0f10] border border-white/10 rounded-lg text-gray-200 text-sm focus:outline-none focus:border-purple-500/50"
                           >
-                            <option value="user">Пользователь</option>
-                            <option value="manager">Менеджер</option>
-                            <option value="admin">Администратор</option>
+                            <option value="user">user</option>
+                            <option value="manager">manager</option>
+                            <option value="admin">admin</option>
                           </select>
                           <button
                             onClick={() => saveRoleChange(user.id)}
@@ -190,14 +180,14 @@ export default function UsersTab() {
                           </button>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-3">
                           <span
-                            className={`px-2.5 py-1 text-xs font-medium rounded-full ${
+                            className={`inline-flex items-center px-3 py-1 text-xs font-medium rounded-full border min-w-[110px] justify-center ${
                               user.role === 'admin'
-                                ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                                ? 'bg-red-500/10 text-red-400 border-red-500/30'
                                 : user.role === 'manager'
-                                ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-                                : 'bg-gray-500/20 text-gray-300 border border-gray-500/30'
+                                ? 'bg-blue-500/10 text-blue-400 border-blue-500/30'
+                                : 'bg-green-500/10 text-green-400 border-green-500/30'
                             }`}
                           >
                             {user.role === 'admin'
