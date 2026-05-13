@@ -5,13 +5,14 @@ import { useNavigate } from 'react-router-dom';
 import api from '@/services/api';
 import {
   Cpu, Monitor, Package, Settings, LogOut, Plus,
-  TrendingUp, AlertTriangle
+  TrendingUp, AlertTriangle, Users
 } from 'lucide-react';
 
 // ✅ Импортируем разделенные компоненты
 import Dashboard from './Dashboard';
 import ComponentsTable from './ComponentsTable';
 import SettingsTab, { PlaceholderComponent } from './SettingsTab';
+import UsersTab from './UsersTab';
 
 export default function AdminPanel() {
   const { user, logout } = useAuth();
@@ -110,6 +111,7 @@ export default function AdminPanel() {
                 { id: 'dashboard', label: 'Дашборд', icon: TrendingUp },
                 { id: 'components', label: 'Компоненты', icon: Cpu },
                 { id: 'orders', label: 'Заказы', icon: Package },
+                ...(user?.role === 'admin' ? [{ id: 'users', label: 'Пользователи', icon: Users }] : []),
                 ...(user?.role === 'admin' ? [{ id: 'settings', label: 'Настройки', icon: Settings }] : [])
               ].map((tab) => (
                 <button
@@ -164,7 +166,11 @@ export default function AdminPanel() {
                 <PlaceholderComponent title="Заказы" icon={Package} />
               )}
 
-              {activeTab === 'settings' && (
+              {activeTab === 'users' && user?.role === 'admin' && (
+                <UsersTab key="users" />
+              )}
+
+              {activeTab === 'settings' && user?.role === 'admin' && (
                 <SettingsTab />
               )}
 
