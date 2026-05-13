@@ -1,42 +1,66 @@
-# Laravel/Lumen specific ignores
-vendor/
-composer.lock
-.env
-.env.*
-!.env.example
-
-# PHP related
+# Laravel-specific ignores
 *.php~
 *.php.bak
-*.php.swp
-*.php.swo
-
-# Build and cache directories
+*.log
+composer.lock
+vendor/
 bootstrap/cache/
+storage/logs/
 storage/framework/cache/
 storage/framework/sessions/
 storage/framework/views/
-storage/logs/
+public/storage
+.env
+.env.local
+.env.*
+!.env.example
 
-# IDE
+# General PHP ignores
+.php_cs.cache
+.phpunit.result.cache
+
+# IDE and editor files
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
-storage/logs/*.log
+# Tests
+.phpunit/
+tests/_output/
 
-# Testing
-.phpunit.result.cache
-
-# Dependencies
+# Build artifacts
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Compiled files
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
+
+# Coverage reports
+coverage/
+htmlcov/
+.coverage
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# MyPy cache
+.mypy_cache/
+.pytest_cache/
