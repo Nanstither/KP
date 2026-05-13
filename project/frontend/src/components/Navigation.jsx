@@ -123,7 +123,7 @@ const Navigation = () => {
               onClick={toggleTheme}
               className="flex aspect-square items-center justify-center p-2 rounded-full border border-purple-400/30 bg-white/5 dark:bg-white/10 hover:border-purple-400 transition-colors"
             >
-              {isDark ? <Sun className="w-4 h-4 text-yellow-500" /> : <Moon className="w-4 h-4 text-purple-600" />}
+              {isDark ? <Sun className="w-4 h-4 text-white" /> : <Moon className="w-4 h-4 text-purple-600" />}
             </motion.button>
           </div>
           
