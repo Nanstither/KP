@@ -1,1 +1,1 @@
-Nothing needs to be added to .gitignore since only a PHP source file was modified and no build artifacts, dependencies, or temporary files were detected in the changes.
+(project has only source code changes, no build artifacts, dependencies, or temp files to ignore)
