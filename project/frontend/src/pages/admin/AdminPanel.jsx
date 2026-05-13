@@ -73,20 +73,20 @@ export default function AdminPanel() {
       <div className="max-w-7xl mx-auto space-y-6">
 
         {/* --- KPI BAR (Всегда виден) --- */}
-        <div className="grid grid-cols-3 bg-white/[0.03] border border-white/10 rounded-xl overflow-hidden">
-          <div className="flex flex-col items-center justify-center py-5 border-r border-white/10 last:border-0">
-            <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Всего компонентов</p>
-            <p className="text-2xl font-bold text-white">{components.length}</p>
+        <div className="grid grid-cols-3 bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden shadow-sm">
+          <div className="flex flex-col items-center justify-center py-5 border-r border-gray-200 dark:border-white/10 last:border-0">
+            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Всего компонентов</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{components.length}</p>
             <Monitor className="w-4 h-4 text-purple-500 mt-2" />
           </div>
-          <div className="flex flex-col items-center justify-center py-5 border-r border-white/10 last:border-0">
-            <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Общий склад</p>
-            <p className="text-2xl font-bold text-white">{totalStock} шт.</p>
+          <div className="flex flex-col items-center justify-center py-5 border-r border-gray-200 dark:border-white/10 last:border-0">
+            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Общий склад</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalStock} шт.</p>
             <Package className="w-4 h-4 text-blue-500 mt-2" />
           </div>
-          <div className="flex flex-col items-center justify-center py-5 border-r border-white/10 last:border-0">
-            <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Заканчивается</p>
-            <p className="text-2xl font-bold text-red-400">{lowStockCount}</p>
+          <div className="flex flex-col items-center justify-center py-5 border-r border-gray-200 dark:border-white/10 last:border-0">
+            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Заканчивается</p>
+            <p className="text-2xl font-bold text-red-500 dark:text-red-400">{lowStockCount}</p>
             <AlertTriangle className="w-4 h-4 text-red-500 mt-2" />
           </div>
         </div>
@@ -96,7 +96,7 @@ export default function AdminPanel() {
           
           {/* Сайдбар */}
           <motion.aside initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="lg:col-span-1">
-            <nav className="sticky top-24 space-y-1 bg-[#141416] border border-white/10 rounded-xl p-2">
+            <nav className="sticky top-24 space-y-1 bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 rounded-xl p-2 shadow-sm">
               {[
                 { id: 'dashboard', label: 'Дашборд', icon: TrendingUp },
                 { id: 'components', label: 'Компоненты', icon: Cpu },
@@ -109,8 +109,8 @@ export default function AdminPanel() {
                   onClick={() => handleTabChange(tab.id)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
                     activeTab === tab.id
-                      ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30'
-                      : 'text-gray-400 hover:bg-white/5 hover:text-gray-200'
+                      ? 'bg-purple-100 dark:bg-purple-600/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-200'
                   }`}
                 >
                   <tab.icon className="w-4 h-4" />
@@ -118,9 +118,9 @@ export default function AdminPanel() {
                 </button>
               ))}
             </nav>
-            <div className='sticky top-80 bg-[#141416] border border-white/10 rounded-xl p-2 mt-4'>
-              <p className="text-sm text-gray-400 text-left">
-                Приветствую, {user?.name} <br /> <span className='text-[12px] text-purple-300/[0.75]'>( {user?.role === 'admin' ? 'Администратор' : 'Менеджер'} )</span>
+            <div className='sticky top-80 bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 rounded-xl p-2 mt-4 shadow-sm'>
+              <p className="text-sm text-gray-600 dark:text-gray-400 text-left">
+                Приветствую, {user?.name} <br /> <span className='text-[12px] text-purple-600 dark:text-purple-300/[0.75]'>( {user?.role === 'admin' ? 'Администратор' : 'Менеджер'} )</span>
               </p>
             </div>
           </motion.aside>
