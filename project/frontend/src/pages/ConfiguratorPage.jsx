@@ -222,6 +222,27 @@ export default function ConfiguratorPage() {
       }
     }
 
+        // PSU ↔ CPU + GPU (Power Check)
+    if (catId === 'psu') {
+      const gpu = build.gpu?.item;
+      const gpuSpec = gpu?.gpu_spec || {};
+      const cpuTdp = cpuSpec.tdp_watts || 0;
+      const gpuTdp = gpuSpec.tdp_watts || 0;
+      const totalTdp = cpuTdp + gpuTdp;
+      const psuWattage = item.psu_spec?.wattage || 0;
+
+      if (totalTdp > 0 && psuWattage > 0) {
+        if (psuWattage < totalTdp) {
+          return { status: 'error', message: `Недостаточно мощности (нужно ≥${totalTdp}W)` };
+        }
+        // Предупреждение, если запас меньше 20%
+        const margin = ((psuWattage - totalTdp) / totalTdp) * 100;
+        if (margin < 20) {
+          return { status: 'warn', message: `Малый запас мощности (рекомендуется ≥${Math.ceil(totalTdp * 1.2)}W)` };
+        }
+      }
+    }
+
     return { status: 'ok', message: 'Совместимо' };
   };
 
