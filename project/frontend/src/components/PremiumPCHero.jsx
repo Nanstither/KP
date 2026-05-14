@@ -1,6 +1,7 @@
 import React, { useRef, useMemo } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { Monitor, Cpu, Zap, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 
 // ─── Декларативный фон частиц ───
 const ParticlesBackground = () => {
@@ -90,7 +91,7 @@ export default function PremiumPCHero() {
 // ============================================================
 
   return (
-    <div ref={containerRef} id="home" className="relative min-h-screen w-full overflow-hidden bg-linear-to-br from-pink-100 via-white to-blue-100 dark:from-slate-950 dark:via-purple-950/20 dark:to-pink-950/20">
+    <div ref={containerRef} id="home" className="relative min-h-screen w-full overflow-hidden bg-linear-to-br from-pink-50 via-white to-blue-100 dark:from-slate-950 dark:via-purple-950/20 dark:to-pink-950/20">
       <ParticlesBackground />
       <div className="absolute inset-0 bg-linear-to-t dark:from-slate-950/90 dark:via-transparent dark:to-transparent" />
 
@@ -108,17 +109,17 @@ export default function PremiumPCHero() {
             className="space-y-8"
           >
             {height >= 1024 && (<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }}>
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border border-purple-400/30 bg-purple-500/10 text-purple-300 backdrop-blur-sm mb-0">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border border-purple-400/30 bg-purple-500/10 text-purple-500 dark:text-purple-300 backdrop-blur-sm mb-0">
                 <Sparkles className="w-3 h-3" /> Лучшая сборка
               </span>
             </motion.div>)}
 
             <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4 }} className="text-5xl md:text-7xl font-bold tracking-tight">
-              <span className="bg-gradient-to-r from-purple-300 via-pink-300 to-purple-400 bg-clip-text text-transparent">Идеальная</span><br />
-              <span className="text-white font-['Century Gothic']">Игровая система</span>
+              <span className="bg-linear-to-r from-purple-400 via-pink-400 to-purple-500 bg-clip-text text-transparent">Идеальная</span><br />
+              <span className="text-gray-700 dark:text-white font-['Century Gothic']">Игровая система</span>
             </motion.h1>
 
-            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.5 }} className="mx-auto text-lg text-purple-200/80 leading-relaxed max-w-2xl">
+            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.5 }} className="mx-auto text-lg text-gray-600 dark:text-purple-200/80 leading-relaxed max-w-2xl">
               Оцените непревзойденную производительность с нашим премиальным настольным ПК. Корпус из закаленного стекла, RGB-подсветка и передовые компоненты обеспечат максимальную производительность в играх и творческой работе.
             </motion.p>
 
@@ -126,29 +127,33 @@ export default function PremiumPCHero() {
               {features.map((feature, index) => (
                 <div 
                   key={index} 
-                  className="rounded-xl bg-purple-950/30 border border-purple-400/20 backdrop-blur-sm p-4 hover:bg-purple-950/40 transition-all duration-300 cursor-default"
+                  className="rounded-xl bg-linear-to-tr shadow-sm from-purple-100 via-white to-pink-100 dark:bg-none dark:bg-purple-950/30 border border-purple-400/20 backdrop-blur-sm p-4 hover:bg-purple-950/40 transition-all duration-300 cursor-default flex justify-between items-center"
                 >
-                  <feature.icon className="w-6 h-6 text-purple-300 mb-2" />
-                  <p className="text-xs text-purple-300 font-medium">{feature.label}</p>
-                  <p className="text-xs text-purple-200/60">{feature.value}</p>
+                  <feature.icon className="w-6 h-6 text-purple-600 dark:text-purple-300" />
+                  <div className="">
+                    <p className="text-xs text-purple-600 dark:text-purple-300 font-medium">{feature.label}</p>
+                    <p className="text-xs text-purple-400 dark:text-purple-200/60">{feature.value}</p>
+                  </div>
                 </div>
               ))}
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.7 }} className="space-y-3">
               {specs.map((spec, index) => (
-                <div key={index} className="flex justify-between items-center py-2 border-b border-purple-400/10">
-                  <span className="text-sm text-purple-300/70">{spec.label}</span>
-                  <span className="text-sm text-purple-200 font-medium">{spec.value}</span>
+                <div key={index} className="flex justify-between items-center py-2 border-b border-gray-400/20 dark:border-purple-400/10">
+                  <span className="text-sm text-gray-500 dark:text-purple-300/70">{spec.label}</span>
+                  <span className="text-sm text-gray-700 dark:text-purple-200 font-medium">{spec.value}</span>
                 </div>
               ))}
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.8 }} className="flex gap-4">
-              <button className="px-6 py-2.5 rounded-lg font-medium transition-all cursor-pointer bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-purple-500/25 active:scale-95">
-                Создать сборку
-              </button>
-              <button className="px-6 py-2.5 rounded-lg font-medium transition-all cursor-pointer border border-purple-400/30 text-purple-300 hover:bg-purple-500/10 active:scale-95">
+              <Link to='/config'>
+                <button className="px-6 py-2.5 rounded-lg font-medium transition-all cursor-pointer bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-purple-500/25 active:scale-95">
+                  Создать сборку
+                </button>
+              </Link>
+              <button className="px-6 py-2.5 rounded-lg font-medium transition-all cursor-pointer border border-purple-400 dark:border-purple-400/30 text-purple-600 dark:text-purple-300 hover:bg-purple-500/10 active:scale-95">
                 Характеристики
               </button>
             </motion.div>
@@ -213,12 +218,12 @@ export default function PremiumPCHero() {
           transition={{ duration: 0.6, delay: 1, repeat: Infinity, repeatType: "reverse" }} 
           className="flex flex-col items-center gap-2"
         >
-          <span className="text-xs text-purple-300/60 uppercase tracking-wider">Scroll to explore</span>
-          <div className="w-6 h-10 border-2 border-purple-400/30 rounded-full flex items-start justify-center p-2">
+          <span className="text-xs text-gray-900/60 dark:text-purple-300/60 uppercase tracking-wider">Прокрути, чтобы узнать</span>
+          <div className="w-6 h-10 border-2 border-gray-500/30 dark:border-purple-400/30 rounded-full flex items-start justify-center p-2">
             <motion.div 
               animate={{ y: [0, 12, 0] }} 
               transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }} 
-              className="w-1.5 h-1.5 bg-purple-400 rounded-full" 
+              className="w-1.5 h-1.5 bg-gray-500 dark:bg-purple-400 rounded-full" 
             />
           </div>
         </motion.div>
