@@ -3,10 +3,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\PrebuiltPc;
+use App\Models\Component;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class PrebuiltPcController extends Controller
 {
+    // Публичные методы (уже существуют)
     public function index(Request $request)
     {
         $query = PrebuiltPc::query()
@@ -37,6 +40,103 @@ class PrebuiltPcController extends Controller
         return response()->json($this->formatPc($pc));
     }
 
+    // ✅ Админские методы для CRUD
+    
+    // Список всех ПК (включая неактивные) для админки
+    public function adminIndex()
+    {
+        $pcs = PrebuiltPc::with(['tags', 'components'])->orderByDesc('id')->get();
+        return response()->json($pcs);
+    }
+
+    // Создание нового ПК
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'image' => 'nullable|string',
+            'is_active' => 'boolean',
+            'components' => 'array', // [{ component_id: 1, role: 'cpu' }, ...]
+            'tag_ids' => 'array' // [1, 2, 3]
+        ]);
+
+        $validated['slug'] = Str::slug($validated['name']);
+        $validated['is_active'] = $validated['is_active'] ?? false;
+
+        $pc = PrebuiltPc::create($validated);
+
+        // Привязываем компоненты
+        if (!empty($validated['components'])) {
+            foreach ($validated['components'] as $comp) {
+                $pc->components()->attach($comp['component_id'], ['role' => $comp['role']]);
+            }
+        }
+
+        // Привязываем теги
+        if (!empty($validated['tag_ids'])) {
+            $pc->tags()->attach($validated['tag_ids']);
+        }
+
+        return response()->json($pc->load(['tags', 'components']), 201);
+    }
+
+    // Получение данных для редактирования
+    public function edit($id)
+    {
+        $pc = PrebuiltPc::with(['tags', 'components'])->findOrFail($id);
+        return response()->json($pc);
+    }
+
+    // Обновление ПК
+    public function update(Request $request, $id)
+    {
+        $pc = PrebuiltPc::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'image' => 'nullable|string',
+            'is_active' => 'boolean',
+            'components' => 'array',
+            'tag_ids' => 'array'
+        ]);
+
+        $validated['slug'] = Str::slug($validated['name']);
+        $validated['is_active'] = $validated['is_active'] ?? false;
+
+        $pc->update($validated);
+
+        // Синхронизация компонентов
+        if (isset($validated['components'])) {
+            $pc->components()->detach();
+            foreach ($validated['components'] as $comp) {
+                $pc->components()->attach($comp['component_id'], ['role' => $comp['role']]);
+            }
+        }
+
+        // Синхронизация тегов
+        if (isset($validated['tag_ids'])) {
+            $pc->tags()->sync($validated['tag_ids']);
+        }
+
+        return response()->json($pc->load(['tags', 'components']));
+    }
+
+    // Удаление ПК
+    public function destroy($id)
+    {
+        $pc = PrebuiltPc::findOrFail($id);
+        $pc->components()->detach();
+        $pc->tags()->detach();
+        $pc->delete();
+
+        return response()->json(['message' => 'Готовый ПК удалён']);
+    }
+
+    // Вспомогательные методы
     private function formatPc($pc)
     {
         $componentsByRole = [];
@@ -69,7 +169,7 @@ class PrebuiltPcController extends Controller
         $relation = match($role) {
             'cpu' => 'cpuSpec',
             'gpu' => 'gpuSpec',
-            'ram' => 'ramSpec', // Если в БД опечатка ram_scecs, замени на 'ramScecs'
+            'ram' => 'ramSpec',
             'motherboard' => 'motherboardSpec',
             'psu' => 'psuSpec',
             'storage' => 'storageSpec',
