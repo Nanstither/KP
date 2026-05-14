@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import api from '@/services/api';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -15,44 +15,9 @@ import ComponentEdit from '@/pages/admin/ComponentEdit';
 import ComponentCreate from './pages/admin/ComponentCreate';
 import CartPage from './pages/CartPage';
 import ConfiguratorPage from './pages/ConfiguratorPage';
-import PrebuiltPcsTable from './pages/admin/PrebuiltPcsTable';
 import PrebuiltPcCreate from './pages/admin/PrebuiltPcCreate';
 import PrebuiltPcEdit from './pages/admin/PrebuiltPcEdit';
 import '@/App.css';
-
-// Компонент-обёртка для PrebuiltPcsTable (для использования в роутах)
-const PrebuiltPcsTableWrapper = () => {
-  const [prebuiltPcs, setPrebuiltPcs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('all');
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
-
-  useEffect(() => {
-    api.get('/admin/prebuilt-pcs')
-      .then(res => {
-        setPrebuiltPcs(res.data.sort((a, b) => b.id - a.id));
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Ошибка загрузки ПК:', err);
-        setLoading(false);
-      });
-  }, []);
-
-  return (
-    <PrebuiltPcsTable
-      prebuiltPcs={prebuiltPcs}
-      setPrebuiltPcs={setPrebuiltPcs}
-      loading={loading}
-      search={search} setSearch={setSearch}
-      categoryFilter={categoryFilter} setCategoryFilter={setCategoryFilter}
-      page={page} setPage={setPage}
-      perPage={perPage} setPerPage={setPerPage}
-    />
-  );
-};
 
 // Компонент для защиты роутов
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -107,7 +72,6 @@ export default function App() {
           <Route path="/admin/components/create" element={<ComponentCreate />} />
           
           {/* Роуты для готовых ПК */}
-          <Route path="/admin/prebuilt-pcs" element={<ProtectedRoute allowedRoles={['admin', 'manager']}><PrebuiltPcsTableWrapper /></ProtectedRoute>} />
           <Route path="/admin/prebuilt-pcs/create" element={<ProtectedRoute allowedRoles={['admin', 'manager']}><PrebuiltPcCreate /></ProtectedRoute>} />
           <Route path="/admin/prebuilt-pcs/:id/edit" element={<ProtectedRoute allowedRoles={['admin', 'manager']}><PrebuiltPcEdit /></ProtectedRoute>} />
           
