@@ -60,6 +60,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('admin/components/create', [ComponentController::class, 'createRefs']);
         Route::post('admin/components', [ComponentController::class, 'storeFull']);
+
+        // ✅ CRUD для готовых ПК
+        Route::get('admin/prebuilt-pcs', [PrebuiltPcController::class, 'adminIndex']);
+        Route::post('admin/prebuilt-pcs', [PrebuiltPcController::class, 'store']);
+        Route::get('admin/prebuilt-pcs/{id}/edit', [PrebuiltPcController::class, 'edit']);
+        Route::put('admin/prebuilt-pcs/{id}', [PrebuiltPcController::class, 'update']);
+        Route::delete('admin/prebuilt-pcs/{id}', [PrebuiltPcController::class, 'destroy']);
     });
 });
 

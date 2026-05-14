@@ -5,12 +5,13 @@ import { useNavigate } from 'react-router-dom';
 import api from '@/services/api';
 import {
   Cpu, Monitor, Package, Settings, LogOut, Plus,
-  TrendingUp, AlertTriangle, Users
+  TrendingUp, AlertTriangle, Users, LayoutGrid
 } from 'lucide-react';
 
 // ✅ Импортируем разделенные компоненты
 import Dashboard from './Dashboard';
 import ComponentsTable from './ComponentsTable';
+import PrebuiltPcsTable from './PrebuiltPcsTable';
 import SettingsTab, { PlaceholderComponent } from './SettingsTab';
 import UsersTab from './UsersTab';
 
@@ -21,18 +22,26 @@ export default function AdminPanel() {
   
   // Данные и состояние загрузки
   const [components, setComponents] = useState([]);
+  const [prebuiltPcs, setPrebuiltPcs] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Фильтры
+  // Фильтры для компонентов
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [stockFilter, setStockFilter] = useState('all'); 
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
 
-  // Загрузка компонентов при старте
+  // Фильтры для готовых ПК
+  const [pcSearch, setPcSearch] = useState('');
+  const [pcCategoryFilter, setPcCategoryFilter] = useState('all');
+  const [pcPage, setPcPage] = useState(1);
+  const [pcPerPage, setPcPerPage] = useState(10);
+
+  // Загрузка данных при старте
   useEffect(() => {
     fetchComponents();
+    fetchPrebuiltPcs();
   }, []);
 
   const fetchComponents = async () => {
@@ -43,6 +52,15 @@ export default function AdminPanel() {
       console.error('Ошибка загрузки:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPrebuiltPcs = async () => {
+    try {
+      const res = await api.get('/admin/prebuilt-pcs');
+      setPrebuiltPcs(res.data.sort((a, b) => b.id - a.id));
+    } catch (err) {
+      console.error('Ошибка загрузки ПК:', err);
     }
   };
 
@@ -62,9 +80,12 @@ export default function AdminPanel() {
       setStockFilter('all');
       setPage(1);
     }
+    if (tab === 'prebuilt_pcs') {
+      setPcPage(1);
+    }
   };
 
-  // Вычисляемые KPI (остаются здесь, так как это глобальная статистика)
+  // Вычисляемые KPI
   const totalStock = components.reduce((acc, c) => acc + (c.stock || 0), 0);
   const lowStockCount = components.filter(c => c.stock > 0 && c.stock <= 5).length;
 
@@ -101,6 +122,7 @@ export default function AdminPanel() {
                 {[
                   { id: 'dashboard', label: 'Дашборд', icon: TrendingUp },
                   { id: 'components', label: 'Компоненты', icon: Cpu },
+                  { id: 'prebuilt_pcs', label: 'Готовые ПК', icon: LayoutGrid },
                   { id: 'orders', label: 'Заказы', icon: Package },
                   ...(user?.role === 'admin' ? [{ id: 'users', label: 'Пользователи', icon: Users }] : []),
                   ...(user?.role === 'admin' ? [{ id: 'settings', label: 'Настройки', icon: Settings }] : [])
@@ -127,7 +149,7 @@ export default function AdminPanel() {
             </div>
           </motion.aside>
 
-          {/* Область данных (здесь происходит переключение компонентов) */}
+          {/* Область данных */}
           <div className="lg:col-span-3">
             <AnimatePresence mode="wait">
               
@@ -151,6 +173,19 @@ export default function AdminPanel() {
                   stockFilter={stockFilter} setStockFilter={setStockFilter}
                   page={page} setPage={setPage}
                   perPage={perPage} setPerPage={setPerPage}
+                />
+              )}
+
+              {activeTab === 'prebuilt_pcs' && (
+                <PrebuiltPcsTable
+                  key="prebuilt"
+                  prebuiltPcs={prebuiltPcs}
+                  setPrebuiltPcs={setPrebuiltPcs}
+                  loading={loading}
+                  search={pcSearch} setSearch={setPcSearch}
+                  categoryFilter={pcCategoryFilter} setCategoryFilter={setPcCategoryFilter}
+                  page={pcPage} setPage={setPcPage}
+                  perPage={pcPerPage} setPerPage={setPcPerPage}
                 />
               )}
 
