@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Monitor, Cpu, Zap, Sparkles, Menu, X } from "lucide-react";
 
 import Navigation from "@/components/Navigation";
-import PremiumPСHero from "@/components/PremiumPСHero";
+import PremiumPCHero from "@/components/PremiumPCHero";
 // import ProductCard from "@/components/ProductCard";
 import PrebuiltPcCard from "@/components/PrebuiltPcCard";
 
@@ -50,7 +50,7 @@ function HomePage() {
 
   return (
     <div className="w-full min-h-screen">
-      <PremiumPСHero />
+      <PremiumPCHero />
       <div className="min-h-screen dark:bg-[#101019] flex items-center justify-center flex-col gap-8">
         <div className="text-center space-y-4 px-6">
           <h2 className="text-4xl font-bold text-white">
