@@ -86,12 +86,12 @@ const Navigation = () => {
               <span className="ml-2 text-xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
                   TECH LAB
               </span> */}
-              <img src={scrolled ? '/logo.svg' : isDark ? '/logo.svg' : '/dark_logo.svg' } alt="TechLab" className="transition h-20 w-auto hover:scale-[0.95]"/>
+              <img src={isDark ? '/logo.svg' : '/dark_logo.svg' } alt="TechLab" className="transition h-20 w-auto hover:scale-[0.95]"/>
             </motion.div>
           </Link>
           
           {/* Десктопное меню */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-6">
             {navItems.map((item, index) => (
               <motion.p
                 key={item.name}
@@ -99,7 +99,7 @@ const Navigation = () => {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 * index }}
-                className="text-sm rounded-xl p-2.5 text-purple-600 dark:text-purple-200/70 dark:hover:text-purple-300 hover:text-purple-700 transition-colors relative group block"
+                className="text-sm rounded-xl p-2.5 font-medium text-gray-600 dark:text-purple-200/70 dark:hover:text-purple-300 hover:text-purple-700 transition-colors relative group block"
               >
                 {item.isLogout ? (
                   <>
@@ -121,16 +121,16 @@ const Navigation = () => {
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={toggleTheme}
-              className="flex aspect-square items-center justify-center p-2 rounded-full border border-purple-300/50 dark:border-purple-400/30 bg-purple-100/50 dark:bg-white/5 hover:border-purple-400 dark:hover:border-purple-400 transition-colors"
+              className="cursor-pointer flex aspect-square items-center justify-center p-2 rounded-full border border-gray-300/70 dark:border-purple-400/30 bg-purple-100/50 dark:bg-white/5 hover:border-purple-400 dark:hover:border-purple-400 transition-colors group"
             >
-              {isDark ? <Sun className="w-4 h-4 text-yellow-500" /> : <Moon className="w-4 h-4 text-purple-600" />}
+              {isDark ? <Sun className="w-4 h-4 text-white" /> : <Moon className="w-4 h-4 text-gray-700 group-hover:text-purple-700" />}
             </motion.button>
           </div>
           
           {/* Кнопка мобильного меню */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden text-purple-600 dark:text-purple-300 hover:text-purple-700 dark:hover:text-purple-200 transition-colors"
+            className="md:hidden text-gary-700 dark:text-purple-300 hover:text-purple-700 dark:hover:text-purple-200 transition-colors"
           >
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -151,7 +151,7 @@ const Navigation = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 * index }}
                 onClick={() => setIsOpen(false)}
-                className="block text-sm text-purple-600 dark:text-purple-200/70 hover:text-purple-700 dark:hover:text-purple-300 transition-colors py-2"
+                className="block text-sm text-gray-700 dark:text-purple-200/70 hover:text-purple-700 dark:hover:text-purple-300 transition-colors py-2"
               >
                 {item.isLogout ? (
                   <>
@@ -175,7 +175,7 @@ const Navigation = () => {
               onClick={() => { toggleTheme(); setIsOpen(false); }}
               className="flex items-center gap-2 px-4 py-2 rounded-lg border border-purple-300/50 dark:border-purple-400/30 bg-purple-100/50 dark:bg-white/5 hover:border-purple-400 transition-colors w-full mt-2"
             >
-              {isDark ? <Sun className="w-4 h-4 text-yellow-500" /> : <Moon className="w-4 h-4 text-purple-600" />}
+              {isDark ? <Sun className="w-4 h-4 text-white" /> : <Moon className="w-4 h-4 text-purple-600" />}
               <span className="text-sm text-purple-600 dark:text-purple-200/70">{isDark ? 'Светлая тема' : 'Тёмная тема'}</span>
             </motion.button>
           </motion.div>
