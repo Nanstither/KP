@@ -175,19 +175,19 @@ export default function CatalogPage() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[#141416] border border-purple-500/30 rounded-2xl p-6 max-w-sm w-full shadow-2xl relative"
+              className="bg-white dark:bg-[#141416] border border-purple-500/30 rounded-2xl p-6 max-w-sm w-full shadow-2xl relative"
               onClick={e => e.stopPropagation()}
             >
-              <button onClick={() => setShowAuthModal(false)} className="absolute top-4 right-4 text-gray-500 hover:text-white">
+              <button onClick={() => setShowAuthModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-white">
                 <X className="w-5 h-5" />
               </button>
               
               <div className="flex flex-col items-center text-center space-y-4">
-                <div className="w-16 h-16 bg-purple-600/20 rounded-full flex items-center justify-center">
-                  <LogIn className="w-8 h-8 text-purple-400" />
+                <div className="w-16 h-16 bg-purple-100 dark:bg-purple-600/20 rounded-full flex items-center justify-center">
+                  <LogIn className="w-8 h-8 text-purple-600 dark:text-purple-400" />
                 </div>
-                <h3 className="text-xl font-bold text-white">Требуется авторизация</h3>
-                <p className="text-gray-400 text-sm">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Требуется авторизация</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">
                   Чтобы добавить товар в корзину и сохранить сборку, пожалуйста, войдите в аккаунт или зарегистрируйтесь.
                 </p>
                 
@@ -200,7 +200,7 @@ export default function CatalogPage() {
                   </button>
                   <button 
                     onClick={() => navigate('/register')} 
-                    className="w-full flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white py-3 rounded-xl font-medium transition-colors border border-white/10"
+                    className="w-full flex items-center justify-center gap-2 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white py-3 rounded-xl font-medium transition-colors border border-gray-200 dark:border-white/10"
                   >
                     <UserPlus className="w-4 h-4" /> Регистрация
                   </button>
@@ -214,7 +214,7 @@ export default function CatalogPage() {
   );
 }
 
-// 🃏 Компонент карточки (без изменений)
+// 🃏 Компонент карточки
 function ProductCard({ item, view, index, isAdding, onAdd }) {
   const navigate = useNavigate();
   const title = view === "prebuilts" ? item.name : item.model;
@@ -226,43 +226,43 @@ function ProductCard({ item, view, index, isAdding, onAdd }) {
   else if (view === "components" && item.category) badgeText = item.category.name;
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }} className="group bg-[#141416] border border-white/10 rounded-xl overflow-hidden hover:border-purple-500/30 transition-all duration-300 flex flex-col">
-      <div className="aspect-[4/3] bg-[#0a0a0c] relative overflow-hidden cursor-pointer" onClick={() => navigate(view === 'prebuilts' ? `/pc/${item.slug}` : `/component/${item.id}`)}>
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }} className="group bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden hover:border-purple-500/30 transition-all duration-300 flex flex-col shadow-sm dark:shadow-none">
+      <div className="aspect-[4/3] bg-gray-100 dark:bg-[#0a0a0c] relative overflow-hidden cursor-pointer" onClick={() => navigate(view === 'prebuilts' ? `/pc/${item.slug}` : `/component/${item.id}`)}>
         <img src={imgSrc} alt={title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={e => e.target.src = "/placeholder.svg"} />
         <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 max-w-[calc(100%-1.5rem)]">
           {view === "prebuilts" && item.tags?.length > 0 ? item.tags.map(tag => (
-            <span key={tag.id || tag.slug} className="px-2 py-1 bg-purple-600/80 backdrop-blur-md rounded-lg text-[10px] font-medium text-white border border-white/10 shadow-sm">{tag.name}</span>
+            <span key={tag.id || tag.slug} className="px-2 py-1 bg-purple-100 dark:bg-purple-600/80 backdrop-blur-md rounded-lg text-[10px] font-medium text-purple-700 dark:text-white border border-purple-200 dark:border-white/10 shadow-sm">{tag.name}</span>
           )) : view === "components" && item.category ? (
-            <span className="px-2.5 py-1 bg-black/60 backdrop-blur-md rounded-lg text-xs font-medium text-purple-300 border border-white/10">{item.category.name}</span>
+            <span className="px-2.5 py-1 bg-purple-100 dark:bg-black/60 backdrop-blur-md rounded-lg text-xs font-medium text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-white/10">{item.category.name}</span>
           ) : null}
         </div>
       </div>
 
       <div className="p-4 space-y-3 flex-1 flex flex-col">
-        <h3 className="text-lg font-semibold text-white line-clamp-1 group-hover:text-purple-300 transition-colors cursor-pointer" onClick={() => navigate(view === 'prebuilts' ? `/pc/${item.slug}` : `/component/${item.id}`)}>{title}</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white line-clamp-1 group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors cursor-pointer" onClick={() => navigate(view === 'prebuilts' ? `/pc/${item.slug}` : `/component/${item.id}`)}>{title}</h3>
         
         {view === "prebuilts" && item.components && (
-          <div className="text-xs text-gray-500 space-y-0.5 line-clamp-2">
+          <div className="text-xs text-gray-500 dark:text-gray-500 space-y-0.5 line-clamp-2">
             {item.components.cpu && <p>CPU: {item.components.cpu.model}</p>}
             {item.components.gpu && <p>GPU: {item.components.gpu.model}</p>}
           </div>
         )}
 
-        <div className="mt-auto flex items-center justify-between pt-2 border-t border-white/5">
-          <span className="text-xl font-bold text-purple-300 font-mono">{Number(price).toLocaleString()} ₽</span>
+        <div className="mt-auto flex items-center justify-between pt-2 border-t border-gray-100 dark:border-white/5">
+          <span className="text-xl font-bold text-purple-600 dark:text-purple-300 font-mono">{Number(price).toLocaleString()} ₽</span>
           
           {view === "prebuilts" ? (
             <button 
               onClick={onAdd} 
               disabled={isAdding}
-              className="p-2.5 bg-purple-600/10 hover:bg-purple-600 text-purple-300 hover:text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-2.5 bg-purple-100 dark:bg-purple-600/10 hover:bg-purple-600 text-purple-600 dark:text-purple-300 hover:text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isAdding ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShoppingCart className="w-5 h-5" />}
             </button>
           ) : (
             <button 
               onClick={() => navigate(`/components/${item.id}`)} 
-              className="p-2.5 bg-gray-600/10 text-gray-400 hover:bg-gray-600 hover:text-white rounded-lg transition-all"
+              className="p-2.5 bg-gray-100 dark:bg-gray-600/10 text-gray-600 dark:text-gray-400 hover:bg-gray-600 dark:hover:bg-gray-600 hover:text-white dark:hover:text-white rounded-lg transition-all"
               title="Комплектующие добавляются через Конфигуратор"
             >
               <Cpu className="w-5 h-5" />
