@@ -65,10 +65,10 @@ const Navigation = () => {
       transition={{ duration: 0.6 }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-600 ${
         window.screen.width <= 768 
-        ? "bg-[#0f0f10]/80 border-b border-purple-400/10 backdrop-blur-xl" 
+        ? "bg-white/80 dark:bg-[#0f0f10]/80 border-b border-purple-200/30 dark:border-purple-400/10 backdrop-blur-xl" 
         : scrolled 
-        ? "bg-[#0f0f10]/80 border-b border-purple-400/10 backdrop-blur-xl"
-        : "bg-transaprent border-b border-transparent backdrop-blur-none"
+        ? "bg-white/80 dark:bg-[#0f0f10]/80 border-b border-purple-200/30 dark:border-purple-400/10 backdrop-blur-xl"
+        : "bg-transparent border-b border-transparent backdrop-blur-none"
       }`}
     >
       <div className="container mx-auto px-6">
@@ -86,7 +86,7 @@ const Navigation = () => {
               <span className="ml-2 text-xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
                   TECH LAB
               </span> */}
-              <img src={scrolled ? '/logo.svg' : isDark ? '/logo.svg' : '/dark_logo.svg' } alt="TechLab" className=" transition h-20 w-auto  hover:scale-[0.95]"/>
+              <img src={scrolled ? '/logo.svg' : isDark ? '/logo.svg' : '/dark_logo.svg' } alt="TechLab" className="transition h-20 w-auto hover:scale-[0.95]"/>
             </motion.div>
           </Link>
           
@@ -99,11 +99,11 @@ const Navigation = () => {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 * index }}
-                className="text-sm rounded-xl dark:bg-transparent p-2.5 text-purple-400 dark:text-purple-200/70 dark:hover:text-purple-300 hover:text-purple-500 transition-colors relative group block"
+                className="text-sm rounded-xl p-2.5 text-purple-600 dark:text-purple-200/70 dark:hover:text-purple-300 hover:text-purple-700 transition-colors relative group block"
               >
                 {item.isLogout ? (
                   <>
-                    <button onClick={item.action} className="text-purple-200/70 group-hover:text-red-400 transition-colors cursor-pointer">
+                    <button onClick={item.action} className="text-purple-600/70 dark:text-purple-200/70 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors cursor-pointer">
                       {item.name}
                     </button>
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-red-400/80 to-red-400/60 group-hover:w-full transition-all duration-300" />
@@ -121,16 +121,16 @@ const Navigation = () => {
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={toggleTheme}
-              className="flex aspect-square items-center justify-center p-2 rounded-full border border-purple-400/30 bg-white/5 dark:bg-white/10 hover:border-purple-400 transition-colors"
+              className="flex aspect-square items-center justify-center p-2 rounded-full border border-purple-300/50 dark:border-purple-400/30 bg-purple-100/50 dark:bg-white/5 hover:border-purple-400 dark:hover:border-purple-400 transition-colors"
             >
-              {isDark ? <Sun className="w-4 h-4 text-white" /> : <Moon className="w-4 h-4 text-purple-600" />}
+              {isDark ? <Sun className="w-4 h-4 text-yellow-500" /> : <Moon className="w-4 h-4 text-purple-600" />}
             </motion.button>
           </div>
           
           {/* Кнопка мобильного меню */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden text-purple-300 hover:text-purple-200 transition-colors"
+            className="md:hidden text-purple-600 dark:text-purple-300 hover:text-purple-700 dark:hover:text-purple-200 transition-colors"
           >
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -151,11 +151,11 @@ const Navigation = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 * index }}
                 onClick={() => setIsOpen(false)}
-                className="block text-sm text-purple-200/70 hover:text-purple-300 transition-colors py-2"
+                className="block text-sm text-purple-600 dark:text-purple-200/70 hover:text-purple-700 dark:hover:text-purple-300 transition-colors py-2"
               >
                 {item.isLogout ? (
                   <>
-                    <button onClick={item.action} className="text-red-400/70 hover:text-red-400 transition-colors cursor-pointer">
+                    <button onClick={item.action} className="text-red-500/70 dark:text-red-400/70 hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer">
                       {item.name}
                     </button>
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-red-400/80 to-red-400/60 group-hover:w-full transition-all duration-300" />
@@ -173,10 +173,10 @@ const Navigation = () => {
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => { toggleTheme(); setIsOpen(false); }}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-purple-400/30 bg-white/5 dark:bg-white/10 hover:border-purple-400 transition-colors w-full mt-2"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-purple-300/50 dark:border-purple-400/30 bg-purple-100/50 dark:bg-white/5 hover:border-purple-400 transition-colors w-full mt-2"
             >
               {isDark ? <Sun className="w-4 h-4 text-yellow-500" /> : <Moon className="w-4 h-4 text-purple-600" />}
-              <span className="text-sm text-purple-200/70">{isDark ? 'Светлая тема' : 'Тёмная тема'}</span>
+              <span className="text-sm text-purple-600 dark:text-purple-200/70">{isDark ? 'Светлая тема' : 'Тёмная тема'}</span>
             </motion.button>
           </motion.div>
         )}
