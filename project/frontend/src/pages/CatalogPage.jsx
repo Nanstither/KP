@@ -89,36 +89,36 @@ export default function CatalogPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0f0f10] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-[#0f0f10] flex items-center justify-center">
         <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity }} className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0f0f10] text-gray-200 pt-24 pb-12 px-4 md:px-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0f0f10] text-gray-800 dark:text-gray-200 pt-24 pb-12 px-4 md:px-6">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-6">
         
         {/* 📦 ЛЕВАЯ ПАНЕЛЬ */}
         <aside className="lg:w-64 flex-shrink-0 space-y-6">
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="bg-[#141416] border border-white/10 rounded-xl p-5 sticky top-24">
-            <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Раздел</h3>
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 rounded-xl p-5 sticky top-24 shadow-sm dark:shadow-none">
+            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">Раздел</h3>
             <div className="space-y-2">
-              <button onClick={() => handleViewChange("components")} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${view === "components" ? "bg-purple-600/20 text-purple-300 border border-purple-500/30" : "text-gray-400 hover:bg-white/5 hover:text-gray-200 border border-transparent"}`}>
+              <button onClick={() => handleViewChange("components")} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${view === "components" ? "bg-purple-100 dark:bg-purple-600/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30" : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-700 dark:hover:text-gray-200 border border-transparent"}`}>
                 <Cpu className="w-4 h-4" /> Комплектующие
               </button>
-              <button onClick={() => handleViewChange("prebuilts")} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${view === "prebuilts" ? "bg-purple-600/20 text-purple-300 border border-purple-500/30" : "text-gray-400 hover:bg-white/5 hover:text-gray-200 border border-transparent"}`}>
+              <button onClick={() => handleViewChange("prebuilts")} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${view === "prebuilts" ? "bg-purple-100 dark:bg-purple-600/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30" : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-700 dark:hover:text-gray-200 border border-transparent"}`}>
                 <Monitor className="w-4 h-4" /> Готовые ПК
               </button>
             </div>
 
-            <div className="mt-6 pt-6 border-t border-white/10">
-              <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-white/10">
+              <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
                 <Filter className="w-4 h-4" /> {view === "components" ? "Категории" : "Назначение"}
               </h3>
               <div className="space-y-1 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
                 {categories.map(cat => (
-                  <button key={cat} onClick={() => setSelectedFilter(cat)} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${selectedFilter === cat ? "bg-white/10 text-white font-medium" : "text-gray-500 hover:text-gray-300 hover:bg-white/5"}`}>
+                  <button key={cat} onClick={() => setSelectedFilter(cat)} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${selectedFilter === cat ? "bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white font-medium" : "text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5"}`}>
                     {cat === "all" ? "Все" : cat}
                   </button>
                 ))}
@@ -131,8 +131,8 @@ export default function CatalogPage() {
         <main className="flex-1 space-y-6">
 
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-white">{view === "prebuilts" ? "Готовые сборки" : "Каталог комплектующих"}</h1>
-            <span className="text-sm text-gray-500">Найдено: {filteredData.length}</span>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{view === "prebuilts" ? "Готовые сборки" : "Каталог комплектующих"}</h1>
+            <span className="text-sm text-gray-500 dark:text-gray-500">Найдено: {filteredData.length}</span>
           </div>
 
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="relative">
