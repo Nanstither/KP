@@ -129,15 +129,16 @@ export default function CatalogPage() {
 
         {/* 📋 ОСНОВНОЙ КОНТЕНТ */}
         <main className="flex-1 space-y-6">
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-            <input type="text" placeholder={`Поиск ${view === "components" ? "комплектующих" : "сборок"}...`} value={search} onChange={e => setSearch(e.target.value)} className="w-full bg-[#141416] border border-white/10 rounded-xl pl-12 pr-4 py-4 text-sm text-gray-200 placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none transition-colors" />
-          </motion.div>
 
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-white">{view === "prebuilts" ? "Готовые сборки" : "Каталог комплектующих"}</h1>
             <span className="text-sm text-gray-500">Найдено: {filteredData.length}</span>
           </div>
+
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+            <input type="text" placeholder={`Поиск ${view === "components" ? "комплектующих" : "сборок"}...`} value={search} onChange={e => setSearch(e.target.value)} className="w-full bg-[#141416] border border-white/10 rounded-xl pl-12 pr-4 py-4 text-sm text-gray-200 placeholder:text-gray-600 focus:border-purple-500/50 focus:outline-none transition-colors" />
+          </motion.div>
 
           {filteredData.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
