@@ -26,7 +26,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="relative bg-[#0f0f10] border-t border-purple-400/10">
+    <footer className="relative bg-[#0f0f10] dark:bg-[#0f0f10] bg-white/80 dark:border-purple-400/10 border-t border-purple-200/30">
       {/* Декоративная линия сверху */}
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-50" />
 
@@ -44,13 +44,13 @@ const Footer = () => {
             <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               TECH LAB
             </h3>
-            <p className="text-sm text-purple-200/60 leading-relaxed">
+            <p className="text-sm text-purple-200/60 dark:text-purple-200/60 text-gray-600 leading-relaxed">
               Профессиональный сборка игровых и рабочих станций. 
               Гарантия качества и лучшие цены на рынке.
             </p>
             <div className="flex gap-4 pt-2">
-              <a href="#" className="text-purple-300 hover:text-pink-400 transition-colors"></a>
-              <a href="#" className="text-purple-300 hover:text-pink-400 transition-colors"></a>
+              <a href="#" className="text-purple-300 dark:text-purple-300 text-gray-600 hover:text-pink-400 transition-colors"></a>
+              <a href="#" className="text-purple-300 dark:text-purple-300 text-gray-600 hover:text-pink-400 transition-colors"></a>
             </div>
           </motion.div>
 
@@ -62,11 +62,11 @@ const Footer = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="space-y-4"
           >
-            <h4 className="text-lg font-semibold text-white">Навигация</h4>
+            <h4 className="text-lg font-semibold text-white dark:text-white text-gray-700">Навигация</h4>
             <ul className="space-y-2">
               {links.map((item) => (
                 <li key={item.name}>
-                  <a href={item.to} className="text-sm text-purple-200/70 hover:text-purple-300 transition-colors">
+                  <a href={item.to} className="text-sm text-purple-200/70 dark:text-purple-200/70 text-gray-600 hover:text-purple-300 dark:hover:text-purple-300 hover:text-purple-700 transition-colors">
                     {item.name}
                   </a>
                 </li>
@@ -82,11 +82,11 @@ const Footer = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="space-y-4"
           >
-            <h4 className="text-lg font-semibold text-white">Каталог</h4>
+            <h4 className="text-lg font-semibold text-white dark:text-white text-gray-700">Каталог</h4>
             <ul className="space-y-2">
               {categories.map((cat) => (
                 <li key={cat.name}>
-                  <a href="#" className="text-sm text-purple-200/70 hover:text-purple-300 transition-colors">
+                  <a href="#" className="text-sm text-purple-200/70 dark:text-purple-200/70 text-gray-600 hover:text-purple-300 dark:hover:text-purple-300 hover:text-purple-700 transition-colors">
                     {cat.name}
                   </a>
                 </li>
@@ -102,11 +102,11 @@ const Footer = () => {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="space-y-4"
           >
-            <h4 className="text-lg font-semibold text-white">Контакты</h4>
+            <h4 className="text-lg font-semibold text-white dark:text-white text-gray-700">Контакты</h4>
             <ul className="space-y-3">
               {contacts.map((item, index) => (
-                <li key={index} className="flex items-center gap-3 text-sm text-purple-200/70">
-                  <item.icon className="w-4 h-4 text-purple-400" />
+                <li key={index} className="flex items-center gap-3 text-sm text-purple-200/70 dark:text-purple-200/70 text-gray-600">
+                  <item.icon className="w-4 h-4 text-purple-400 dark:text-purple-400 text-gray-500" />
                   <span>{item.text}</span>
                 </li>
               ))}
@@ -115,15 +115,15 @@ const Footer = () => {
         </div>
 
         {/* Нижняя полоса */}
-        <div className="border-t border-purple-400/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-purple-200/50">
+        <div className="border-t border-purple-400/10 dark:border-purple-400/10 border-purple-200/30 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-xs text-purple-200/50 dark:text-purple-200/50 text-gray-600">
             © {currentYear} Tech Lab. Все права защищены.
           </p>
           <div className="flex gap-6">
-            <a href="#" className="text-xs text-purple-200/50 hover:text-purple-300 transition-colors">
+            <a href="#" className="text-xs text-purple-200/50 dark:text-purple-200/50 text-gray-600 hover:text-purple-300 dark:hover:text-purple-300 hover:text-purple-700 transition-colors">
               Политика конфиденциальности
             </a>
-            <a href="#" className="text-xs text-purple-200/50 hover:text-purple-300 transition-colors">
+            <a href="#" className="text-xs text-purple-200/50 dark:text-purple-200/50 text-gray-600 hover:text-purple-300 dark:hover:text-purple-300 hover:text-purple-700 transition-colors">
               Условия использования
             </a>
           </div>
