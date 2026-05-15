@@ -57,9 +57,12 @@ const formatSpecs = (item, categoryId) => {
   switch (categoryId) {
     case 'motherboard':
     case 'mb':
-      if (spec.socket_id) specs.push(`Сокет: ${spec.socket_id}`);
-      if (spec.form_factor_id) specs.push(`Форм-фактор: ${spec.form_factor_id}`);
-      if (spec.ram_type_id) specs.push(`Поддерживаемая ОЗУ: ${spec.ram_type_id}`);
+      if (spec.socket?.name) specs.push(`Сокет: ${spec.socket.name}`);
+      else if (spec.socket_id) specs.push(`Сокет: ${spec.socket_id}`);
+      if (spec.form_factor?.name) specs.push(`Форм-фактор: ${spec.form_factor.name}`);
+      else if (spec.form_factor_id) specs.push(`Форм-фактор: ${spec.form_factor_id}`);
+      if (spec.ram_type?.name) specs.push(`Поддерживаемая ОЗУ: ${spec.ram_type.name}`);
+      else if (spec.ram_type_id) specs.push(`Поддерживаемая ОЗУ: ${spec.ram_type_id}`);
       if (spec.ram_slots) specs.push(`Слотов ОЗУ: ${spec.ram_slots}`);
       if (spec.m2_slots) specs.push(`M.2 слотов: ${spec.m2_slots}`);
       if (spec.sata_ports) specs.push(`SATA портов: ${spec.sata_ports}`);
@@ -67,7 +70,8 @@ const formatSpecs = (item, categoryId) => {
     case 'cpu':
       if (spec.cores) specs.push(`${spec.cores} ядер`);
       if (spec.base_clock_mhz) specs.push(`${(spec.base_clock_mhz / 1000).toFixed(1)} GHz`);
-      if (spec.socket_id) specs.push(`Socket: ${spec.socket_id}`);
+      if (spec.socket?.name) specs.push(`Socket: ${spec.socket.name}`);
+      else if (spec.socket_id) specs.push(`Socket: ${spec.socket_id}`);
       if (spec.tdp_watts) specs.push(`TDP: ${spec.tdp_watts}W`);
       break;
     case 'gpu':
@@ -80,7 +84,8 @@ const formatSpecs = (item, categoryId) => {
     case 'ram':
       if (spec.total_capacity_gb) specs.push(`Объем: ${spec.total_capacity_gb} GB`);
       if (spec.modules_count) specs.push(`В комплекте: ${spec.modules_count} шт.`);
-      if (spec.ram_type_id) specs.push(spec.ram_type_id);
+      if (spec.ram_type?.name) specs.push(spec.ram_type.name);
+      else if (spec.ram_type_id) specs.push(spec.ram_type_id);
       if (spec.speed_mhz) specs.push(`${spec.speed_mhz} MHz`);
       break;
     case 'psu':
@@ -223,7 +228,8 @@ export default function ConfiguratorPage() {
     // RAM ↔ MB (Type)
     if (catId === 'ram' && mb) {
       if (item.ram_spec?.ram_type_id !== mbSpec.ram_type_id) {
-        return { status: 'error', message: `Требуется тип ${mbSpec.ram_type_id}` };
+        const requiredRamTypeName = mb.motherboard_spec?.ram_type?.name || `тип ${mbSpec.ram_type_id}`;
+        return { status: 'error', message: `Требуется тип ${requiredRamTypeName}` };
       }
     }
 
