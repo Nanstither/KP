@@ -155,7 +155,7 @@ export default function CatalogPage() {
             </div>
           ) : (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20 bg-[#141416] border border-white/10 rounded-xl">
-              <p className="text-gray-500 text-lg mb-4">Ничего не найдено 😔</p>
+              <p className="text-gray-500 text-lg mb-4">Ничего не найдено</p>
               <button onClick={() => { setSearch(""); setSelectedFilter("all"); }} className="text-purple-400 hover:text-purple-300 text-sm underline">Сбросить фильтры</button>
             </motion.div>
           )}
