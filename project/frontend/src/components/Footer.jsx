@@ -26,7 +26,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="relative bg-white/80 dark:bg-[#0f0f10] border-t border-purple-200/30 dark:border-purple-400/10">
+    <footer className="relative bg-white dark:bg-[#0f0f10] border-t border-purple-200/30 dark:border-purple-400/10">
       {/* Декоративная линия сверху */}
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-50" />
 
