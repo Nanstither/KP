@@ -21,7 +21,7 @@ const ParticlesBackground = () => {
       {particles.map((p) => (
         <motion.div
           key={p.id}
-          className="absolute rounded-full bg-purple-400 dark:bg-white"
+          className="absolute rounded-full bg-black dark:bg-white"
           style={{
             left: `${p.x}%`,
             top: `${p.y}%`,
