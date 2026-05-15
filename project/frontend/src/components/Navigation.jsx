@@ -86,7 +86,7 @@ const Navigation = () => {
               <span className="ml-2 text-xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
                   TECH LAB
               </span> */}
-              <img src="/logo.svg" alt="TechLab" className=" transition h-20 w-auto  hover:scale-[0.95]"/>
+              <img src={scrolled ? '/logo.svg' : isDark ? '/logo.svg' : '/dark_logo.svg' } alt="TechLab" className=" transition h-20 w-auto  hover:scale-[0.95]"/>
             </motion.div>
           </Link>
           
@@ -99,7 +99,7 @@ const Navigation = () => {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 * index }}
-                className="text-sm rounded-xl dark:bg-transparent p-2.5 text-purple-200/70 hover:text-purple-300 transition-colors relative group block"
+                className="text-sm rounded-xl dark:bg-transparent p-2.5 text-purple-400 dark:text-purple-200/70 dark:hover:text-purple-300 hover:text-purple-500 transition-colors relative group block"
               >
                 {item.isLogout ? (
                   <>

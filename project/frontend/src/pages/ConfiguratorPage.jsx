@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, aspectRatio } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import api from "@/services/api";
 import { STORAGE_URL } from "@/lib/config";
@@ -572,7 +572,7 @@ export default function ConfiguratorPage() {
       {/* 🔵 ОСНОВНАЯ ОБЛАСТЬ */}
       <div className="flex-1 flex flex-col relative overflow-hidden">
         {/* Хедер с кнопками */}
-        <header className="absolute top-6 left-0 right-72 z-50 flex justify-center pointer-events-none">
+        <header className="absolute top-6 left-0 right-72 z-10 flex justify-center pointer-events-none">
           <div className="flex gap-3 pointer-events-auto">
             <motion.button whileTap={{ scale: 0.95 }} onClick={() => navigate(-1)} className="cursor-pointer flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-[#141416] text-gray-900 dark:text-white border border-gray-200 dark:border-white/10 hover:border-purple-500/50 rounded-full shadow-lg backdrop-blur-md transition-colors text-sm font-medium">
               <ArrowLeft className="w-4 h-4" /> Обратно
@@ -585,7 +585,7 @@ export default function ConfiguratorPage() {
             </div>
             <motion.button 
               onClick={toggleTheme} 
-              className="cursor-pointer flex aspect-square items-center justify-center p-2.5 rounded-full border border-gray-200 dark:border-white/10 bg-white dark:bg-[#141416] hover:border-purple-400 shadow-lg backdrop-blur-md transition-colors"
+              className="cursor-pointer px-3 flex items-center justify-center rounded-full border border-gray-200 dark:border-white/10 bg-white dark:bg-[#141416] hover:border-purple-400 shadow-lg backdrop-blur-md transition-colors"
             >
               {isDark ? <Sun className="w-4 h-4 text-yellow-500" /> : <Moon className="w-4 h-4 text-purple-600" />}
             </motion.button>
@@ -674,13 +674,13 @@ export default function ConfiguratorPage() {
                     </div>
                     
                     {cat.id === 'storage' ? (
-                      <div className="flex flex-col gap-1 mt-1 ml-11 w-full">
-                        {build.nvme?.item && <span className="text-xs text-gray-700 dark:text-gray-300 truncate">NVMe: {build.nvme.item.model}</span>}
-                        {build.sata?.item && <span className="text-xs text-gray-700 dark:text-gray-300 truncate">SATA: {build.sata.item.model}</span>}
+                      <div className="flex flex-col gap-1 mt-1 text-left w-full">
+                        {build.nvme?.item && <span className="text-xs text-gray-500 dark:text-gray-300 truncate">NVMe: {build.nvme.item.model}</span>}
+                        {build.sata?.item && <span className="text-xs text-gray-500 dark:text-gray-300 truncate">SATA: {build.sata.item.model}</span>}
                       </div>
                     ) : (
                       isPicked && selectedItem && (
-                        <div className="flex items-center justify-between w-full mt-1 ml-11">
+                        <div className="flex items-center justify-between w-full mt-1">
                           <span className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[140px]">{selectedItem.model}</span>
                           {qty > 1 && <span className="text-xs font-mono text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-500/10 px-1.5 rounded">x{qty}</span>}
                         </div>
