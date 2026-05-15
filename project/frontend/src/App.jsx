@@ -1,7 +1,5 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { useState } from 'react';
-import api from '@/services/api';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import HomePage from '@/pages/HomePage';
@@ -42,24 +40,38 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   return children;
 };
 
+// Конфигурация маршрутов
+const PUBLIC_ROUTES = [
+  { path: "/", element: HomePage },
+  { path: "/about", element: AboutPage },
+  { path: "/catalog", element: CatalogPage },
+  { path: "/login", element: LoginPage },
+  { path: "/knowledge", element: KnowledgeBase },
+  { path: "/cart", element: CartPage },
+  { path: "/components/:id", element: ComponentDetailPage },
+  { path: "/config", element: ConfiguratorPage },
+];
+
+const ADMIN_ROUTES = [
+  { path: "/admin/components/:id/edit", element: ComponentEdit },
+  { path: "/admin/components/create", element: ComponentCreate },
+];
+
 export default function App() {
   const location = useLocation();
   const isAppPage = location.pathname.includes("config");
+
   return (
     <div>
       {!isAppPage && <Navigation />}
       <main>
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/catalog" element={<CatalogPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/knowledge" element={<KnowledgeBase />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/components/:id" element={<ComponentDetailPage />} />
-          <Route path="/config" element={<ConfiguratorPage />} />
+          {/* Публичные маршруты */}
+          {PUBLIC_ROUTES.map(({ path, element: Element }) => (
+            <Route key={path} path={path} element={<Element />} />
+          ))}
           
-          {/* Защищённые админ-роуты */}
+          {/* Защищённые админ-маршруты */}
           <Route 
             path="/admin/*" 
             element={
@@ -68,29 +80,43 @@ export default function App() {
               </ProtectedRoute>
             } 
           />
-          <Route path="/admin/components/:id/edit" element={<ComponentEdit />} />
-          <Route path="/admin/components/create" element={<ComponentCreate />} />
           
-          {/* Роуты для готовых ПК */}
-          <Route path="/admin/prebuilt-pcs/create" element={<ProtectedRoute allowedRoles={['admin', 'manager']}><PrebuiltPcCreate /></ProtectedRoute>} />
-          <Route path="/admin/prebuilt-pcs/:id/edit" element={<ProtectedRoute allowedRoles={['admin', 'manager']}><PrebuiltPcEdit /></ProtectedRoute>} />
+          {/* Дополнительные админ-маршруты */}
+          {ADMIN_ROUTES.map(({ path, element: Element }) => (
+            <Route 
+              key={path} 
+              path={path} 
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                  <Element />
+                </ProtectedRoute>
+              } 
+            />
+          ))}
           
-          <Route path="*" element={<Navigate to="/"/>} />
+          {/* Маршруты для готовых ПК */}
+          <Route 
+            path="/admin/prebuilt-pcs/create" 
+            element={
+              <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                <PrebuiltPcCreate />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/prebuilt-pcs/:id/edit" 
+            element={
+              <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                <PrebuiltPcEdit />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Fallback маршрут */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
-    {!isAppPage && <Footer />}
+      {!isAppPage && <Footer />}
     </div>
   );
 }
-
-// function App() {
-//   return (
-//     <Router>
-//       <AuthProvider>
-//         <AppRoutes />
-//       </AuthProvider>
-//     </Router>
-//   );
-// }
-
-// export default App;
