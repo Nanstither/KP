@@ -3,12 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "@/services/api";
 import { STORAGE_URL, API_URL } from "@/lib/config";
-import { useAuth } from "@/context/AuthContext"; // ✅ Импортируем Auth
-import { Search, Monitor, Cpu, Filter, ShoppingCart, Loader2, LogIn, UserPlus, X } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { Search, Monitor, Cpu, Filter, ShoppingCart, Loader2, LogIn, UserPlus, X, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 
 export default function CatalogPage() {
   const navigate = useNavigate();
-  const { user } = useAuth(); // ✅ Достаем пользователя
+  const { user } = useAuth();
   const [view, setView] = useState("components");
   const [components, setComponents] = useState([]);
   const [prebuilts, setPrebuilts] = useState([]);
@@ -19,6 +19,10 @@ export default function CatalogPage() {
   
   // ✅ Состояние для окна авторизации
   const [showAuthModal, setShowAuthModal] = useState(false);
+  
+  // ✅ Пагинация
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -43,6 +47,7 @@ export default function CatalogPage() {
     setView(newView);
     setSelectedFilter("all");
     setSearch("");
+    setCurrentPage(1); // Сброс на первую страницу при смене раздела
   };
 
   const categories = useMemo(() => {
@@ -67,6 +72,18 @@ export default function CatalogPage() {
       return matchSearch && matchFilter;
     });
   }, [currentData, search, selectedFilter, view]);
+
+  // ✅ Пагинация: вычисляем элементы для текущей страницы
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const paginatedData = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredData.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredData, currentPage]);
+
+  // Сброс на первую страницу при изменении фильтров/поиска
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, selectedFilter, view]);
 
   // ✅ Логика добавления в корзину
   const handleAddToCart = async (pc) => {
@@ -141,18 +158,38 @@ export default function CatalogPage() {
           </motion.div>
 
           {filteredData.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-              {filteredData.map((item, index) => (
-                <ProductCard 
-                  key={item.id} 
-                  item={item} 
-                  view={view} 
-                  index={index} 
-                  isAdding={addingId === item.id} 
-                  onAdd={view === "prebuilts" ? () => handleAddToCart(item) : null} 
+            <>
+              {/* Пагинация сверху */}
+              {totalPages > 1 && (
+                <Pagination 
+                  currentPage={currentPage} 
+                  totalPages={totalPages} 
+                  onPageChange={setCurrentPage} 
                 />
-              ))}
-            </div>
+              )}
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                {paginatedData.map((item, index) => (
+                  <ProductCard 
+                    key={item.id} 
+                    item={item} 
+                    view={view} 
+                    index={index} 
+                    isAdding={addingId === item.id} 
+                    onAdd={view === "prebuilts" ? () => handleAddToCart(item) : null} 
+                  />
+                ))}
+              </div>
+              
+              {/* Пагинация снизу */}
+              {totalPages > 1 && (
+                <Pagination 
+                  currentPage={currentPage} 
+                  totalPages={totalPages} 
+                  onPageChange={setCurrentPage} 
+                />
+              )}
+            </>
           ) : (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20 bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 rounded-xl shadow-sm dark:shadow-none">
               <p className="text-gray-500 dark:text-gray-500 text-lg mb-4">Ничего не найдено</p>
@@ -211,6 +248,85 @@ export default function CatalogPage() {
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+// 📄 Компонент пагинации
+function Pagination({ currentPage, totalPages, onPageChange }) {
+  const pages = [];
+  
+  // Логика отображения страниц: показываем первую, последнюю и соседние с текущей
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+      pages.push(i);
+    } else if (i === currentPage - 2 || i === currentPage + 2) {
+      pages.push('...');
+    }
+  }
+
+  return (
+    <div className="flex items-center justify-center gap-2 py-6">
+      {/* Кнопка "В начало" */}
+      <button
+        onClick={() => onPageChange(1)}
+        disabled={currentPage === 1}
+        className="p-2 rounded-lg border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        title="Первая страница"
+      >
+        <ChevronsLeft className="w-5 h-5" />
+      </button>
+      
+      {/* Кнопка "Назад" */}
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="p-2 rounded-lg border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        title="Предыдущая страница"
+      >
+        <ChevronLeft className="w-5 h-5" />
+      </button>
+      
+      {/* Номера страниц */}
+      <div className="flex items-center gap-1">
+        {pages.map((page, index) => (
+          page === '...' ? (
+            <span key={index} className="px-3 py-2 text-gray-400 dark:text-gray-600">...</span>
+          ) : (
+            <button
+              key={page}
+              onClick={() => onPageChange(page)}
+              className={`min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                currentPage === page
+                  ? 'bg-purple-600 text-white'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
+              }`}
+            >
+              {page}
+            </button>
+          )
+        ))}
+      </div>
+      
+      {/* Кнопка "Вперед" */}
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="p-2 rounded-lg border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        title="Следующая страница"
+      >
+        <ChevronRight className="w-5 h-5" />
+      </button>
+      
+      {/* Кнопка "В конец" */}
+      <button
+        onClick={() => onPageChange(totalPages)}
+        disabled={currentPage === totalPages}
+        className="p-2 rounded-lg border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        title="Последняя страница"
+      >
+        <ChevronsRight className="w-5 h-5" />
+      </button>
     </div>
   );
 }
