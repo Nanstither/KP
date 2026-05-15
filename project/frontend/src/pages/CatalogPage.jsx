@@ -96,7 +96,7 @@ export default function CatalogPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#0f0f10] text-gray-800 dark:text-gray-200 pt-24 pb-12 px-4 md:px-6">
+    <div className="min-h-screen bg-linear-to-br from-pink-50 via-white to-blue-100 dark:bg-none dark:bg-[#0f0f10] text-gray-800 dark:text-gray-200 pt-24 pb-12 px-4 md:px-6">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-6">
         
         {/* 📦 ЛЕВАЯ ПАНЕЛЬ */}
@@ -228,7 +228,7 @@ function ProductCard({ item, view, index, isAdding, onAdd }) {
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }} className="group bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden hover:border-purple-500/30 transition-all duration-300 flex flex-col shadow-sm dark:shadow-none">
-      <div className="aspect-[4/3] bg-gray-100 dark:bg-[#0a0a0c] relative overflow-hidden cursor-pointer" onClick={() => navigate(view === 'prebuilts' ? `/pc/${item.slug}` : `/component/${item.id}`)}>
+      <div className="aspect-[4/4] bg-gray-100 dark:bg-[#0a0a0c] relative overflow-hidden cursor-pointer" onClick={() => navigate(view === 'prebuilts' ? `/pc/${item.slug}` : `/component/${item.id}`)}>
         <img src={imgSrc} alt={title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={e => e.target.src = "/placeholder.svg"} />
         <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 max-w-[calc(100%-1.5rem)]">
           {view === "prebuilts" && item.tags?.length > 0 ? item.tags.map(tag => (
