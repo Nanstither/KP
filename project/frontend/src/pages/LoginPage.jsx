@@ -21,7 +21,7 @@ const ParticlesBackground = () => {
       {particles.map((p) => (
         <motion.div
           key={p.id}
-          className="absolute rounded-full bg-white"
+          className="absolute rounded-full bg-purple-400 dark:bg-white"
           style={{
             left: `${p.x}%`,
             top: `${p.y}%`,
@@ -85,9 +85,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#101019] flex items-center justify-center p-4 overflow-hidden relative">
+    <div className="min-h-screen bg-linear-to-br from-purple-50 via-white to-blue-100 dark:from-[#101019] dark:via-[#0f0f10] dark:to-[#0f0f10] flex items-center justify-center p-4 overflow-hidden relative">
       {/* Фоновый градиент */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0f0f10] to-[#0f0f10] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent dark:from-purple-900/20 dark:via-[#0f0f10] dark:to-[#0f0f10] pointer-events-none" />
       <ParticlesBackground />
 
       {/* ГЛАВНЫЙ КОНТЕЙНЕР (Окно) */}
@@ -95,7 +95,7 @@ export default function LoginPage() {
         layout
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="relative w-full max-w-[900px] h-[580px] bg-[#141416] rounded-3xl shadow-2xl shadow-purple-500/10 overflow-hidden border border-white/10 z-10"
+        className="relative w-full max-w-[900px] h-[580px] bg-white dark:bg-[#141416] rounded-3xl shadow-2xl shadow-purple-500/10 overflow-hidden border border-purple-200 dark:border-white/10 z-10"
       >
         {/* --- СЛОЙ ФОРМ (Находятся под оверлеем) --- */}
         <div className="absolute inset-0 flex">
@@ -107,37 +107,37 @@ export default function LoginPage() {
             transition={{ duration: 0.6, type: 'spring', stiffness: 100, damping: 20 }}
             style={{ pointerEvents: isRegistering ? 'none' : 'auto' }}
           >
-            <h2 className="text-3xl font-bold text-white mb-2">Добро пожаловать</h2>
-            <p className="text-gray-400 mb-8 text-sm">Введите свои данные для входа</p>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Добро пожаловать</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-8 text-sm">Введите свои данные для входа</p>
 
             <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-4">
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                 <input
                   name="email"
                   type="email"
                   placeholder="Email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full bg-[#0a0a0c] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-gray-200 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all"
+                  className="w-full bg-gray-50 dark:bg-[#0a0a0c] border border-gray-200 dark:border-white/10 rounded-xl py-3 pl-10 pr-4 text-gray-900 dark:text-gray-200 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all"
                   required
                 />
               </div>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                 <input
                   name="password"
                   type="password"
                   placeholder="Пароль"
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full bg-[#0a0a0c] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-gray-200 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all"
+                  className="w-full bg-gray-50 dark:bg-[#0a0a0c] border border-gray-200 dark:border-white/10 rounded-xl py-3 pl-10 pr-4 text-gray-900 dark:text-gray-200 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all"
                   required
                 />
               </div>
 
               {error && (
-                <div className="flex items-center gap-2 text-red-400 text-sm bg-red-500/10 p-3 rounded-lg border border-red-500/20">
+                <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm bg-red-100 dark:bg-red-500/10 p-3 rounded-lg border border-red-200 dark:border-red-500/20">
                   <AlertCircle className="w-4 h-4" />
                   <span>{error}</span>
                 </div>
@@ -164,61 +164,61 @@ export default function LoginPage() {
             transition={{ duration: 0.6, type: 'spring', stiffness: 100, damping: 20 }}
             style={{ pointerEvents: isRegistering ? 'auto' : 'none' }}
           >
-            <h2 className="text-3xl font-bold text-white mb-2">Создать аккаунт</h2>
-            <p className="text-gray-400 mb-8 text-sm">Присоединяйтесь к нашему сообществу</p>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Создать аккаунт</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-8 text-sm">Присоединяйтесь к нашему сообществу</p>
 
             <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-3">
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                 <input
                   name="name"
                   type="text"
                   placeholder="Имя пользователя"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full bg-[#0a0a0c] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-gray-200 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all"
+                  className="w-full bg-gray-50 dark:bg-[#0a0a0c] border border-gray-200 dark:border-white/10 rounded-xl py-3 pl-10 pr-4 text-gray-900 dark:text-gray-200 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all"
                   required={isRegistering}
                 />
               </div>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                 <input
                   name="email"
                   type="email"
                   placeholder="Email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full bg-[#0a0a0c] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-gray-200 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all"
+                  className="w-full bg-gray-50 dark:bg-[#0a0a0c] border border-gray-200 dark:border-white/10 rounded-xl py-3 pl-10 pr-4 text-gray-900 dark:text-gray-200 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all"
                   required
                 />
               </div>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                 <input
                   name="password"
                   type="password"
                   placeholder="Пароль"
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full bg-[#0a0a0c] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-gray-200 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all"
+                  className="w-full bg-gray-50 dark:bg-[#0a0a0c] border border-gray-200 dark:border-white/10 rounded-xl py-3 pl-10 pr-4 text-gray-900 dark:text-gray-200 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all"
                   required
                 />
               </div>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                 <input
                   name="password_confirmation"
                   type="password"
                   placeholder="Подтвердите пароль"
                   value={formData.password_confirmation}
                   onChange={handleChange}
-                  className="w-full bg-[#0a0a0c] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-gray-200 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all"
+                  className="w-full bg-gray-50 dark:bg-[#0a0a0c] border border-gray-200 dark:border-white/10 rounded-xl py-3 pl-10 pr-4 text-gray-900 dark:text-gray-200 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all"
                   required={isRegistering}
                 />
               </div>
 
               {error && (
-                <div className="flex items-center gap-2 text-red-400 text-sm bg-red-500/10 p-3 rounded-lg border border-red-500/20">
+                <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm bg-red-100 dark:bg-red-500/10 p-3 rounded-lg border border-red-200 dark:border-red-500/20">
                   <AlertCircle className="w-4 h-4" />
                   <span>{error}</span>
                 </div>
@@ -244,7 +244,7 @@ export default function LoginPage() {
         <motion.div
           animate={{ x: isRegistering ? '100%' : '0%' }}
           transition={{ duration: 0.6, type: 'spring', stiffness: 100, damping: 20 }}
-          className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-br from-purple-700 to-indigo-900 rounded-3xl shadow-2xl z-20 flex items-center justify-center text-center p-10 overflow-hidden"
+          className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-br from-purple-700 to-indigo-900 dark:from-purple-600 dark:to-indigo-800 rounded-3xl shadow-2xl z-20 flex items-center justify-center text-center p-10 overflow-hidden"
         >
           {/* Декоративные пятна света */}
           <div className="absolute -top-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
@@ -262,7 +262,7 @@ export default function LoginPage() {
                 className="relative z-10"
               >
                 <h3 className="text-3xl font-bold text-white mb-4">Уже с нами?</h3>
-                <p className="text-purple-200 mb-8 text-sm leading-relaxed">
+                <p className="text-purple-100 dark:text-purple-200 mb-8 text-sm leading-relaxed">
                   Чтобы не прерывать свой путь, войдите в свой аккаунт. Мы скучали!
                 </p>
                 <button
@@ -283,7 +283,7 @@ export default function LoginPage() {
                 className="relative z-10"
               >
                 <h3 className="text-3xl font-bold text-white mb-4">Новичок?</h3>
-                <p className="text-purple-200 mb-8 text-sm leading-relaxed">
+                <p className="text-purple-100 dark:text-purple-200 mb-8 text-sm leading-relaxed">
                   Присоединяйтесь к нам сегодня и откройте мир возможностей. Создайте аккаунт за секунды!
                 </p>
                 <button
