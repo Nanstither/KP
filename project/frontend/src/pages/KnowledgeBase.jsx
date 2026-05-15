@@ -260,7 +260,7 @@ const KnowledgeBase = () => {
                     fetchPriority="high"/>
                   </picture>
                   <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-slate-950/90 via-transparent to-transparent p-10 flex flex-col justify-end">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 items-center">
+                    <h2 className="text-3xl font-bold text-white mb-8 items-center">
                       {/* <Monitor className="w-8 h-8 text-purple-500" /> */}
                       Как подобрать видеокарту к процессору: полный гайд по совместимости 2026
                     </h2>
