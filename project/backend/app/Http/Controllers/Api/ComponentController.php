@@ -19,10 +19,12 @@ class ComponentController extends Controller
             'category', 
             'brand',
             // ✅ ВСЕ спецификации — названия должны ТОЧНО совпадать с методами в модели
-            'cpuSpec', 
+            'cpuSpec.socket', 
             'gpuSpec', 
-            'ramSpec', 
-            'motherboardSpec', 
+            'ramSpec.ramType', 
+            'motherboardSpec.socket', 
+            'motherboardSpec.formFactor',
+            'motherboardSpec.ramType',
             'psuSpec', 
             'storageSpec', 
             'coolerSpec', 
@@ -46,7 +48,7 @@ class ComponentController extends Controller
     {
         $component = Component::with([
             'brand', 'category',
-            'cpuSpec', 'gpuSpec', 'ramSpec', 'motherboardSpec', 'psuSpec', 'storageSpec', 'coolerSpec', 'caseSpec',
+            'cpuSpec.socket', 'gpuSpec', 'ramSpec.ramType', 'motherboardSpec.socket', 'motherboardSpec.formFactor', 'motherboardSpec.ramType', 'psuSpec', 'storageSpec', 'coolerSpec', 'caseSpec',
             'compatibleSockets:id,name',
             'supportedFormFactors:id,name'
         ])->findOrFail($id);
