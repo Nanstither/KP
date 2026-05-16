@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Menu, X, Monitor, Sun, Moon } from "lucide-react";
+import { Menu, X, Monitor, Sun, Moon, User as UserIcon, LogOut, Settings } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const { user, logout } = useAuth();
   
   // Состояние темы
@@ -32,6 +33,17 @@ const Navigation = () => {
     setIsDark(!isDark);
   };
 
+  // Обработчик клика вне dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownOpen && !event.target.closest('.profile-dropdown')) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [dropdownOpen]);
+
   const navItems = [
     // { name: "Главная", to: "/" },
     { name: "Каталог", to: "/catalog" },
@@ -41,11 +53,6 @@ const Navigation = () => {
     { name: "База знаний", to: "/knowledge" },
     { name: "О нас", to: "/about" },
     { name: "Корзина", to: "/cart" },
-    // { name: "Вход", to: "/login" },
-    ...(user 
-      ? [{ name: "Выход", to: "#", action: logout, isLogout: true }] 
-      : [{ name: "Вход", to: "/login" }]
-    ),
   ];
 
   if (user?.role === 'admin' || user?.role === 'manager') {
@@ -125,6 +132,78 @@ const Navigation = () => {
             >
               {isDark ? <Sun className="w-4 h-4 text-white" /> : <Moon className="w-4 h-4 text-gray-700 group-hover:text-purple-700" />}
             </motion.button>
+
+            {/* Профиль пользователя с dropdown */}
+            {user && (
+              <div className="relative profile-dropdown">
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="cursor-pointer flex aspect-square items-center justify-center p-2 rounded-full border border-purple-400/30 bg-gradient-to-br from-purple-500/20 to-pink-500/20 hover:border-purple-400 dark:hover:border-purple-400 transition-all group"
+                >
+                  <UserIcon className="w-4 h-4 text-purple-600 dark:text-purple-300 group-hover:text-purple-700 dark:group-hover:text-purple-200" />
+                </motion.button>
+
+                {/* Dropdown меню */}
+                {dropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 mt-2 w-56 bg-white/95 dark:bg-[#0f0f10]/95 backdrop-blur-xl border border-purple-200/30 dark:border-purple-400/10 rounded-xl shadow-2xl overflow-hidden z-50"
+                  >
+                    {/* Информация о пользователе */}
+                    <div className="px-4 py-3 border-b border-purple-200/20 dark:border-purple-400/10">
+                      <p className="text-sm font-semibold text-gray-800 dark:text-purple-100 truncate">
+                        {user.name}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-purple-200/50 truncate">
+                        {user.email}
+                      </p>
+                      <div className="flex items-center gap-1 mt-1">
+                        <Settings className="w-3 h-3 text-purple-400" />
+                        <span className="text-xs text-purple-600 dark:text-purple-300 capitalize">
+                          {user.role === 'admin' ? 'Администратор' : 
+                           user.role === 'manager' ? 'Менеджер' : 'Пользователь'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Кнопки меню */}
+                    <div className="py-2">
+                      <Link
+                        to="/profile"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-purple-200/70 hover:bg-purple-100/50 dark:hover:bg-purple-500/10 transition-colors"
+                      >
+                        <UserIcon className="w-4 h-4 text-purple-500" />
+                        Профиль
+                      </Link>
+                      
+                      {user?.role === 'admin' || user?.role === 'manager' ? (
+                        <Link
+                          to="/admin"
+                          onClick={() => setDropdownOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-purple-200/70 hover:bg-purple-100/50 dark:hover:bg-purple-500/10 transition-colors"
+                        >
+                          <Settings className="w-4 h-4 text-purple-500" />
+                          Админ-панель
+                        </Link>
+                      ) : null}
+                      
+                      <button
+                        onClick={() => { logout(); setDropdownOpen(false); }}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Выход
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+            )}
           </div>
           
           {/* Кнопка мобильного меню */}
@@ -168,7 +247,7 @@ const Navigation = () => {
                 )}
               </motion.p>
             ))}
-            
+
             {/* Кнопка переключения темы в мобильном меню */}
             <motion.button
               whileTap={{ scale: 0.95 }}
@@ -178,6 +257,52 @@ const Navigation = () => {
               {isDark ? <Sun className="w-4 h-4 text-white" /> : <Moon className="w-4 h-4 text-purple-600" />}
               <span className="text-sm text-purple-600 dark:text-purple-200/70">{isDark ? 'Светлая тема' : 'Тёмная тема'}</span>
             </motion.button>
+
+            {/* Профиль пользователя в мобильном меню */}
+            {user && (
+              <div className="pt-4 border-t border-purple-200/20 dark:border-purple-400/10">
+                <div className="flex items-center gap-3 mb-4 px-2">
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                    <UserIcon className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-800 dark:text-purple-100">{user.name}</p>
+                    <p className="text-xs text-purple-600 dark:text-purple-300 capitalize">
+                      {user.role === 'admin' ? 'Администратор' : 
+                       user.role === 'manager' ? 'Менеджер' : 'Пользователь'}
+                    </p>
+                  </div>
+                </div>
+                
+                <Link
+                  to="/profile"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-purple-200/70 hover:bg-purple-100/50 dark:hover:bg-purple-500/10 transition-colors rounded-lg"
+                >
+                  <UserIcon className="w-4 h-4 text-purple-500" />
+                  Профиль
+                </Link>
+                
+                {user?.role === 'admin' || user?.role === 'manager' ? (
+                  <Link
+                    to="/admin"
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-purple-200/70 hover:bg-purple-100/50 dark:hover:bg-purple-500/10 transition-colors rounded-lg"
+                  >
+                    <Settings className="w-4 h-4 text-purple-500" />
+                    Админ-панель
+                  </Link>
+                ) : null}
+                
+                <button
+                  onClick={() => { logout(); setIsOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors rounded-lg mt-1"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Выход
+                </button>
+              </div>
+            )}
           </motion.div>
         )}
       </div>

@@ -15,6 +15,7 @@ import ComponentEdit from '@/pages/admin/ComponentEdit';
 import ComponentCreate from './pages/admin/ComponentCreate';
 import CartPage from './pages/CartPage';
 import ConfiguratorPage from './pages/ConfiguratorPage';
+import ProfilePage from './pages/ProfilePage';
 import PrebuiltPcCreate from './pages/admin/PrebuiltPcCreate';
 import PrebuiltPcEdit from './pages/admin/PrebuiltPcEdit';
 import '@/App.css';
@@ -58,6 +59,7 @@ export default function App() {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/components/:id" element={<ComponentDetailPage />} />
           <Route path="/config" element={<ConfiguratorPage />} />
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           
           {/* Защищённые админ-роуты */}
           <Route 
