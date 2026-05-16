@@ -123,4 +123,19 @@ class AuthController extends Controller
     public function me(Request $request){
         return response()->json(['user' => $request->user()]);
     }
+
+    // Обновление профиля
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+        
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+        ]);
+
+        $user->update($validated);
+
+        return response()->json(['user' => $user, 'message' => 'Профиль обновлен']);
+    }
 }

@@ -31,6 +31,7 @@ use App\Http\Controllers\Api\UserController;
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::put('/profile', [AuthController::class, 'updateProfile']);
 
     // Управление пользователями (только admin)
     Route::middleware('role:admin')->group(function () {
