@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Menu, X, Monitor, Sun, Moon, User as UserIcon, LogOut, Settings } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X, Monitor, Sun, Moon, User as UserIcon, LogOut, Settings, LogIn, UserPlus } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [authDropdownOpen, setAuthDropdownOpen] = useState(false);
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   
   // Состояние темы
   const [isDark, setIsDark] = useState(() => {
@@ -39,10 +41,13 @@ const Navigation = () => {
       if (dropdownOpen && !event.target.closest('.profile-dropdown')) {
         setDropdownOpen(false);
       }
+      if (authDropdownOpen && !event.target.closest('.auth-dropdown')) {
+        setAuthDropdownOpen(false);
+      }
     };
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
-  }, [dropdownOpen]);
+  }, [dropdownOpen, authDropdownOpen]);
 
   const navItems = [
     // { name: "Главная", to: "/" },
@@ -54,10 +59,6 @@ const Navigation = () => {
     { name: "О нас", to: "/about" },
     { name: "Корзина", to: "/cart" },
   ];
-
-  if (user?.role === 'admin' || user?.role === 'manager') {
-    navItems.push({ name: "Админ", to: "/admin" });
-  }
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -133,8 +134,8 @@ const Navigation = () => {
               {isDark ? <Sun className="w-4 h-4 text-white" /> : <Moon className="w-4 h-4 text-gray-700 group-hover:text-purple-700" />}
             </motion.button>
 
-            {/* Профиль пользователя с dropdown */}
-            {user && (
+            {/* Профиль пользователя с dropdown (если авторизован) */}
+            {user ? (
               <div className="relative profile-dropdown">
                 <motion.button
                   whileTap={{ scale: 0.95 }}
@@ -145,63 +146,118 @@ const Navigation = () => {
                 </motion.button>
 
                 {/* Dropdown меню */}
-                {dropdownOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute right-0 mt-2 w-56 bg-white/95 dark:bg-[#0f0f10]/95 backdrop-blur-xl border border-purple-200/30 dark:border-purple-400/10 rounded-xl shadow-2xl overflow-hidden z-50"
-                  >
-                    {/* Информация о пользователе */}
-                    <div className="px-4 py-3 border-b border-purple-200/20 dark:border-purple-400/10">
-                      <p className="text-sm font-semibold text-gray-800 dark:text-purple-100 truncate">
-                        {user.name}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-purple-200/50 truncate">
-                        {user.email}
-                      </p>
-                      <div className="flex items-center gap-1 mt-1">
-                        <Settings className="w-3 h-3 text-purple-400" />
-                        <span className="text-xs text-purple-600 dark:text-purple-300 capitalize">
-                          {user.role === 'admin' ? 'Администратор' : 
-                           user.role === 'manager' ? 'Менеджер' : 'Пользователь'}
-                        </span>
+                <AnimatePresence>
+                  {dropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute right-0 mt-2 w-56 bg-white/95 dark:bg-[#0f0f10]/95 backdrop-blur-xl border border-purple-200/30 dark:border-purple-400/10 rounded-xl shadow-2xl overflow-hidden z-50"
+                    >
+                      {/* Информация о пользователе */}
+                      <div className="px-4 py-3 border-b border-purple-200/20 dark:border-purple-400/10">
+                        <p className="text-sm font-semibold text-gray-800 dark:text-purple-100 truncate">
+                          {user.name}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-purple-200/50 truncate">
+                          {user.email}
+                        </p>
+                        <div className="flex items-center gap-1 mt-1">
+                          <Settings className="w-3 h-3 text-purple-400" />
+                          <span className="text-xs text-purple-600 dark:text-purple-300 capitalize">
+                            {user.role === 'admin' ? 'Администратор' : 
+                             user.role === 'manager' ? 'Менеджер' : 'Пользователь'}
+                          </span>
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Кнопки меню */}
-                    <div className="py-2">
-                      <Link
-                        to="/profile"
-                        onClick={() => setDropdownOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-purple-200/70 hover:bg-purple-100/50 dark:hover:bg-purple-500/10 transition-colors"
-                      >
-                        <UserIcon className="w-4 h-4 text-purple-500" />
-                        Профиль
-                      </Link>
-                      
-                      {user?.role === 'admin' || user?.role === 'manager' ? (
+                      {/* Кнопки меню */}
+                      <div className="py-2">
                         <Link
-                          to="/admin"
+                          to="/profile"
                           onClick={() => setDropdownOpen(false)}
                           className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-purple-200/70 hover:bg-purple-100/50 dark:hover:bg-purple-500/10 transition-colors"
                         >
-                          <Settings className="w-4 h-4 text-purple-500" />
-                          Админ-панель
+                          <UserIcon className="w-4 h-4 text-purple-500" />
+                          Профиль
                         </Link>
-                      ) : null}
-                      
-                      <button
-                        onClick={() => { logout(); setDropdownOpen(false); }}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        Выход
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
+                        
+                        {user?.role === 'admin' || user?.role === 'manager' ? (
+                          <Link
+                            to="/admin"
+                            onClick={() => setDropdownOpen(false)}
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-purple-200/70 hover:bg-purple-100/50 dark:hover:bg-purple-500/10 transition-colors"
+                          >
+                            <Settings className="w-4 h-4 text-purple-500" />
+                            Админ-панель
+                          </Link>
+                        ) : null}
+                        
+                        <button
+                          onClick={() => { logout(); setDropdownOpen(false); }}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          Выход
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              /* Кнопка входа/регистрации (если не авторизован) */
+              <div className="relative auth-dropdown">
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setAuthDropdownOpen(!authDropdownOpen)}
+                  className="cursor-pointer flex aspect-square items-center justify-center p-2 rounded-full border border-purple-400/30 bg-gradient-to-br from-purple-500/20 to-pink-500/20 hover:border-purple-400 dark:hover:border-purple-400 transition-all group"
+                >
+                  <UserIcon className="w-4 h-4 text-purple-600 dark:text-purple-300 group-hover:text-purple-700 dark:group-hover:text-purple-200" />
+                </motion.button>
+
+                {/* Auth Dropdown меню */}
+                <AnimatePresence>
+                  {authDropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute right-0 mt-2 w-56 bg-white/95 dark:bg-[#0f0f10]/95 backdrop-blur-xl border border-purple-200/30 dark:border-purple-400/10 rounded-xl shadow-2xl overflow-hidden z-50"
+                    >
+                      {/* Заголовок */}
+                      <div className="px-4 py-3 border-b border-purple-200/20 dark:border-purple-400/10">
+                        <p className="text-sm font-semibold text-gray-800 dark:text-purple-100">
+                          Добро пожаловать!
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-purple-200/50">
+                          Войдите или создайте аккаунт
+                        </p>
+                      </div>
+
+                      {/* Кнопки меню */}
+                      <div className="py-2">
+                        <button
+                          onClick={() => { navigate('/login', { state: { mode: 'login' } }); setAuthDropdownOpen(false); }}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-purple-200/70 hover:bg-purple-100/50 dark:hover:bg-purple-500/10 transition-colors"
+                        >
+                          <LogIn className="w-4 h-4 text-purple-500" />
+                          Вход
+                        </button>
+                        
+                        <button
+                          onClick={() => { navigate('/login', { state: { mode: 'register' } }); setAuthDropdownOpen(false); }}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-purple-200/70 hover:bg-purple-100/50 dark:hover:bg-purple-500/10 transition-colors"
+                        >
+                          <UserPlus className="w-4 h-4 text-purple-500" />
+                          Регистрация
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             )}
           </div>
@@ -258,8 +314,8 @@ const Navigation = () => {
               <span className="text-sm text-purple-600 dark:text-purple-200/70">{isDark ? 'Светлая тема' : 'Тёмная тема'}</span>
             </motion.button>
 
-            {/* Профиль пользователя в мобильном меню */}
-            {user && (
+            {/* Профиль пользователя в мобильном меню (если авторизован) */}
+            {user ? (
               <div className="pt-4 border-t border-purple-200/20 dark:border-purple-400/10">
                 <div className="flex items-center gap-3 mb-4 px-2">
                   <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
@@ -300,6 +356,25 @@ const Navigation = () => {
                 >
                   <LogOut className="w-4 h-4" />
                   Выход
+                </button>
+              </div>
+            ) : (
+              /* Кнопки входа/регистрации в мобильном меню (если не авторизован) */
+              <div className="pt-4 border-t border-purple-200/20 dark:border-purple-400/10 space-y-2">
+                <button
+                  onClick={() => { navigate('/login', { state: { mode: 'login' } }); setIsOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-purple-200/70 hover:bg-purple-100/50 dark:hover:bg-purple-500/10 transition-colors rounded-lg"
+                >
+                  <LogIn className="w-4 h-4 text-purple-500" />
+                  Вход
+                </button>
+                
+                <button
+                  onClick={() => { navigate('/login', { state: { mode: 'register' } }); setIsOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-purple-200/70 hover:bg-purple-100/50 dark:hover:bg-purple-500/10 transition-colors rounded-lg"
+                >
+                  <UserPlus className="w-4 h-4 text-purple-500" />
+                  Регистрация
                 </button>
               </div>
             )}
