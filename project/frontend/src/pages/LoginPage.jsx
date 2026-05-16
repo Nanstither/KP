@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
 import { User, Mail, Lock, UserPlus, LogIn, AlertCircle } from 'lucide-react';
@@ -57,6 +57,17 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const { login, register } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Обработка режима из navigation state
+  useEffect(() => {
+    const mode = location.state?.mode;
+    if (mode === 'register') {
+      setIsRegistering(true);
+    } else if (mode === 'login') {
+      setIsRegistering(false);
+    }
+  }, [location.state]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
