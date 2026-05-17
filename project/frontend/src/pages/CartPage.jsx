@@ -1,14 +1,38 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Trash2, Edit3, ShoppingCart, ArrowRight, Package, Cpu, Monitor } from "lucide-react";
+import { Trash2, Edit3, ShoppingCart, ArrowRight, Package, Cpu, Monitor, Sun, Moon } from "lucide-react";
 import api from "@/services/api";
+
+// Получение текущей темы
+const getInitialTheme = () => {
+  const saved = localStorage.getItem('theme');
+  if (saved) return saved === 'dark';
+  return true; // по умолчанию тёмная
+};
 
 export default function CartPage() {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isDark, setIsDark] = useState(getInitialTheme);
   const navigate = useNavigate();
+  
+  // Переключение темы
+  const toggleTheme = () => {
+    const html = document.documentElement;
+    const newIsDark = !html.classList.contains('dark');
+    
+    if (newIsDark) {
+      html.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      html.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+    
+    setIsDark(newIsDark);
+  };
 
   useEffect(() => {
     loadCart();
@@ -51,7 +75,7 @@ export default function CartPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0f0f10] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-[#0f0f10] flex items-center justify-center">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -65,15 +89,15 @@ export default function CartPage() {
   const totalPrice = cart?.items?.reduce((sum, item) => sum + Number(item.total_price || 0), 0) || 0;
 
   return (
-    <div className="min-h-screen bg-[#0f0f10] text-gray-200 pt-24 pb-12 px-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0f0f10] text-gray-800 dark:text-gray-200 pt-24 pb-12 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Заголовок */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-8 flex items-center justify-between"
         >
-          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
             <ShoppingCart className="w-8 h-8 text-purple-400" />
             Корзина
             {totalItems > 0 && (
@@ -82,6 +106,13 @@ export default function CartPage() {
               </span>
             )}
           </h1>
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg bg-gray-200 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 transition-colors"
+            title="Переключить тему"
+          >
+            {isDark ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-gray-600" />}
+          </button>
         </motion.div>
 
         {totalItems === 0 ? (
@@ -89,11 +120,11 @@ export default function CartPage() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-center py-20 bg-[#141416] border border-white/10 rounded-xl"
+            className="text-center py-20 bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 rounded-xl"
           >
-            <Package className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-300 mb-2">Корзина пуста</h2>
-            <p className="text-gray-500 mb-6">Добавьте комплектующие или готовые сборки</p>
+            <Package className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">Корзина пуста</h2>
+            <p className="text-gray-500 dark:text-gray-500 mb-6">Добавьте комплектующие или готовые сборки</p>
             <Link
               to="/catalog"
               className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-lg transition-colors"
@@ -112,10 +143,10 @@ export default function CartPage() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="bg-[#141416] border border-white/10 rounded-xl p-5 flex flex-col sm:flex-row gap-4 items-start sm:items-center"
+                  className="bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 rounded-xl p-5 flex flex-col sm:flex-row gap-4 items-start sm:items-center"
                 >
                   {/* Иконка типа товара */}
-                  <div className="w-12 h-12 bg-[#0a0a0c] rounded-lg flex items-center justify-center flex-shrink-0 border border-white/5">
+                  <div className="w-12 h-12 bg-gray-100 dark:bg-[#0a0a0c] rounded-lg flex items-center justify-center flex-shrink-0 border border-gray-200 dark:border-white/5">
                     {item.type === "custom" ? (
                       <Cpu className="w-6 h-6 text-purple-400" />
                     ) : item.type === "prebuilt" ? (
@@ -128,7 +159,7 @@ export default function CartPage() {
                   {/* Информация */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-white truncate">{item.name}</h3>
+                      <h3 className="font-semibold text-gray-900 dark:text-white truncate">{item.name}</h3>
                       <span className={`text-xs px-2 py-0.5 rounded border ${
                         item.type === "custom" 
                           ? "bg-purple-500/10 border-purple-500/30 text-purple-300" 
@@ -142,7 +173,7 @@ export default function CartPage() {
                     
                     {/* Для сборок показываем компоненты */}
                     {item.type === "custom" && item.components?.length > 0 && (
-                      <p className="text-xs text-gray-500 truncate">
+                      <p className="text-xs text-gray-500 dark:text-gray-500 truncate">
                         {item.components.map(c => c.component?.model || "Компонент").join(", ")}
                       </p>
                     )}
@@ -150,14 +181,14 @@ export default function CartPage() {
 
                   {/* Цена и кнопки */}
                   <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
-                    <span className="text-lg font-bold text-purple-300 font-mono">
+                    <span className="text-lg font-bold text-purple-600 dark:text-purple-300 font-mono">
                       {Number(item.total_price).toLocaleString()} ₽
                     </span>
                     <div className="flex gap-2">
                       {item.type === "custom" && (
                         <button
                           onClick={() => navigate(`/configurator?edit=${item.id}`)}
-                          className="p-2 text-gray-400 hover:text-purple-300 hover:bg-purple-600/10 rounded-lg transition-colors"
+                          className="p-2 text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-300 hover:bg-purple-600/10 rounded-lg transition-colors"
                           title="Изменить сборку"
                         >
                           <Edit3 className="w-4 h-4" />
@@ -165,7 +196,7 @@ export default function CartPage() {
                       )}
                       <button
                         onClick={() => removeFromCart(item.id)}
-                        className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-600/10 rounded-lg transition-colors"
+                        className="p-2 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-600/10 rounded-lg transition-colors"
                         title="Удалить"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -178,7 +209,7 @@ export default function CartPage() {
               {/* Кнопка очистки */}
               <button
                 onClick={clearCart}
-                className="w-full py-3 text-sm text-gray-400 hover:text-red-400 border border-dashed border-white/10 hover:border-red-500/30 rounded-lg transition-colors"
+                className="w-full py-3 text-sm text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 border border-dashed border-gray-300 dark:border-white/10 hover:border-red-500/30 rounded-lg transition-colors"
               >
                 Очистить корзину
               </button>
@@ -191,21 +222,21 @@ export default function CartPage() {
               transition={{ delay: 0.2 }}
               className="lg:col-span-1"
             >
-              <div className="bg-[#141416] border border-white/10 rounded-xl p-6 sticky top-24">
-                <h3 className="text-lg font-semibold text-white mb-4">Итого</h3>
+              <div className="bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 rounded-xl p-6 sticky top-24">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Итого</h3>
                 
                 <div className="space-y-3 mb-6">
-                  <div className="flex justify-between text-sm text-gray-400">
+                  <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
                     <span>Товаров:</span>
                     <span>{totalItems} шт.</span>
                   </div>
-                  <div className="flex justify-between text-sm text-gray-400">
+                  <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
                     <span>Доставка:</span>
-                    <span className="text-green-400">Бесплатно</span>
+                    <span className="text-green-600 dark:text-green-400">Бесплатно</span>
                   </div>
-                  <div className="border-t border-white/10 pt-3 flex justify-between">
-                    <span className="text-lg font-semibold text-white">К оплате:</span>
-                    <span className="text-2xl font-bold text-purple-300 font-mono">
+                  <div className="border-t border-gray-200 dark:border-white/10 pt-3 flex justify-between">
+                    <span className="text-lg font-semibold text-gray-900 dark:text-white">К оплате:</span>
+                    <span className="text-2xl font-bold text-purple-600 dark:text-purple-300 font-mono">
                       {totalPrice.toLocaleString()} ₽
                     </span>
                   </div>
@@ -218,7 +249,7 @@ export default function CartPage() {
                   Оформить заказ <ArrowRight className="w-5 h-5" />
                 </button>
 
-                <p className="text-xs text-gray-500 text-center mt-4">
+                <p className="text-xs text-gray-500 dark:text-gray-500 text-center mt-4">
                   Нажимая кнопку, вы соглашаетесь с условиями покупки
                 </p>
               </div>
@@ -227,7 +258,7 @@ export default function CartPage() {
         )}
 
         {error && (
-          <div className="mt-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-center">
+          <div className="mt-4 p-4 bg-red-500/10 dark:bg-red-500/10 border border-red-500/30 rounded-lg text-red-600 dark:text-red-400 text-center">
             {error}
           </div>
         )}
