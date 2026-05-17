@@ -57,16 +57,15 @@ function HomePage() {
           {/* Верхняя часть: Доставка и Windows */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-12">
             {/* Бесплатная доставка */}
-            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/10 border border-green-200 dark:border-green-800/30 p-0 hover:shadow-lg hover:shadow-green-500/10 transition-all duration-300 min-h-[280px]">
-              <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white dark:from-gray-800 to-transparent pointer-events-none z-10" />
-              <div className="relative h-40 w-full">
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/10 border border-green-200 dark:border-green-800/30 p-8 hover:shadow-lg hover:shadow-green-500/10 transition-all duration-300 min-h-[280px]">
+              <div className="absolute right-[-20px] top-1/2 -translate-y-1/2 w-48 h-48 opacity-10 dark:opacity-20 pointer-events-none z-0">
                 <img 
-                  src="/images/advantages/free_shipping.webp" 
-                  alt="Доставка" 
-                  className="w-full h-full object-cover"
+                  src="/icons/arms.webp" 
+                  alt="" 
+                  className="w-full h-full object-contain"
                 />
               </div>
-              <div className="px-8 py-6 relative z-10">
+              <div className="relative z-10">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                   Бесплатная доставка
                 </h3>
@@ -78,16 +77,15 @@ function HomePage() {
             </div>
 
             {/* Лицензионный Windows */}
-            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/10 border border-blue-200 dark:border-blue-800/30 p-0 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 min-h-[280px]">
-              <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white dark:from-gray-800 to-transparent pointer-events-none z-10" />
-              <div className="relative h-40 w-full">
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/10 border border-blue-200 dark:border-blue-800/30 p-8 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 min-h-[280px]">
+              <div className="absolute right-[-20px] top-1/2 -translate-y-1/2 w-48 h-48 opacity-10 dark:opacity-20 pointer-events-none z-0">
                 <img 
-                  src="/images/advantages/windows.webp" 
-                  alt="Windows" 
-                  className="w-full h-full object-cover"
+                  src="/icons/windows.webp" 
+                  alt="" 
+                  className="w-full h-full object-contain"
                 />
               </div>
-              <div className="px-8 py-6 relative z-10">
+              <div className="relative z-10">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                   Лицензионный Windows
                 </h3>
@@ -115,7 +113,7 @@ function HomePage() {
               {/* Бесплатная доставка */}
               <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-800/50 border border-gray-200 dark:border-gray-600 p-0 hover:shadow-lg hover:shadow-green-500/10 hover:border-green-500/30 transition-all duration-300 min-h-[320px]">
                 <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-white dark:from-gray-800 to-transparent pointer-events-none z-10" />
-                <div className="relative h-44 w-full">
+                <div className="relative w-full flex-1">
                   <img 
                     src="/images/advantages/free_shipping.webp" 
                     alt="Доставка" 
@@ -123,7 +121,7 @@ function HomePage() {
                   />
                 </div>
                 <div className="px-6 py-5 text-center relative z-10">
-                  <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2">
+                  <h3 className="font-bold text-lg uppercase text-gray-900 dark:text-white mb-2">
                     Бесплатная доставка
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
@@ -135,7 +133,7 @@ function HomePage() {
               {/* Конфигуратор */}
               <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-800/50 border border-gray-200 dark:border-gray-600 p-0 hover:shadow-lg hover:shadow-blue-500/10 hover:border-blue-500/30 transition-all duration-300 min-h-[320px]">
                 <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-white dark:from-gray-800 to-transparent pointer-events-none z-10" />
-                <div className="relative h-44 w-full">
+                <div className="relative w-full flex-1">
                   <img 
                     src="/images/advantages/configurator.webp" 
                     alt="Конфигуратор" 
@@ -143,7 +141,7 @@ function HomePage() {
                   />
                 </div>
                 <div className="px-6 py-5 text-center relative z-10">
-                  <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2">
+                  <h3 className="font-bold text-lg uppercase text-gray-900 dark:text-white mb-2">
                     Конфигуратор
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
@@ -155,7 +153,7 @@ function HomePage() {
               {/* Гарантия */}
               <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-800/50 border border-gray-200 dark:border-gray-600 p-0 hover:shadow-lg hover:shadow-yellow-500/10 hover:border-yellow-500/30 transition-all duration-300 min-h-[320px]">
                 <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-white dark:from-gray-800 to-transparent pointer-events-none z-10" />
-                <div className="relative h-44 w-full">
+                <div className="relative w-full flex-1">
                   <img 
                     src="/images/advantages/guarantee.webp" 
                     alt="Гарантия" 
@@ -163,7 +161,7 @@ function HomePage() {
                   />
                 </div>
                 <div className="px-6 py-5 text-center relative z-10">
-                  <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2">
+                  <h3 className="font-bold text-lg uppercase text-gray-900 dark:text-white mb-2">
                     Гарантия
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
@@ -175,7 +173,7 @@ function HomePage() {
               {/* Сервис и поддержка */}
               <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-800/50 border border-gray-200 dark:border-gray-600 p-0 hover:shadow-lg hover:shadow-purple-500/10 hover:border-purple-500/30 transition-all duration-300 min-h-[320px]">
                 <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-white dark:from-gray-800 to-transparent pointer-events-none z-10" />
-                <div className="relative h-44 w-full">
+                <div className="relative w-full flex-1">
                   <img 
                     src="/images/advantages/service_and_support.webp" 
                     alt="Сервис и поддержка" 
@@ -183,7 +181,7 @@ function HomePage() {
                   />
                 </div>
                 <div className="px-6 py-5 text-center relative z-10">
-                  <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2">
+                  <h3 className="font-bold text-lg uppercase text-gray-900 dark:text-white mb-2">
                     Сервис и поддержка
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
