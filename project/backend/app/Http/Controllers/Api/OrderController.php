@@ -1,0 +1,212 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\PrebuiltPc;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
+class OrderController extends Controller
+{
+    /**
+     * Display a listing of user's orders.
+     */
+    public function index(Request $request)
+    {
+        $user = Auth::user();
+        
+        $query = Order::with('items.prebuiltPc');
+        
+        if ($user) {
+            $query->where('user_id', $user->id);
+        } else {
+            $query->where('session_id', $request->session_id);
+        }
+        
+        $orders = $query->orderBy('created_at', 'desc')->get();
+        
+        return response()->json($orders);
+    }
+
+    /**
+     * Store a newly created order.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'recipient_name' => 'required|string|max:255',
+            'recipient_phone' => 'required|string|max:20',
+            'recipient_email' => 'nullable|email|max:255',
+            'delivery_address' => 'required|string',
+            'delivery_type' => 'required|in:pickup,courier',
+            'cdek_code' => 'nullable|string|max:50',
+            'items' => 'required|array|min:1',
+            'items.*.prebuilt_pc_id' => 'nullable|exists:prebuilt_pcs,id',
+            'items.*.name' => 'required|string',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.price' => 'required|numeric|min:0',
+            'items.*.components' => 'nullable|array',
+        ]);
+
+        $user = Auth::user();
+        $totalAmount = collect($validated['items'])->sum(fn($item) => $item['price'] * $item['quantity']);
+
+        DB::beginTransaction();
+        try {
+            $order = Order::create([
+                'user_id' => $user?->id,
+                'session_id' => $request->session_id,
+                'status' => 'pending',
+                'recipient_name' => $validated['recipient_name'],
+                'recipient_phone' => $validated['recipient_phone'],
+                'recipient_email' => $validated['recipient_email'],
+                'delivery_address' => $validated['delivery_address'],
+                'delivery_type' => $validated['delivery_type'],
+                'cdek_code' => $validated['cdek_code'],
+                'total_amount' => $totalAmount,
+            ]);
+
+            foreach ($validated['items'] as $itemData) {
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'prebuilt_pc_id' => $itemData['prebuilt_pc_id'] ?? null,
+                    'name' => $itemData['name'],
+                    'quantity' => $itemData['quantity'],
+                    'price' => $itemData['price'],
+                    'status' => 'pending',
+                    'components' => $itemData['components'] ?? null,
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Order created successfully',
+                'order' => $order->load('items.prebuiltPc'),
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Failed to create order: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Display the specified order.
+     */
+    public function show($id)
+    {
+        $user = Auth::user();
+        
+        $order = Order::with('items.prebuiltPc')->findOrFail($id);
+        
+        // Проверка прав доступа
+        if ($user && $order->user_id !== $user->id && !$user->hasRole(['admin', 'manager'])) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+        
+        if (!$user && $order->session_id !== request()->session_id) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+        
+        return response()->json($order);
+    }
+
+    /**
+     * Update order item status (for admin/manager).
+     */
+    public function updateItemStatus(Request $request, $orderId, $itemId)
+    {
+        $user = Auth::user();
+        
+        if (!$user || !$user->hasRole(['admin', 'manager'])) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'status' => 'required|in:pending,ready,shipped,delivered',
+        ]);
+
+        $orderItem = OrderItem::where('order_id', $orderId)->findOrFail($itemId);
+        $orderItem->update(['status' => $validated['status']]);
+
+        // Если все элементы готовы, обновляем статус заказа
+        $order = Order::findOrFail($orderId);
+        $allReady = $order->items()->where('status', '!=', 'ready')->count() === 0;
+        
+        if ($allReady && $order->status === 'paid') {
+            $order->update(['status' => 'preparing']);
+        }
+
+        return response()->json([
+            'message' => 'Status updated successfully',
+            'item' => $orderItem,
+            'order' => $order->fresh('items.prebuiltPc'),
+        ]);
+    }
+
+    /**
+     * Update order status (for admin/manager).
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        $user = Auth::user();
+        
+        if (!$user || !$user->hasRole(['admin', 'manager'])) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'status' => 'required|in:pending,paid,preparing,shipped,delivered,cancelled',
+        ]);
+
+        $order = Order::findOrFail($id);
+        $order->update(['status' => $validated['status']]);
+
+        if ($validated['status'] === 'paid' && !$order->paid_at) {
+            $order->update(['paid_at' => now()]);
+        }
+
+        return response()->json([
+            'message' => 'Order status updated successfully',
+            'order' => $order->fresh('items.prebuiltPc'),
+        ]);
+    }
+
+    /**
+     * Admin: Get all orders with pagination and filters.
+     */
+    public function adminIndex(Request $request)
+    {
+        $query = Order::with('items.prebuiltPc', 'user');
+        
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('recipient_name', 'like', "%{$request->search}%")
+                  ->orWhereHas('user', function($uq) use ($request) {
+                      $uq->where('name', 'like', "%{$request->search}%");
+                  });
+            });
+        }
+        
+        $orders = $query->orderBy('created_at', 'desc')->paginate(20);
+        
+        return response()->json($orders);
+    }
+
+    /**
+     * Admin: Show order details.
+     */
+    public function adminShow($id)
+    {
+        $order = Order::with('items.prebuiltPc', 'user')->findOrFail($id);
+        return response()->json($order);
+    }
+}
