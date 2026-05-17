@@ -274,13 +274,19 @@ export default function CartPage() {
                 
                 <div className="w-full space-y-3 pt-2">
                   <button 
-                    onClick={() => navigate('/login')} 
+                    onClick={() => {
+                      setShowAuthModal(false);
+                      navigate('/login', { state: { mode: 'login' } });
+                    }} 
                     className="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-xl font-medium transition-colors"
                   >
                     <LogIn className="w-4 h-4" /> Войти
                   </button>
                   <button 
-                    onClick={() => navigate('/register')} 
+                    onClick={() => {
+                      setShowAuthModal(false);
+                      navigate('/login', { state: { mode: 'register' } });
+                    }} 
                     className="w-full flex items-center justify-center gap-2 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white py-3 rounded-xl font-medium transition-colors border border-gray-200 dark:border-white/10"
                   >
                     <UserPlus className="w-4 h-4" /> Регистрация
