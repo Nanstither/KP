@@ -15,6 +15,7 @@ export default function CheckoutPage() {
   const [showMapModal, setShowMapModal] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [orderData, setOrderData] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState("card");
 
   // Данные формы
   const [formData, setFormData] = useState({
@@ -352,7 +353,8 @@ export default function CheckoutPage() {
                     <input
                       type="radio"
                       name="payment"
-                      checked
+                      checked={paymentMethod === "card"}
+                      onChange={() => setPaymentMethod("card")}
                       className="w-5 h-5 text-purple-600"
                     />
                     <div>
