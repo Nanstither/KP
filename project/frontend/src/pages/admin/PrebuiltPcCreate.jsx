@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '@/services/api';
-import { ArrowLeft, Save, Loader2, Plus, X } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, X } from 'lucide-react';
 
 const Field = ({ label, type = 'text', val, set, error, placeholder }) => (
   <div className="space-y-1">
-    <label className="text-xs text-gray-400 uppercase">{label}</label>
+    <label className="text-xs text-gray-500 uppercase">{label}</label>
     <input 
       type={type} 
       value={val ?? ''} 
@@ -14,30 +14,11 @@ const Field = ({ label, type = 'text', val, set, error, placeholder }) => (
         set(v);
       }}
       placeholder={placeholder || ''} 
-      className={`w-full bg-[#0a0a0c] border rounded-lg px-3 py-2 text-sm text-white placeholder:text-gray-600 focus:outline-none transition-colors ${
-        error ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-purple-500'
+      className={`w-full bg-white border rounded-lg px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none transition-colors ${
+        error ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-purple-500'
       }`} 
     />
-    {error && <p className="text-xs text-red-400">{error}</p>}
-  </div>
-);
-
-const SelectField = ({ label, val, set, options, error, placeholder }) => (
-  <div className="space-y-1">
-    <label className="text-xs text-gray-400 uppercase">{label}</label>
-    <select 
-      value={val ?? ''} 
-      onChange={e => set(e.target.value ? Number(e.target.value) : '')}
-      className={`w-full bg-[#0a0a0c] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none transition-colors ${
-        error ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-purple-500'
-      }`}
-    >
-      <option value="">{placeholder || 'Выберите...'}</option>
-      {options.map(opt => (
-        <option key={opt.id} value={opt.id}>{opt.name}</option>
-      ))}
-    </select>
-    {error && <p className="text-xs text-red-400">{error}</p>}
+    {error && <p className="text-xs text-red-500">{error}</p>}
   </div>
 );
 
@@ -62,6 +43,8 @@ export default function PrebuiltPcCreate() {
   
   const [errors, setErrors] = useState({});
 
+  const roles = ['cpu', 'gpu', 'motherboard', 'ram', 'storage', 'psu', 'cooler', 'case'];
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -71,6 +54,10 @@ export default function PrebuiltPcCreate() {
         ]);
         setRefs(refsRes.data.refs);
         setComponents(componentsRes.data);
+        
+        // Инициализируем все роли с пустыми компонентами
+        const initializedRoles = roles.map(role => ({ component_id: '', role }));
+        setSelectedComponents(initializedRoles);
       } catch (err) {
         console.error('Ошибка загрузки:', err);
       } finally {
@@ -80,11 +67,20 @@ export default function PrebuiltPcCreate() {
     fetchData();
   }, []);
 
+  // Проверяем, все ли компоненты заполнены
+  const allComponentsFilled = selectedComponents.every(item => item.component_id);
+  
+  // Автоматически устанавливаем is_active в false, если есть незаполненные компоненты
+  useEffect(() => {
+    if (!allComponentsFilled && base.is_active) {
+      setBase(prev => ({ ...prev, is_active: false }));
+    }
+  }, [allComponentsFilled]);
+
   const validate = () => {
     const newErrors = {};
     if (!base.name?.trim()) newErrors.name = 'Введите название';
     if (base.price === '' || Number(base.price) < 0) newErrors.price = 'Укажите цену (≥ 0)';
-    if (selectedComponents.length === 0) newErrors.components = 'Добавьте хотя бы один компонент';
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -98,8 +94,8 @@ export default function PrebuiltPcCreate() {
       const payload = {
         ...base,
         price: Number(base.price),
-        is_active: base.is_active,
-        components: selectedComponents,
+        is_active: base.is_active && allComponentsFilled,
+        components: selectedComponents.filter(c => c.component_id),
         tag_ids: selectedTagIds
       };
       
@@ -113,19 +109,10 @@ export default function PrebuiltPcCreate() {
     }
   };
 
-  const addComponent = (role) => {
-    if (!role) return;
-    setSelectedComponents(prev => [...prev, { component_id: '', role }]);
-  };
-
   const updateComponent = (index, field, value) => {
     setSelectedComponents(prev => prev.map((item, i) => 
       i === index ? { ...item, [field]: value } : item
     ));
-  };
-
-  const removeComponent = (index) => {
-    setSelectedComponents(prev => prev.filter((_, i) => i !== index));
   };
 
   const toggleTag = (tagId) => {
@@ -134,24 +121,22 @@ export default function PrebuiltPcCreate() {
     );
   };
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-purple-300">Загрузка...</div>;
-
-  const roles = ['cpu', 'gpu', 'motherboard', 'ram', 'storage', 'psu', 'cooler', 'case'];
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-purple-600">Загрузка...</div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-tr from-pink-100 via-orange-50 to-blue-100 dark:bg-none dark:bg-[#0f0f10] text-gray-200 p-6 pt-30">
+    <div className="min-h-screen bg-white text-gray-900 p-6 pt-30">
       <div className="max-w-5xl mx-auto space-y-6">
         
         {/* Заголовок */}
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/admin/prebuilt-pcs')} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+          <button onClick={() => navigate('/admin/prebuilt-pcs')} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-2xl font-bold text-white">Создание готового ПК</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Создание готового ПК</h1>
         </div>
 
         {/* Основная форма */}
-        <div className="bg-[#141416] border border-white/10 rounded-xl p-6 space-y-6">
+        <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-6 shadow-sm">
           
           {/* Название и цена */}
           <div className="grid md:grid-cols-2 gap-4">
@@ -161,32 +146,34 @@ export default function PrebuiltPcCreate() {
 
           {/* Описание */}
           <div className="space-y-1">
-            <label className="text-xs text-gray-400 uppercase">Описание</label>
+            <label className="text-xs text-gray-500 uppercase">Описание</label>
             <textarea 
               value={base.description ?? ''} 
               onChange={e => setBase({...base, description: e.target.value})}
               placeholder="Описание компьютера..."
               rows={4}
-              className="w-full bg-[#0a0a0c] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-purple-500 transition-colors resize-none"
+              className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-purple-500 transition-colors resize-none"
             />
           </div>
 
           {/* Статус */}
           <div className="flex items-center gap-3">
-            <label className="text-sm text-gray-400">Статус:</label>
+            <label className="text-sm text-gray-600">Статус:</label>
             <button 
-              onClick={() => setBase({...base, is_active: !base.is_active})}
+              onClick={() => allComponentsFilled && setBase({...base, is_active: !base.is_active})}
+              disabled={!allComponentsFilled}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                base.is_active ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'
+                base.is_active && allComponentsFilled ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
               }`}
             >
-              {base.is_active ? 'Активен' : 'Скрыт'}
+              {base.is_active && allComponentsFilled ? 'Активен' : 'Скрыт'}
             </button>
+            {!allComponentsFilled && <span className="text-xs text-orange-500">Заполните все компоненты для активации</span>}
           </div>
 
           {/* Теги */}
           <div className="space-y-2">
-            <label className="text-xs text-gray-400 uppercase">Теги</label>
+            <label className="text-xs text-gray-500 uppercase">Теги</label>
             <div className="flex flex-wrap gap-2">
               {refs.tags?.map(tag => (
                 <button
@@ -194,8 +181,8 @@ export default function PrebuiltPcCreate() {
                   onClick={() => toggleTag(tag.id)}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                     selectedTagIds.includes(tag.id)
-                      ? 'bg-purple-500/30 text-purple-300 border border-purple-500/50'
-                      : 'bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10'
+                      ? 'bg-purple-100 text-purple-700 border border-purple-300'
+                      : 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200'
                   }`}
                 >
                   {tag.name}
@@ -207,21 +194,18 @@ export default function PrebuiltPcCreate() {
         </div>
 
         {/* Компоненты */}
-        <div className="bg-[#141416] border border-white/10 rounded-xl p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-white">Компоненты</h2>
-            {errors.components && <span className="text-xs text-red-400">{errors.components}</span>}
-          </div>
+        <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4 shadow-sm">
+          <h2 className="text-lg font-semibold text-gray-900">Компоненты</h2>
 
           {/* Список выбранных компонентов */}
           <div className="space-y-3">
             {selectedComponents.map((item, index) => (
-              <div key={index} className="flex items-center gap-3 bg-[#0a0a0c] border border-white/10 rounded-lg p-3">
+              <div key={index} className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg p-3">
                 <span className="text-xs text-gray-500 uppercase w-20">{item.role}</span>
                 <select 
                   value={item.component_id || ''}
                   onChange={e => updateComponent(index, 'component_id', Number(e.target.value))}
-                  className="flex-1 bg-[#141416] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none"
+                  className="flex-1 bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-purple-500"
                 >
                   <option value="">Выберите компонент...</option>
                   {components
@@ -231,27 +215,8 @@ export default function PrebuiltPcCreate() {
                     ))
                   }
                 </select>
-                <button onClick={() => removeComponent(index)} className="p-2 hover:bg-red-500/20 text-gray-400 hover:text-red-400 rounded-lg transition-colors">
-                  <X className="w-4 h-4" />
-                </button>
               </div>
             ))}
-          </div>
-
-          {/* Добавить компонент */}
-          <div className="flex items-center gap-2">
-            <select 
-              onChange={e => {
-                addComponent(e.target.value);
-                e.target.value = '';
-              }}
-              className="bg-[#0a0a0c] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none"
-            >
-              <option value="">Добавить роль...</option>
-              {roles.filter(r => !selectedComponents.some(sc => sc.role === r)).map(role => (
-                <option key={role} value={role}>{role}</option>
-              ))}
-            </select>
           </div>
         </div>
 
@@ -260,14 +225,14 @@ export default function PrebuiltPcCreate() {
           <button 
             onClick={handleSave} 
             disabled={saving}
-            className="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-lg font-medium transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors disabled:opacity-50"
           >
             {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
             Сохранить
           </button>
           <button 
             onClick={() => navigate('/admin/prebuilt-pcs')}
-            className="flex items-center gap-2 bg-white/5 hover:bg-white/10 text-gray-300 px-6 py-3 rounded-lg font-medium transition-colors"
+            className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium transition-colors"
           >
             <X className="w-5 h-5" />
             Отмена
