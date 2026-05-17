@@ -72,6 +72,25 @@ class OrderController extends Controller
             ]);
 
             foreach ($validated['items'] as $itemData) {
+                $components = $itemData['components'] ?? null;
+                
+                // Если указан prebuilt_pc_id и компоненты не переданы явно, загружаем их из БД
+                if (!$components && !empty($itemData['prebuilt_pc_id'])) {
+                    $pc = PrebuiltPc::with('components')->find($itemData['prebuilt_pc_id']);
+                    if ($pc) {
+                        $components = [];
+                        foreach ($pc->components as $component) {
+                            $role = $component->pivot->role;
+                            $components[$role] = [
+                                'id' => $component->id,
+                                'name' => $component->name,
+                                'model' => $component->model,
+                                'price' => $component->price,
+                            ];
+                        }
+                    }
+                }
+                
                 OrderItem::create([
                     'order_id' => $order->id,
                     'prebuilt_pc_id' => $itemData['prebuilt_pc_id'] ?? null,
@@ -79,7 +98,7 @@ class OrderController extends Controller
                     'quantity' => $itemData['quantity'],
                     'price' => $itemData['price'],
                     'status' => 'pending',
-                    'components' => $itemData['components'] ?? null,
+                    'components' => $components,
                 ]);
             }
 
