@@ -1,7 +1,7 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Check, X, Cpu, Monitor, Zap, HardDrive, Thermometer, Info } from "lucide-react";
+import { ArrowLeft, Check, X } from "lucide-react";
 import { STORAGE_URL, API_URL } from "@/lib/config";
 
 // const API_URL = "http://localhost:8000/api";
@@ -24,20 +24,20 @@ export default function ComponentDetailPage() {
 
   if (loading || !data) return <div className="min-h-screen bg-[#0f0f10] flex items-center justify-center text-gray-400">Загрузка...</div>;
 
-  // Динамическое определение типа и иконки
+  // Динамическое определение типа
   const getType = () => {
-    if (data.cpu_spec) return { label: "Процессор", icon: Cpu, specs: data.cpu_spec };
-    if (data.gpu_spec) return { label: "Видеокарта", icon: Monitor, specs: data.gpu_spec };
-    if (data.ram_spec) return { label: "ОЗУ", icon: Zap, specs: data.ram_spec };
-    if (data.motherboard_spec) return { label: "Мат. плата", icon: Cpu, specs: data.motherboard_spec };
-    if (data.psu_spec) return { label: "Блок питания", icon: Thermometer, specs: data.psu_spec };
-    if (data.storage_spec) return { label: "Накопитель", icon: HardDrive, specs: data.storage_spec };
-    if (data.cooler_spec) return { label: "Охлаждение", icon: Thermometer, specs: data.cooler_spec };
-    if (data.case_spec) return { label: "Корпус", icon: HardDrive, specs: data.case_spec };
-    return { label: "Компонент", icon: Info, specs: {} };
+    if (data.cpu_spec) return { label: "Процессор", specs: data.cpu_spec };
+    if (data.gpu_spec) return { label: "Видеокарта", specs: data.gpu_spec };
+    if (data.ram_spec) return { label: "ОЗУ", specs: data.ram_spec };
+    if (data.motherboard_spec) return { label: "Мат. плата", specs: data.motherboard_spec };
+    if (data.psu_spec) return { label: "Блок питания", specs: data.psu_spec };
+    if (data.storage_spec) return { label: "Накопитель", specs: data.storage_spec };
+    if (data.cooler_spec) return { label: "Охлаждение", specs: data.cooler_spec };
+    if (data.case_spec) return { label: "Корпус", specs: data.case_spec };
+    return { label: "Компонент", specs: {} };
   };
 
-  const { label, icon: Icon, specs } = getType();
+  const { label, specs } = getType();
 
   // Форматирование характеристик в пары label:value
   const formatSpecs = () => Object.entries(specs || {})
@@ -102,8 +102,8 @@ export default function ComponentDetailPage() {
 
           {/* Нижний блок: Характеристики */}
           <div className="bg-white dark:bg-[#0f0f10] border border-gray-200 dark:border-white/10 rounded-2xl p-6">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-              <Icon className="w-6 h-6 text-purple-600 dark:text-purple-400" /> Характеристики
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+              Характеристики
             </h3>
             
             {/* Две колонки на ПК, одна на мобильных */}
