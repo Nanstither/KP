@@ -1,12 +1,1 @@
-```
-# Dependencies
-node_modules/
-
-# Editors
-.vscode/
-
-# Environment
-.env
-.env.local
-.env.*
-```
+(project/frontend/src/pages/CartPage.jsx is a source code file, and there are no build artifacts, dependencies, or temporary files in the changes)

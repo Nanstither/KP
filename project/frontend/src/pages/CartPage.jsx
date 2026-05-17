@@ -3,8 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trash2, Edit3, ShoppingCart, ArrowRight, Package, LogIn, UserPlus, X, List, ChevronRight, ExternalLink } from "lucide-react";
 import api from "@/services/api";
+import { useAuth } from "@/context/AuthContext";
 
 export default function CartPage() {
+  const { user, loading: authLoading } = useAuth();
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -273,9 +275,11 @@ export default function CartPage() {
 
                 <button
                   onClick={() => {
-                    // Проверяем, авторизован ли пользователь (через localStorage token)
-                    const token = localStorage.getItem('token');
-                    if (!token) {
+                    // Проверяем авторизацию через контекст AuthContext
+                    if (authLoading) {
+                      return; // Ждем завершения проверки авторизации
+                    }
+                    if (!user) {
                       setShowAuthModal(true);
                     } else {
                       navigate("/checkout");
