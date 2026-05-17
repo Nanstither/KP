@@ -42,6 +42,7 @@ export default function ComponentDetailPage() {
   // Форматирование характеристик в пары label:value
   const formatSpecs = () => Object.entries(specs || {})
     .filter(([_, v]) => v !== null && v !== undefined)
+    .filter(([k, _]) => !['created_at', 'updated_at', 'createdAt', 'updatedAt'].includes(k))
     .map(([k, v]) => {
       // Превращаем объекты в строку (берем name или id), чтобы React не упал
       let displayValue = v;
