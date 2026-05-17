@@ -52,11 +52,11 @@ function HomePage() {
       <PremiumPCHero />
 
       {/* Блок УТП: Доставка и Windows */}
-      <section className="relative py-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <section className="relative py-16 bg-gray-50 dark:bg-[#13131f] border-b border-gray-200 dark:border-gray-800">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {/* Бесплатная доставка */}
-            <div className="group relative overflow-hidden rounded-2xl p-8 min-h-[280px] flex flex-col items-center text-center bg-white dark:bg-gray-800">
+            <div className="group relative overflow-hidden rounded-2xl p-8 min-h-[280px] flex flex-col items-center text-center bg-gray-100 dark:bg-[#1a1a2e]">
               <div className="w-32 h-32 mb-4 relative z-10 flex-shrink-0">
                 <img 
                   src="/icons/arms.webp" 
@@ -76,7 +76,7 @@ function HomePage() {
             </div>
 
             {/* Лицензионный Windows */}
-            <div className="group relative overflow-hidden rounded-2xl p-8 min-h-[280px] flex flex-col items-center text-center bg-white dark:bg-gray-800">
+            <div className="group relative overflow-hidden rounded-2xl p-8 min-h-[280px] flex flex-col items-center text-center bg-gray-100 dark:bg-[#1a1a2e]">
               <div className="w-32 h-32 mb-4 relative z-10 flex-shrink-0">
                 <img 
                   src="/icons/windows.webp" 
