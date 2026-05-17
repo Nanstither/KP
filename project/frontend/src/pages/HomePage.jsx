@@ -53,20 +53,51 @@ function HomePage() {
       <PremiumPCHero />
 
       {/* Блок УТП: Доставка и Windows */}
-      <section className="py-6 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <section className="py-8 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="container mx-auto px-4">
-          <div className="flex flex-wrap justify-center gap-8 md:gap-16">
-            <div className="flex items-center space-x-3 text-gray-700 dark:text-gray-200">
-              <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-full">
-                <Truck className="w-6 h-6 text-green-600 dark:text-green-400" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            {/* Бесплатная доставка */}
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/10 border border-green-200 dark:border-green-800/30 p-6 hover:shadow-lg hover:shadow-green-500/10 transition-all duration-300">
+              <div className="flex items-center gap-5">
+                <div className="flex-shrink-0 w-16 h-16 rounded-xl bg-white dark:bg-gray-800 shadow-md flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <Truck className="w-8 h-8 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+                    Бесплатная доставка
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    По всей России
+                  </p>
+                </div>
               </div>
-              <span className="font-medium text-lg">Бесплатная доставка по России</span>
+              <img 
+                src="/icons/arms.webp" 
+                alt="Доставка" 
+                className="absolute -right-4 -bottom-4 w-24 h-24 object-contain opacity-20 group-hover:opacity-30 transition-opacity duration-300 rotate-12"
+              />
             </div>
-            <div className="flex items-center space-x-3 text-gray-700 dark:text-gray-200">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-                <KeyRound className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+
+            {/* Лицензионный Windows */}
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/10 border border-blue-200 dark:border-blue-800/30 p-6 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300">
+              <div className="flex items-center gap-5">
+                <div className="flex-shrink-0 w-16 h-16 rounded-xl bg-white dark:bg-gray-800 shadow-md flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <KeyRound className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+                    Лицензионный Windows
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    Официальная лицензия
+                  </p>
+                </div>
               </div>
-              <span className="font-medium text-lg">Лицензионный Windows</span>
+              <img 
+                src="/icons/windows.webp" 
+                alt="Windows" 
+                className="absolute -right-4 -bottom-4 w-24 h-24 object-contain opacity-20 group-hover:opacity-30 transition-opacity duration-300 rotate-12"
+              />
             </div>
           </div>
         </div>
@@ -110,57 +141,65 @@ function HomePage() {
             Почему тысячи клиентов выбирают именно нас
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Бесплатная доставка */}
-            <div className="p-6 rounded-xl bg-gray-50 dark:bg-gray-700/50 shadow-sm hover:shadow-md transition-shadow text-center">
-              <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-green-100 dark:bg-green-900/30 rounded-full">
-                <Truck className="w-8 h-8 text-green-600 dark:text-green-400" />
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-800/50 border border-gray-200 dark:border-gray-600 p-6 hover:shadow-lg hover:shadow-green-500/10 hover:border-green-500/30 transition-all duration-300">
+              <div className="flex flex-col items-center text-center">
+                <div className="w-16 h-16 mb-4 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <Truck className="w-8 h-8 text-green-600 dark:text-green-400" />
+                </div>
+                <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2">
+                  Бесплатная доставка
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                  Аккуратно и надежно по всей России в короткие сроки.
+                </p>
               </div>
-              <h3 className="font-semibold text-xl mb-3 text-gray-900 dark:text-white">
-                Бесплатная доставка
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                Аккуратно и надежно по всей России в короткие сроки.
-              </p>
             </div>
 
             {/* Конфигуратор */}
-            <div className="p-6 rounded-xl bg-gray-50 dark:bg-gray-700/50 shadow-sm hover:shadow-md transition-shadow text-center">
-              <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-blue-100 dark:bg-blue-900/30 rounded-full">
-                <Cpu className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-800/50 border border-gray-200 dark:border-gray-600 p-6 hover:shadow-lg hover:shadow-blue-500/10 hover:border-blue-500/30 transition-all duration-300">
+              <div className="flex flex-col items-center text-center">
+                <div className="w-16 h-16 mb-4 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <Cpu className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2">
+                  Конфигуратор
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                  Создайте компьютер мечты – мощность, стиль и технологии по собственным правилам.
+                </p>
               </div>
-              <h3 className="font-semibold text-xl mb-3 text-gray-900 dark:text-white">
-                Конфигуратор
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                Создайте компьютер мечты – мощность, стиль и технологии по собственным правилам.
-              </p>
             </div>
 
             {/* Гарантия */}
-            <div className="p-6 rounded-xl bg-gray-50 dark:bg-gray-700/50 shadow-sm hover:shadow-md transition-shadow text-center">
-              <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
-                <Shield className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-800/50 border border-gray-200 dark:border-gray-600 p-6 hover:shadow-lg hover:shadow-yellow-500/10 hover:border-yellow-500/30 transition-all duration-300">
+              <div className="flex flex-col items-center text-center">
+                <div className="w-16 h-16 mb-4 rounded-xl bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <Shield className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
+                </div>
+                <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2">
+                  Гарантия
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                  Полная гарантия на все комплектующие.
+                </p>
               </div>
-              <h3 className="font-semibold text-xl mb-3 text-gray-900 dark:text-white">
-                Гарантия
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                Полная гарантия на все комплектующие.
-              </p>
             </div>
 
             {/* Сервис и поддержка */}
-            <div className="p-6 rounded-xl bg-gray-50 dark:bg-gray-700/50 shadow-sm hover:shadow-md transition-shadow text-center">
-              <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-purple-100 dark:bg-purple-900/30 rounded-full">
-                <Headphones className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-800/50 border border-gray-200 dark:border-gray-600 p-6 hover:shadow-lg hover:shadow-purple-500/10 hover:border-purple-500/30 transition-all duration-300">
+              <div className="flex flex-col items-center text-center">
+                <div className="w-16 h-16 mb-4 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <Headphones className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+                </div>
+                <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2">
+                  Сервис и поддержка
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                  Мы предоставляем услуги сервисного обслуживания даже после истечения срока вашей первичной гарантии.
+                </p>
               </div>
-              <h3 className="font-semibold text-xl mb-3 text-gray-900 dark:text-white">
-                Сервис и поддержка
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                Мы предоставляем услуги сервисного обслуживания даже после истечения срока вашей первичной гарантии.
-              </p>
             </div>
           </div>
         </div>
