@@ -126,14 +126,8 @@ export default function CartPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8 flex items-center justify-between"
         >
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-            <ShoppingCart className="w-8 h-8 text-purple-400" />
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Корзина
-            {totalItems > 0 && (
-              <span className="text-sm bg-purple-600/20 text-purple-300 px-3 py-1 rounded-full border border-purple-500/30">
-                {totalItems} шт.
-              </span>
-            )}
           </h1>
         </motion.div>
 
