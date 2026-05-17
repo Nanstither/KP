@@ -457,22 +457,26 @@ export default function CheckoutPage() {
                   <Package className="w-5 h-5 text-purple-500 mt-0.5" />
                   <div>
                     <p className="text-sm text-gray-600 dark:text-gray-400">Товаров:</p>
-                    <p className="font-semibold text-gray-900 dark:text-white">{orderData.items.length}</p>
+                    <p className="font-semibold text-gray-900 dark:text-white">{orderData.items?.length || 0}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <Truck className="w-5 h-5 text-purple-500 mt-0.5" />
                   <div>
                     <p className="text-sm text-gray-600 dark:text-gray-400">Доставка:</p>
-                    <p className="font-semibold text-gray-900 dark:text-white">{orderData.delivery.name}</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{orderData.delivery.address}</p>
+                    <p className="font-semibold text-gray-900 dark:text-white">
+                      {orderData.delivery_address || orderData.delivery?.name || selectedPickpoint?.name || "Пункт выдачи СДЭК"}
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {orderData.delivery_address || orderData.delivery?.address || selectedPickpoint?.address || ""}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <CreditCard className="w-5 h-5 text-purple-500 mt-0.5" />
                   <div>
                     <p className="text-sm text-gray-600 dark:text-gray-400">Оплачено:</p>
-                    <p className="font-semibold text-purple-600 dark:text-purple-300">{orderData.total.toLocaleString()} ₽</p>
+                    <p className="font-semibold text-purple-600 dark:text-purple-300">{(orderData.total_amount || orderData.total || totalPrice).toLocaleString()} ₽</p>
                   </div>
                 </div>
               </div>
