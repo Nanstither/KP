@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { 
   Cpu, Monitor, Zap, HardDrive, Thermometer, 
   ChevronDown, X, ShoppingCart, Check, Info 
 } from "lucide-react";
 import { STORAGE_URL, API_URL } from "@/lib/config";
+import api from "@/services/api";
 
 // Иконки и подписи ролей
 const ROLE_CONFIG = {
@@ -140,6 +141,7 @@ export default function PrebuiltPcCard({ pc, onAddToCart }) {
   const [expandedRole, setExpandedRole] = useState(null);
   const [isAdded, setIsAdded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   // Данные уже приходят объектом по ролям благодаря контроллеру
   const components = pc.components || {};
@@ -147,11 +149,39 @@ export default function PrebuiltPcCard({ pc, onAddToCart }) {
   const handleAddToCart = async () => {
     if (isAdded || isLoading) return;
     setIsLoading(true);
-    await new Promise(res => setTimeout(res, 400));
-    if (onAddToCart) onAddToCart(pc);
-    setIsAdded(true);
-    setIsLoading(false);
-    setTimeout(() => setIsAdded(false), 2000);
+    try {
+      // Собираем ID всех компонентов из сборки
+      const componentIds = [];
+      Object.values(components).forEach(comp => {
+        if (comp?.id) {
+          componentIds.push(comp.id);
+        }
+      });
+      
+      if (componentIds.length === 0) {
+        alert('Сборка пуста');
+        setIsLoading(false);
+        return;
+      }
+      
+      const payload = {
+        type: 'prebuilt',
+        name: pc.name,
+        components: componentIds,
+        prebuilt_id: pc.id
+      };
+
+      // Отправляем на сервер (доступно и для гостей благодаря session_id)
+      await api.post('/cart', payload);
+      
+      setIsAdded(true);
+      setTimeout(() => setIsAdded(false), 2000);
+    } catch (error) {
+      console.error('Ошибка при добавлении в корзину:', error);
+      alert(error.response?.data?.message || 'Не удалось добавить сборку в корзину');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const toggleExpand = (role) => setExpandedRole(prev => prev === role ? null : role);
