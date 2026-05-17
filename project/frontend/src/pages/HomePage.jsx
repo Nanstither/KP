@@ -99,19 +99,26 @@ function HomePage() {
       </section>
 
       {/* Хиты продаж / Бестселлеры */}
-      <section className="py-16 bg-gray-50 dark:bg-[#101019]">
+      <section className="py-20 bg-gray-50 dark:bg-[#101019]">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center text-gray-900 dark:text-white">
-            Хиты продаж
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 text-center mb-12 max-w-2xl mx-auto">
-            Самые популярные конфигурации, выбранные нашими клиентами
-          </p>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-extrabold mb-3 text-gray-900 dark:text-white uppercase tracking-wide !font-sans">
+              Хиты продаж
+            </h2>
+            <h3 className="text-2xl md:text-3xl font-bold mb-8 !font-sans">
+              <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-500 bg-clip-text text-transparent !font-sans">
+                Бестселлеры
+              </span>
+            </h3>
+            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed !font-sans">
+              Сбалансированные игровые ПК с оптимальной производительностью и лучшим соотношением цены и возможностей.
+            </p>
+          </div>
           
           {isLoading ? (
             <div className="text-center text-purple-400 animate-pulse py-12">Загрузка товаров...</div>
           ) : bestsellers.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {bestsellers.map((pc) => (
                 <PrebuiltPcCard
                   key={pc.id}
