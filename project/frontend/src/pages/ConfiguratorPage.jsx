@@ -465,6 +465,9 @@ export default function ConfiguratorPage() {
     }
   };
 
+  // Определяем, находимся ли мы в режиме редактирования
+  const isEditingMode = !!searchParams.get('edit');
+
   // 2. Эффект переключения класса на <html>
   useEffect(() => {
     if (isDark) {
@@ -634,11 +637,19 @@ export default function ConfiguratorPage() {
           >
             {isAddingToCart ? (
               <>
-                <span className="animate-spin">⏳</span> Добавление...
+                <span className="animate-spin">⏳</span> {isEditingMode ? 'Обновление...' : 'Добавление...'}
               </>
             ) : (
               <>
-                <ShoppingBag className="w-5 h-5" /> Добавить в корзину
+                {isEditingMode ? (
+                  <>
+                    <Check className="w-5 h-5" /> Обновить сборку
+                  </>
+                ) : (
+                  <>
+                    <ShoppingBag className="w-5 h-5" /> Добавить в корзину
+                  </>
+                )}
               </>
             )}
           </button>
