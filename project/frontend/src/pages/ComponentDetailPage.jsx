@@ -66,27 +66,27 @@ export default function ComponentDetailPage() {
   const formattedSpecs = formatSpecs();
 
   return (
-    <div className="min-h-screen pt-20 bg-[#101019] text-gray-200">
+    <div className="min-h-screen pt-20 bg-gray-50 dark:bg-[#101019] text-gray-900 dark:text-gray-200 transition-colors duration-300">
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         {/* Навигация назад */}
-        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors">
+        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 mb-6 transition-colors">
           <ArrowLeft className="w-5 h-5" /> Назад к каталогу
         </button>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid lg:grid-cols-2 gap-8">
           {/* Левая колонка: Фото + Цена */}
           <div className="space-y-4">
-            <div className="aspect-square rounded-2xl overflow-hidden border border-white/10 bg-[#0a0a0c]">
+            <div className="aspect-square rounded-2xl overflow-hidden border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0a0a0c]">
               <img src={`${STORAGE_URL}/${data.image}`} alt={data.model} onError={(e) => {e.target.onerror = null; e.target.src = '/placeholder-pc.png';}} className="w-full h-full object-cover" />
             </div>
             <div className="flex items-end justify-between">
               <div>
-                <h1 className="text-3xl font-bold text-white">{data.model}</h1>
-                <p className="text-gray-400">{data.brand?.name || 'Бренд'} • {data.category?.name || 'Категория'}</p>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{data.model}</h1>
+                <p className="text-gray-600 dark:text-gray-400">{data.brand?.name || 'Бренд'} • {data.category?.name || 'Категория'}</p>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-semibold text-purple-300">{Number(data.price).toLocaleString('ru-RU')} ₽</p>
-                <span className={`text-xs font-medium px-2 py-1 rounded-full mt-2 inline-block ${data.stock > 0 ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                <p className="text-2xl font-semibold text-purple-600 dark:text-purple-400">{Number(data.price).toLocaleString('ru-RU')} ₽</p>
+                <span className={`text-xs font-medium px-2 py-1 rounded-full mt-2 inline-block ${data.stock > 0 ? 'bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-green-400' : 'bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400'}`}>
                   {data.stock > 0 ? `В наличии: ${data.stock} шт.` : 'Нет в наличии'}
                 </span>
               </div>
@@ -96,15 +96,15 @@ export default function ComponentDetailPage() {
           {/* Правая колонка: Характеристики + Совместимость */}
           <div className="space-y-6">
             {/* Ключевые характеристики */}
-            <div className="bg-[#0f0f10] border border-white/10 rounded-xl p-5">
-              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <Icon className="w-5 h-5 text-purple-400" /> {label}
+            <div className="bg-white dark:bg-[#0f0f10] border border-gray-200 dark:border-white/10 rounded-xl p-5 transition-colors duration-300">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <Icon className="w-5 h-5 text-purple-600 dark:text-purple-400" /> {label}
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 {formattedSpecs.map((s, i) => (
-                  <div key={i} className="p-3 rounded-lg bg-white/[0.03] border border-white/5">
-                    <p className="text-xs text-gray-500 uppercase tracking-wider">{s.label}</p>
-                    <p className="text-sm font-mono text-gray-200 mt-1">{s.value}</p>
+                  <div key={i} className="p-3 rounded-lg bg-gray-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/5">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">{s.label}</p>
+                    <p className="text-sm font-mono text-gray-900 dark:text-gray-200 mt-1">{s.value}</p>
                   </div>
                 ))}
               </div>
@@ -112,14 +112,14 @@ export default function ComponentDetailPage() {
 
             {/* Совместимость (сокеты/форм-факторы) */}
             {(data.compatible_sockets && data.compatible_sockets.length > 0 || data.supported_form_factors && data.supported_form_factors.length > 0) && (
-              <div className="bg-[#0f0f10] border border-white/10 rounded-xl p-5">
-                <h3 className="text-lg font-semibold text-white mb-3">Совместимость</h3>
+              <div className="bg-white dark:bg-[#0f0f10] border border-gray-200 dark:border-white/10 rounded-xl p-5 transition-colors duration-300">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Совместимость</h3>
                 <div className="flex flex-wrap gap-2">
                   {data.compatible_sockets && Array.isArray(data.compatible_sockets) && data.compatible_sockets.map((s, idx) => {
                     const socketName = typeof s === 'object' && s !== null ? (s.name || String(s.id || '')) : String(s);
                     if (!socketName) return null;
                     return (
-                      <span key={idx} className="px-3 py-1 text-xs font-medium rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20">
+                      <span key={idx} className="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-500/20">
                         {socketName}
                       </span>
                     );
@@ -128,7 +128,7 @@ export default function ComponentDetailPage() {
                     const formFactorName = typeof f === 'object' && f !== null ? (f.name || String(f.id || '')) : String(f);
                     if (!formFactorName) return null;
                     return (
-                      <span key={idx} className="px-3 py-1 text-xs font-medium rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20">
+                      <span key={idx} className="px-3 py-1 text-xs font-medium rounded-full bg-purple-100 dark:bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/20">
                         {formFactorName}
                       </span>
                     );
@@ -139,7 +139,7 @@ export default function ComponentDetailPage() {
 
             {/* Описание (если добавишь поле description в components) */}
             {data.description && (
-              <p className="text-gray-400 leading-relaxed text-sm">{data.description}</p>
+              <p className="text-gray-600 dark:text-gray-400 leading-relaxed text-sm">{data.description}</p>
             )}
           </div>
         </motion.div>
