@@ -33,4 +33,16 @@ class User extends Authenticatable
     public function isManager(): bool {
         return $this->role === self::ROLE_MANAGER || $this->isAdmin();
     }
+
+    public function hasRole($roles): bool {
+        if (is_string($roles)) {
+            $roles = [$roles];
+        }
+        return in_array($this->role, $roles);
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }

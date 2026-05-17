@@ -2,9 +2,12 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Package, Clock, CheckCircle, Truck, AlertCircle, ArrowLeft, CreditCard, MapPin } from "lucide-react";
+import api from "@/services/api";
+import { useAuth } from "@/context/AuthContext";
 
 export default function OrdersPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -12,18 +15,17 @@ export default function OrdersPage() {
     loadOrders();
   }, []);
 
-  const loadOrders = () => {
+  const loadOrders = async () => {
     try {
-      // Загружаем из localStorage (имитация API)
-      const history = JSON.parse(localStorage.getItem('orderHistory') || '[]');
-      setOrders(history.reverse()); // Новые заказы сверху
+      // Загружаем из API
+      const response = await api.get('/orders');
+      setOrders(response.data.reverse()); // Новые заказы сверху
     } catch (err) {
       console.error("Ошибка загрузки истории:", err);
     } finally {
       setLoading(false);
     }
   };
-
   const getStatusInfo = (status) => {
     switch (status) {
       case 'new':
@@ -246,4 +248,3 @@ export default function OrdersPage() {
       </div>
     </div>
   );
-}

@@ -14,6 +14,7 @@ import ComponentsTable from './ComponentsTable';
 import PrebuiltPcsTable from './PrebuiltPcsTable';
 import SettingsTab, { PlaceholderComponent } from './SettingsTab';
 import UsersTab from './UsersTab';
+import OrdersTab from './OrdersTab';
 
 export default function AdminPanel() {
   const { user, logout } = useAuth();
@@ -190,7 +191,7 @@ export default function AdminPanel() {
               )}
 
               {activeTab === 'orders' && (
-                <PlaceholderComponent title="Заказы" icon={Package} />
+                <OrdersTab key="orders" />
               )}
 
               {activeTab === 'users' && user?.role === 'admin' && (

@@ -26,12 +26,18 @@ Route::get('/prebuilt-pcs', [PrebuiltPcController::class, 'index']);
 Route::get('/prebuilt-pcs/{slug}', [PrebuiltPcController::class, 'show']);
 
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\OrderController;
 
 // Защищённые роуты (только для авторизованных)
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::put('/profile', [AuthController::class, 'updateProfile']);
+
+    // Заказы пользователя
+    Route::get('/orders', [OrderController::class, 'index']);
+    Route::get('/orders/{id}', [OrderController::class, 'show']);
+    Route::post('/orders', [OrderController::class, 'store']);
 
     // Управление пользователями (только admin)
     Route::middleware('role:admin')->group(function () {
@@ -50,7 +56,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Менеджер + Админ
     Route::middleware('role:manager')->group(function () {
-        Route::get('/manager/orders', fn() => response()->json(['msg' => 'Manager panel']));
+        // Заказы (админка)
+        Route::get('/admin/orders', [OrderController::class, 'adminIndex']);
+        Route::get('/admin/orders/{id}', [OrderController::class, 'adminShow']);
+        Route::patch('/admin/orders/{orderId}/status', [OrderController::class, 'updateStatus']);
+        Route::patch('/admin/orders/{orderId}/items/{itemId}/status', [OrderController::class, 'updateItemStatus']);
         
         // ✅ Обновление и удаление компонентов
         Route::patch('admin/components/{component}', [ComponentController::class, 'update']);

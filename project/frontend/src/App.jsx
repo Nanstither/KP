@@ -20,6 +20,7 @@ import PrebuiltPcCreate from './pages/admin/PrebuiltPcCreate';
 import PrebuiltPcEdit from './pages/admin/PrebuiltPcEdit';
 import CheckoutPage from './pages/CheckoutPage';
 import OrdersPage from './pages/OrdersPage';
+import AdminOrderDetail from './pages/admin/AdminOrderDetail';
 import '@/App.css';
 
 // Компонент для защиты роутов
@@ -80,6 +81,9 @@ export default function App() {
           {/* Роуты для готовых ПК */}
           <Route path="/admin/prebuilt-pcs/create" element={<ProtectedRoute allowedRoles={['admin', 'manager']}><PrebuiltPcCreate /></ProtectedRoute>} />
           <Route path="/admin/prebuilt-pcs/:id/edit" element={<ProtectedRoute allowedRoles={['admin', 'manager']}><PrebuiltPcEdit /></ProtectedRoute>} />
+          
+          {/* Роуты для заказов (админка) */}
+          <Route path="/admin/orders/:id" element={<ProtectedRoute allowedRoles={['admin', 'manager']}><AdminOrderDetail /></ProtectedRoute>} />
           
           <Route path="*" element={<Navigate to="/"/>} />
         </Routes>
