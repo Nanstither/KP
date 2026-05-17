@@ -57,8 +57,8 @@ function HomePage() {
           {/* Верхняя часть: Доставка и Windows */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-12">
             {/* Бесплатная доставка */}
-            <div className="group relative overflow-hidden rounded-2xl p-8 min-h-[280px] flex flex-col justify-center items-center text-center">
-              <div className="absolute inset-0 opacity-10 dark:opacity-20 pointer-events-none z-0">
+            <div className="group relative overflow-hidden rounded-2xl p-8 min-h-[280px] flex flex-col items-center text-center bg-white dark:bg-gray-800">
+              <div className="w-32 h-32 mb-4 relative z-10 flex-shrink-0">
                 <img 
                   src="/icons/arms.webp" 
                   alt="" 
@@ -77,8 +77,8 @@ function HomePage() {
             </div>
 
             {/* Лицензионный Windows */}
-            <div className="group relative overflow-hidden rounded-2xl p-8 min-h-[280px] flex flex-col justify-center items-center text-center">
-              <div className="absolute inset-0 opacity-10 dark:opacity-20 pointer-events-none z-0">
+            <div className="group relative overflow-hidden rounded-2xl p-8 min-h-[280px] flex flex-col items-center text-center bg-white dark:bg-gray-800">
+              <div className="w-32 h-32 mb-4 relative z-10 flex-shrink-0">
                 <img 
                   src="/icons/windows.webp" 
                   alt="" 
