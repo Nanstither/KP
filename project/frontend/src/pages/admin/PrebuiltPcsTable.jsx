@@ -52,7 +52,9 @@ export default function PrebuiltPcsTable({
   const saveEditing = async () => {
     setSaving(true);
     try {
+      const pcToEdit = prebuiltPcs.find(pc => pc.id === editingId);
       const res = await api.put(`/admin/prebuilt-pcs/${editingId}`, {
+        name: pcToEdit?.name || '',
         price: Number(editValues.price),
         is_active: editValues.is_active
       });
