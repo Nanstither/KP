@@ -196,12 +196,21 @@ export default function AdminOrderDetail() {
                   <div className="mt-3">
                     <h5 className="font-medium text-gray-700 mb-2">Комплектующие:</h5>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {Object.entries(item.components).map(([category, component]) => (
-                        <div key={category} className="text-sm text-gray-600">
-                          <span className="font-medium capitalize">{category}: </span>
-                          {component?.name || component?.model || (typeof component === 'string' ? component : 'Не указано')}
-                        </div>
-                      ))}
+                      {Object.entries(item.components).map(([category, component]) => {
+                        // Обрабатываем различные форматы компонентов
+                        let componentName = 'Не указано';
+                        if (typeof component === 'string') {
+                          componentName = component;
+                        } else if (component && typeof component === 'object') {
+                          componentName = component.name || component.model || component.title || 'Не указано';
+                        }
+                        return (
+                          <div key={category} className="text-sm text-gray-600">
+                            <span className="font-medium capitalize">{category}: </span>
+                            {componentName}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 ) : (

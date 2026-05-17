@@ -60,7 +60,7 @@ class OrderController extends Controller
             $order = Order::create([
                 'user_id' => $user?->id,
                 'session_id' => $request->session_id,
-                'status' => 'pending',
+                'status' => 'paid', // Сразу оплачен
                 'recipient_name' => $validated['recipient_name'],
                 'recipient_phone' => $validated['recipient_phone'],
                 'recipient_email' => $validated['recipient_email'],
@@ -68,6 +68,7 @@ class OrderController extends Controller
                 'delivery_type' => $validated['delivery_type'],
                 'cdek_code' => $validated['cdek_code'],
                 'total_amount' => $totalAmount,
+                'paid_at' => now(), // Время оплаты
             ]);
 
             foreach ($validated['items'] as $itemData) {

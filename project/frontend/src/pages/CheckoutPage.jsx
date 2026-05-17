@@ -15,15 +15,21 @@ export default function CheckoutPage() {
   const [showMapModal, setShowMapModal] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [orderData, setOrderData] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState("card");
 
-  // Данные формы
+  // Данные формы получателя
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
     email: "",
     address: "",
     comment: ""
+  });
+
+  // Данные карты
+  const [cardData, setCardData] = useState({
+    number: "",
+    expiry: "",
+    cvc: ""
   });
 
   useEffect(() => {
@@ -96,7 +102,7 @@ export default function CheckoutPage() {
           name: item.name || item.product_name,
           quantity: item.quantity || 1,
           price: Number(item.price || item.total_price || 0),
-          components: item.components || null,
+          components: item.components || {},
         })),
       };
 
@@ -353,35 +359,59 @@ export default function CheckoutPage() {
                 <CreditCard className="w-5 h-5 text-purple-500" />
                 Оплата заказа
               </h2>
-
-              <div className="space-y-4 mb-6">
-                <div className="p-4 border-2 border-purple-500 bg-purple-50 dark:bg-purple-500/10 rounded-lg">
-                  <div className="flex items-center gap-3">
+              <div className="mb-6">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
+                  Введите данные банковской карты для оплаты
+                </p>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Номер карты
+                    </label>
                     <input
-                      type="radio"
-                      name="payment"
-                      checked={paymentMethod === "card"}
-                      onChange={() => setPaymentMethod("card")}
-                      className="w-5 h-5 text-purple-600"
+                      type="text"
+                      value={cardData.number}
+                      onChange={(e) => setCardData(prev => ({ ...prev, number: e.target.value.replace(/\D/g, '').slice(0, 16) }))}
+                      placeholder="0000 0000 0000 0000"
+                      maxLength={19}
+                      className="w-full px-4 py-3 bg-gray-50 dark:bg-[#0a0a0c] border border-gray-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 dark:text-white"
                     />
-                    <div>
-                      <p className="font-semibold text-gray-900 dark:text-white">Банковской картой онлайн</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Visa, MasterCard, MIR</p>
-                    </div>
                   </div>
-                </div>
-
-                <div className="p-4 border border-gray-200 dark:border-white/10 rounded-lg opacity-60">
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="radio"
-                      name="payment"
-                      disabled
-                      className="w-5 h-5 text-gray-400"
-                    />
+                  
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="font-semibold text-gray-700 dark:text-gray-300">При получении</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-500">Недоступно</p>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Срок действия
+                      </label>
+                      <input
+                        type="text"
+                        value={cardData.expiry}
+                        onChange={(e) => {
+                          let value = e.target.value.replace(/\D/g, '');
+                          if (value.length >= 2) {
+                            value = value.slice(0, 2) + '/' + value.slice(2, 4);
+                          }
+                          setCardData(prev => ({ ...prev, expiry: value }));
+                        }}
+                        placeholder="MM/YY"
+                        maxLength={5}
+                        className="w-full px-4 py-3 bg-gray-50 dark:bg-[#0a0a0c] border border-gray-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 dark:text-white"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        CVC/CVV
+                      </label>
+                      <input
+                        type="password"
+                        value={cardData.cvc}
+                        onChange={(e) => setCardData(prev => ({ ...prev, cvc: e.target.value.replace(/\D/g, '').slice(0, 3) }))}
+                        placeholder="123"
+                        maxLength={3}
+                        className="w-full px-4 py-3 bg-gray-50 dark:bg-[#0a0a0c] border border-gray-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 dark:text-white"
+                      />
                     </div>
                   </div>
                 </div>
@@ -412,7 +442,7 @@ export default function CheckoutPage() {
               </button>
               <button
                 onClick={handleSubmitOrder}
-                disabled={processing}
+                disabled={processing || !cardData.number || !cardData.expiry || !cardData.cvc}
                 className="flex-[2] bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-4 rounded-xl transition-all flex items-center justify-center gap-2"
               >
                 {processing ? (
