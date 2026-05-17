@@ -152,7 +152,7 @@ export default function OrdersPage() {
                                 {item.name}
                               </span>
                               <span className="font-medium text-gray-900 dark:text-white">
-                                {typeof item.total_price === 'number' ? item.total_price.toLocaleString() : Number(item.total_price || 0).toLocaleString()} ₽
+                                {typeof item.price === 'number' ? (item.price * item.quantity).toLocaleString() : Number((item.price || 0) * (item.quantity || 1)).toLocaleString()} ₽
                               </span>
                             </div>
                           ))
@@ -169,17 +169,19 @@ export default function OrdersPage() {
                         Доставка
                       </p>
                       <div className="bg-gray-50 dark:bg-[#0a0a0c] rounded-lg p-3">
-                        {order.delivery ? (
+                        {order.delivery_address ? (
                           <div>
                             <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                              {order.delivery.name}
+                              СДЭК
                             </p>
                             <p className="text-sm text-gray-600 dark:text-gray-400">
-                              {order.delivery.address}
+                              {order.delivery_address}
                             </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                              {order.delivery.city}
-                            </p>
+                            {order.cdek_code && (
+                              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                                Код ПВЗ: {order.cdek_code}
+                              </p>
+                            )}
                           </div>
                         ) : (
                           <p className="text-sm text-gray-500 dark:text-gray-500">Нет данных</p>
@@ -197,9 +199,9 @@ export default function OrdersPage() {
                       </p>
                       <div className="bg-gray-50 dark:bg-[#0a0a0c] rounded-lg p-3">
                         <p className="text-lg font-bold text-purple-600 dark:text-purple-300">
-                          {typeof order.total === 'number' ? order.total.toLocaleString() : Number(order.total || 0).toLocaleString()} ₽
+                          {typeof order.total_amount === 'number' ? order.total_amount.toLocaleString() : Number(order.total_amount || 0).toLocaleString()} ₽
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-500">
+                        <p className="text-xs text-green-600 dark:text-green-400 mt-1">
                           Оплачено онлайн
                         </p>
                       </div>
@@ -210,35 +212,31 @@ export default function OrdersPage() {
                         Получатель
                       </p>
                       <div className="bg-gray-50 dark:bg-[#0a0a0c] rounded-lg p-3">
-                        {order.customer ? (
-                          <div className="space-y-1 text-sm">
-                            <p className="text-gray-900 dark:text-white">
-                              {order.customer.name}
-                            </p>
+                        <div className="space-y-1 text-sm">
+                          <p className="text-gray-900 dark:text-white">
+                            {order.recipient_name}
+                          </p>
+                          <p className="text-gray-600 dark:text-gray-400">
+                            {order.recipient_phone}
+                          </p>
+                          {order.recipient_email && (
                             <p className="text-gray-600 dark:text-gray-400">
-                              {order.customer.phone}
+                              {order.recipient_email}
                             </p>
-                            {order.customer.email && (
-                              <p className="text-gray-600 dark:text-gray-400">
-                                {order.customer.email}
-                              </p>
-                            )}
-                          </div>
-                        ) : (
-                          <p className="text-sm text-gray-500 dark:text-gray-500">Нет данных</p>
-                        )}
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Комментарий */}
-                  {order.customer?.comment && (
+                  {order.comment && (
                     <div className="mt-4 pt-4 border-t border-gray-200 dark:border-white/10">
                       <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Комментарий к заказу
                       </p>
                       <p className="text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-[#0a0a0c] rounded-lg p-3">
-                        {order.customer.comment}
+                        {order.comment}
                       </p>
                     </div>
                   )}
