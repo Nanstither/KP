@@ -18,7 +18,7 @@ export default function Dashboard({ components, onNavigateToLowStock }) {
       {/* --- БЛОК 1: Аналитика склада (График) --- */}
       <div className="bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 shadow-sm rounded-xl p-5">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-black dark:text-white">Аналитика склада</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Аналитика склада</h3>
         </div>
         <WarehouseChart components={components} />
       </div>
@@ -26,32 +26,31 @@ export default function Dashboard({ components, onNavigateToLowStock }) {
       {/* --- БЛОК 2: Последние поступления --- */}
       <div className="bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 shadow-sm rounded-xl p-5">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-black dark:text-white">Новые поступления</h3>
-          {/* Кнопка "Все компоненты" - пока просто заглушка или можно передать пропс */}
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Новые поступления</h3>
         </div>
         <div className="space-y-3">
           {recentComponents.length > 0 ? recentComponents.map(c => (
-            <div key={c.id} className="flex items-center justify-between p-3 rounded-lg bg-black/3 dark:bg-white/3 border border-black/5 dark:border-white/5 hover:border-black/10 dark:hover:border-white/10 transition-colors">
+            <div key={c.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-black/3 dark:bg-white/3 border border-gray-200 dark:border-black/5 dark:border-white/5 hover:border-gray-300 dark:hover:border-black/10 dark:hover:border-white/10 transition-colors">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-200 text-left">{c.model}</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-200 text-left">{c.model}</p>
                 <p className="text-xs text-gray-500 text-left">{c.category?.name || 'Без категории'}</p>
               </div>
-              <span className="text-sm font-mono text-purple-500 dark:text-purple-300">{c.price?.toLocaleString()} ₽</span>
+              <span className="text-sm font-mono text-purple-600 dark:text-purple-300">{c.price?.toLocaleString()} ₽</span>
             </div>
           )) : <p className="text-gray-500 text-sm text-center py-4">Список пуст</p>}
         </div>
       </div>
 
       {/* --- БЛОК 3: Мало на складе (Alert) --- */}
-      <div className="bg-white dark:bg-[#141416] border border-red-500/70 dark:border-red-500/20 rounded-xl p-5">
+      <div className="bg-white dark:bg-[#141416] border border-red-200 dark:border-red-500/70 dark:border-red-500/20 rounded-xl p-5 shadow-sm">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-red-400" />
-            <h3 className="text-lg font-semibold text-black dark:text-white">Требуют пополнения (&lt; 5 шт)</h3>
+            <AlertTriangle className="w-5 h-5 text-red-500 dark:text-red-400" />
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Требуют пополнения (&lt; 5 шт)</h3>
           </div>
           <button 
             onClick={onNavigateToLowStock}
-            className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-lg text-xs font-medium transition-colors flex items-center gap-1"
+            className="px-3 py-1.5 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/20 rounded-lg text-xs font-medium transition-colors flex items-center gap-1"
           >
             Смотреть все <ArrowRight className="w-3 h-3" />
           </button>
@@ -59,20 +58,20 @@ export default function Dashboard({ components, onNavigateToLowStock }) {
        
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="text-xs text-black/50 dark:text-gray-500 uppercase border-b border-black/10 dark:border-white/10">
+            <thead className="text-xs text-gray-500 dark:text-black/50 dark:text-gray-500 uppercase border-b border-gray-200 dark:border-black/10 dark:border-white/10">
               <tr>
                 <th className="pb-2">Модель</th>
                 <th className="pb-2">Категория</th>
                 <th className="pb-2 text-right">Остаток</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-black/5 dark:divide-white/5">
+            <tbody className="divide-y divide-gray-200 dark:divide-black/5 dark:divide-white/5">
               {lowStockItems.length > 0 ? lowStockItems.map(c => (
-                <tr key={c.id} className="hover:bg-black/4 dark:hover:bg-white/2">
-                  <td className="py-3 font-medium text-gray-600 dark:text-gray-200">{c.model}</td>
+                <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-black/4 dark:hover:bg-white/2">
+                  <td className="py-3 font-medium text-gray-700 dark:text-gray-200">{c.model}</td>
                   <td className="py-3 text-gray-600 dark:text-gray-400">{c.category?.name || '—'}</td>
                   <td className="py-3 text-right">
-                    <span className="px-2 py-0.5 rounded text-xs font-bold bg-red-500/20 text-red-400">
+                    <span className="px-2 py-0.5 rounded text-xs font-bold bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400">
                       {c.stock} шт.
                     </span>
                   </td>
@@ -130,7 +129,7 @@ function WarehouseChart({ components }) {
             className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
               selectedCat === cat.slug
                 ? 'bg-purple-600 text-white'
-                : 'bg-black/5 dark:bg-white/5 text-gray-700 dark:text-gray-400 hover:bg-black/10 dark:hover:bg-white/10'
+                : 'bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'
             }`}
           >
             {cat.label}
@@ -146,7 +145,7 @@ function WarehouseChart({ components }) {
               <span className="text-gray-700 dark:text-gray-300">{item.name}</span>
               <span className="text-gray-500 dark:text-gray-500 font-mono">{item.value} шт.</span>
             </div>
-            <div className="h-2 dark:bg-white/5 bg-black/10 rounded-full overflow-hidden">
+            <div className="h-2 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${(item.value / maxValue) * 100}%` }}
