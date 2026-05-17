@@ -52,12 +52,12 @@ function HomePage() {
       <PremiumPCHero />
 
       {/* Блок УТП: Доставка и Windows */}
-      <section className="relative py-16 bg-gray-50 dark:bg-[#13131f] border-b border-gray-200 dark:border-gray-800">
+      <section className="relative py-16 bg-gray-50 dark:bg-[#13131f] border-y border-gray-200 dark:border-gray-800">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {/* Бесплатная доставка */}
-            <div className="group relative overflow-hidden rounded-2xl p-8 min-h-[280px] flex flex-col items-center text-center bg-gray-100 dark:bg-[#1a1a2e]">
-              <div className="w-32 h-32 mb-4 relative z-10 flex-shrink-0">
+            <div className="group relative overflow-hidden rounded-2xl p-8 min-h-70 flex flex-col items-center text-center bg-gray-100 dark:bg-[#1a1a2e]">
+              <div className="w-32 h-32 mb-4 relative z-10 shrink-0">
                 <img 
                   src="/icons/arms.webp" 
                   alt="" 
@@ -76,8 +76,8 @@ function HomePage() {
             </div>
 
             {/* Лицензионный Windows */}
-            <div className="group relative overflow-hidden rounded-2xl p-8 min-h-[280px] flex flex-col items-center text-center bg-gray-100 dark:bg-[#1a1a2e]">
-              <div className="w-32 h-32 mb-4 relative z-10 flex-shrink-0">
+            <div className="group relative overflow-hidden rounded-2xl p-8 min-h-70 flex flex-col items-center text-center bg-gray-100 dark:bg-[#1a1a2e]">
+              <div className="w-32 h-32 mb-4 relative z-10 shrink-0">
                 <img 
                   src="/icons/windows.webp" 
                   alt="" 
@@ -102,15 +102,15 @@ function HomePage() {
       <section className="py-20 bg-gray-50 dark:bg-[#101019]">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-extrabold mb-3 text-gray-900 dark:text-white uppercase tracking-wide !font-sans">
+            <h2 className="text-4xl md:text-5xl font-extrabold mb-3! text-gray-900 dark:text-white uppercase tracking-wide font-sans!">
               Хиты продаж
             </h2>
-            <h3 className="text-2xl md:text-3xl font-bold mb-8 !font-sans">
-              <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-500 bg-clip-text text-transparent !font-sans">
+            <h3 className="text-2xl! md:text-5xl! font-medium mb-8! font-sans!">
+              <span className="bg-linear-to-r from-purple-400 via-pink-400 to-purple-500 bg-clip-text text-transparent font-sans! uppercase">
                 Бестселлеры
               </span>
             </h3>
-            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed !font-sans">
+            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed font-sans!">
               Сбалансированные игровые ПК с оптимальной производительностью и лучшим соотношением цены и возможностей.
             </p>
           </div>
@@ -134,19 +134,19 @@ function HomePage() {
       </section>
 
       {/* Преимущества компании */}
-      <section className="relative py-16 bg-white dark:bg-gray-800">
+      <section className="relative py-16 bg-gray-50 dark:bg-[#13131f]  border-t border-gray-200 dark:border-gray-800">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center text-gray-900 dark:text-white">
+          <h2 className="text-2xl! md:text-4xl! font-bold mb-4! text-center text-gray-900 dark:text-white uppercase">
             Преимущества компании
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 text-center mb-12 max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 text-center mb-12 max-w-2xl mx-auto">
             Почему тысячи клиентов выбирают именно нас
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Бесплатная доставка */}
-            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-800/50 border border-gray-200 dark:border-gray-600 p-0 hover:shadow-lg hover:shadow-green-500/10 hover:border-green-500/30 transition-all duration-300 min-h-[320px]">
-              <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-white dark:from-gray-800 to-transparent pointer-events-none z-10" />
+            <div className="group relative overflow-hidden rounded-2xl bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-800/50 border border-gray-200 dark:border-gray-600 p-0 hover:shadow-lg hover:shadow-green-500/10 hover:border-green-500/30 transition-all duration-300 min-h-[320px]">
+              <div className="absolute inset-x-0 bottom-0 h-28 bg-linear-to-t from-white dark:from-gray-800 to-transparent pointer-events-none z-10" />
               <div className="relative w-full flex-1">
                 <img 
                   src="/images/advantages/free_shipping.webp" 
@@ -165,8 +165,8 @@ function HomePage() {
             </div>
 
             {/* Конфигуратор */}
-            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-800/50 border border-gray-200 dark:border-gray-600 p-0 hover:shadow-lg hover:shadow-blue-500/10 hover:border-blue-500/30 transition-all duration-300 min-h-[320px]">
-              <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-white dark:from-gray-800 to-transparent pointer-events-none z-10" />
+            <div className="group relative overflow-hidden rounded-2xl bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-800/50 border border-gray-200 dark:border-gray-600 p-0 hover:shadow-lg hover:shadow-blue-500/10 hover:border-blue-500/30 transition-all duration-300 min-h-[320px]">
+              <div className="absolute inset-x-0 bottom-0 h-28 bg-linear-to-t from-white dark:from-gray-800 to-transparent pointer-events-none z-10" />
               <div className="relative w-full flex-1">
                 <img 
                   src="/images/advantages/configurator.webp" 
