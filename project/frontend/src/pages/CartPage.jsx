@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trash2, Edit3, ShoppingCart, ArrowRight, Package, Cpu, Monitor, LogIn, UserPlus, X } from "lucide-react";
+import { Trash2, Edit3, ShoppingCart, ArrowRight, Package, LogIn, UserPlus, X, List, ChevronRight } from "lucide-react";
 import api from "@/services/api";
 
 export default function CartPage() {
@@ -9,6 +9,9 @@ export default function CartPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [componentsModalOpen, setComponentsModalOpen] = useState(false);
+  const [prebuiltComponents, setPrebuiltComponents] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -49,6 +52,55 @@ export default function CartPage() {
       console.error("Ошибка очистки:", err);
     }
   };
+
+  const openComponentsModal = async (item) => {
+    setSelectedItem(item);
+    setPrebuiltComponents([]);
+    
+    if (item.type === 'prebuilt' && item.prebuilt_id) {
+      try {
+        const res = await api.get(`/prebuilt/${item.prebuilt_id}`);
+        if (res.data && res.data.components) {
+          setPrebuiltComponents(res.data.components);
+        }
+      } catch (err) {
+        console.error("Ошибка загрузки компонентов ПК:", err);
+      }
+    }
+    
+    setComponentsModalOpen(true);
+  };
+
+  const getComponentImage = (item) => {
+    // Для готовых ПК
+    if (item.type === 'prebuilt') {
+      if (item.image) return item.image;
+      // Ищем корпус в компонентах
+      if (item.components && Array.isArray(item.components)) {
+        const caseComponent = item.components.find(c => 
+          c.component && c.component.category && c.component.category.slug === 'case'
+        );
+        if (caseComponent && caseComponent.component.image) {
+          return caseComponent.component.image;
+        }
+      }
+      return null;
+    }
+    
+    // Для пользовательских сборок - ищем корпус
+    if (item.type === 'custom' && item.components && Array.isArray(item.components)) {
+      const caseComponent = item.components.find(c => 
+        c.component && c.component.category && c.component.category.slug === 'case'
+      );
+      if (caseComponent && caseComponent.component.image) {
+        return caseComponent.component.image;
+      }
+    }
+    
+    return null;
+  };
+
+  const placeholderImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect fill='%232a2a2e' width='200' height='200'/%3E%3Ctext fill='%23666' x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-size='14'%3ENo Image%3C/text%3E%3C/svg%3E";
 
   if (loading) {
     return (
@@ -107,7 +159,11 @@ export default function CartPage() {
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Список товаров */}
             <div className="lg:col-span-2 space-y-4">
-              {cart.items.map((item, index) => (
+              {cart.items.map((item, index) => {
+                const itemImage = getComponentImage(item);
+                const displayImage = itemImage || placeholderImage;
+                
+                return (
                 <motion.div
                   key={item.id}
                   initial={{ opacity: 0, x: -20 }}
@@ -115,15 +171,16 @@ export default function CartPage() {
                   transition={{ delay: index * 0.05 }}
                   className="bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 rounded-xl p-5 flex flex-col sm:flex-row gap-4 items-start sm:items-center"
                 >
-                  {/* Иконка типа товара */}
-                  <div className="w-12 h-12 bg-gray-100 dark:bg-[#0a0a0c] rounded-lg flex items-center justify-center flex-shrink-0 border border-gray-200 dark:border-white/5">
-                    {item.type === "custom" ? (
-                      <Cpu className="w-6 h-6 text-purple-400" />
-                    ) : item.type === "prebuilt" ? (
-                      <Monitor className="w-6 h-6 text-blue-400" />
-                    ) : (
-                      <Package className="w-6 h-6 text-gray-400" />
-                    )}
+                  {/* Изображение товара */}
+                  <div className="w-20 h-20 bg-gray-100 dark:bg-[#0a0a0c] rounded-lg overflow-hidden flex-shrink-0 border border-gray-200 dark:border-white/5 relative">
+                    <img 
+                      src={displayImage} 
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.src = placeholderImage;
+                      }}
+                    />
                   </div>
 
                   {/* Информация */}
@@ -141,10 +198,10 @@ export default function CartPage() {
                       </span>
                     </div>
                     
-                    {/* Для сборок показываем компоненты */}
-                    {item.type === "custom" && item.components?.length > 0 && (
-                      <p className="text-xs text-gray-500 dark:text-gray-500 truncate">
-                        {item.components.map(c => c.component?.model || "Компонент").join(", ")}
+                    {/* Для сборок показываем количество компонентов */}
+                    {item.components && item.components.length > 0 && (
+                      <p className="text-xs text-gray-500 dark:text-gray-500">
+                        {item.components.length} компонент{item.components.length === 1 ? '' : 'а'}
                       </p>
                     )}
                   </div>
@@ -165,6 +222,13 @@ export default function CartPage() {
                         </button>
                       )}
                       <button
+                        onClick={() => openComponentsModal(item)}
+                        className="p-2 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-300 hover:bg-blue-600/10 rounded-lg transition-colors"
+                        title="Показать характеристики"
+                      >
+                        <List className="w-4 h-4" />
+                      </button>
+                      <button
                         onClick={() => removeFromCart(item.id)}
                         className="p-2 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-600/10 rounded-lg transition-colors"
                         title="Удалить"
@@ -174,7 +238,8 @@ export default function CartPage() {
                     </div>
                   </div>
                 </motion.div>
-              ))}
+              );
+              })}
 
               {/* Кнопка очистки */}
               <button
@@ -292,6 +357,83 @@ export default function CartPage() {
                     <UserPlus className="w-4 h-4" /> Регистрация
                   </button>
                 </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ✅ МОДАЛЬНОЕ ОКНО КОМПОНЕНТОВ */}
+      <AnimatePresence>
+        {componentsModalOpen && selectedItem && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            onClick={() => setComponentsModalOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 rounded-2xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto shadow-2xl relative"
+              onClick={e => e.stopPropagation()}
+            >
+              <button 
+                onClick={() => setComponentsModalOpen(false)} 
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              
+              <div className="mb-6">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{selectedItem.name}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {selectedItem.type === 'prebuilt' ? 'Готовый компьютер' : 'Пользовательская сборка'}
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                {(selectedItem.type === 'prebuilt' ? prebuiltComponents : selectedItem.components || []).map((comp, idx) => {
+                  const component = comp.component || comp;
+                  if (!component) return null;
+                  
+                  return (
+                    <div 
+                      key={idx}
+                      className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-white/5 rounded-lg border border-gray-200 dark:border-white/5"
+                    >
+                      <div className="w-10 h-10 bg-gray-200 dark:bg-white/10 rounded-md overflow-hidden flex-shrink-0">
+                        {component.image ? (
+                          <img src={component.image} alt={component.model} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Package className="w-5 h-5 text-gray-400" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{component.model || 'Компонент'}</p>
+                        {component.category && (
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{component.category.name || component.category.slug}</p>
+                        )}
+                      </div>
+                      {component.price && (
+                        <span className="text-sm font-semibold text-purple-600 dark:text-purple-300">
+                          {Number(component.price).toLocaleString()} ₽
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-gray-200 dark:border-white/10 flex justify-between items-center">
+                <span className="text-sm text-gray-500 dark:text-gray-400">Итого:</span>
+                <span className="text-xl font-bold text-purple-600 dark:text-purple-300">
+                  {Number(selectedItem.total_price).toLocaleString()} ₽
+                </span>
               </div>
             </motion.div>
           </motion.div>
