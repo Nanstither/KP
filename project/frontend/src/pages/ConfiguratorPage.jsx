@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence, aspectRatio } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "@/services/api";
 import { STORAGE_URL } from "@/lib/config";
 import {
@@ -107,6 +107,7 @@ const formatSpecs = (item, categoryId) => {
 
 export default function ConfiguratorPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [isCaseSelectorOpen, setIsCaseSelectorOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedCase, setSelectedCase] = useState(null);
@@ -120,6 +121,59 @@ export default function ConfiguratorPage() {
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState({});
   const [loading, setLoading] = useState(true);
+
+  // Загрузка сборки из корзины для редактирования (если есть ?edit=cartItemId)
+  useEffect(() => {
+    const editCartItemId = searchParams.get('edit');
+    
+    if (editCartItemId) {
+      loadCartForEdit(editCartItemId);
+    }
+  }, [searchParams]);
+
+  const loadCartForEdit = async (cartItemId) => {
+    try {
+      const res = await api.get(`/cart/${cartItemId}`);
+      const cartItem = res.data;
+      
+      if (cartItem.type !== 'custom') return;
+      
+      // Восстанавливаем корпус (первый компонент в списке или ищем по категории case)
+      const components = cartItem.components || [];
+      
+      for (const cic of components) {
+        const comp = cic.component;
+        if (!comp) continue;
+        
+        const categorySlug = comp.category?.slug;
+        if (!categorySlug) continue;
+        
+        // Если это корпус
+        if (categorySlug === 'case') {
+          setSelectedCase(comp);
+        } else {
+          // Остальные компоненты
+          const catKey = categorySlug === 'motherboard' ? 'motherboard' : categorySlug;
+          setBuild(prev => ({
+            ...prev,
+            [catKey]: { item: comp, quantity: cic.quantity || 1 }
+          }));
+          
+          // Обновляем лимиты если это материнская плата
+          if (categorySlug === 'motherboard') {
+            const spec = comp.motherboard_spec || {};
+            setLimits({
+              ram: spec.ram_slots || 2,
+              nvme: spec.m2_slots || 1,
+              sata: spec.sata_ports || 4
+            });
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Ошибка загрузки сборки для редактирования:', err);
+    }
+  };
 
   // 1. Загрузка данных и Авто-выбор компонентов
   useEffect(() => {
@@ -346,6 +400,9 @@ export default function ConfiguratorPage() {
   const handleAddToCart = async () => {
     setIsAddingToCart(true);
     try {
+      // Проверяем, редактируем ли мы существующую сборку
+      const editCartItemId = searchParams.get('edit');
+      
       // Собираем ID всех выбранных компонентов
       const componentIds = [];
       
@@ -374,18 +431,31 @@ export default function ConfiguratorPage() {
       const gpuModel = build.gpu?.item?.model || 'Без GPU';
       const buildName = `Сборка: ${cpuModel} + ${gpuModel}`;
       
-      const payload = {
-        type: 'custom',
-        name: buildName,
-        components: componentIds
-      };
+      if (editCartItemId) {
+        // Обновляем существующую сборку в корзине
+        const payload = {
+          components: componentIds,
+          name: buildName
+        };
+        
+        await api.put(`/cart/${editCartItemId}`, payload);
+        alert('Сборка успешно обновлена!');
+        navigate('/cart');
+      } else {
+        // Создаем новую сборку в корзине
+        const payload = {
+          type: 'custom',
+          name: buildName,
+          components: componentIds
+        };
 
-      // Отправляем на сервер (теперь доступно и для гостей)
-      // Session-ID добавляется автоматически через interceptor в api.js
-      const response = await api.post('/cart', payload);
-      
-      alert('Сборка успешно добавлена в корзину!');
-      navigate('/cart'); // Переход в корзину
+        // Отправляем на сервер (теперь доступно и для гостей)
+        // Session-ID добавляется автоматически через interceptor в api.js
+        const response = await api.post('/cart', payload);
+        
+        alert('Сборка успешно добавлена в корзину!');
+        navigate('/cart');
+      }
       
     } catch (error) {
       console.error('Ошибка при добавлении в корзину:', error);
