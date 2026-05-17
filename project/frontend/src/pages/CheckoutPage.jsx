@@ -83,25 +83,31 @@ export default function CheckoutPage() {
 
     setProcessing(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const order = {
-        id: Date.now(),
-        items: cart?.items || [],
-        total: cart?.items?.reduce((sum, item) => sum + Number(item.total_price || 0), 0) || 0,
-        delivery: selectedPickpoint,
-        customer: formData,
-        status: "new",
-        created_at: new Date().toISOString()
+      // Формируем данные для отправки на бэкенд
+      const orderPayload = {
+        recipient_name: formData.name,
+        recipient_phone: formData.phone,
+        recipient_email: formData.email || null,
+        delivery_address: selectedPickpoint.address,
+        delivery_type: 'pickup',
+        cdek_code: selectedPickpoint.id?.toString() || null,
+        items: (cart?.items || []).map(item => ({
+          prebuilt_pc_id: item.prebuilt_pc_id || null,
+          name: item.name || item.product_name,
+          quantity: item.quantity || 1,
+          price: Number(item.price || item.total_price || 0),
+          components: item.components || null,
+        })),
       };
 
-      const history = JSON.parse(localStorage.getItem('orderHistory') || '[]');
-      history.push(order);
-      localStorage.setItem('orderHistory', JSON.stringify(history));
+      // Отправляем заказ на бэкенд
+      const response = await api.post('/orders', orderPayload);
+      const order = response.data.order || response.data;
 
       setOrderData(order);
       setStep(3);
 
+      // Очищаем корзину на бэкенде
       if (cart?.items) {
         for (const item of cart.items) {
           try {
@@ -113,7 +119,8 @@ export default function CheckoutPage() {
       }
     } catch (err) {
       console.error("Ошибка оформления заказа:", err);
-      alert("Произошла ошибка при оформлении заказа");
+      const errorMsg = err.response?.data?.message || err.response?.data?.error || "Произошла ошибка при оформлении заказа";
+      alert(errorMsg);
     } finally {
       setProcessing(false);
     }
