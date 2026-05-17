@@ -88,32 +88,32 @@ export default function SettingsTab() {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {cards.map(card => (
-          <div key={card.key} className="bg-[#141416] border border-white/10 rounded-xl p-5">
+          <div key={card.key} className="bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 rounded-xl p-5">
             <div className="flex justify-between items-start mb-3">
               <div>
-                <h3 className="text-lg font-semibold text-white">{card.label}</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{card.label}</h3>
                 <p className="text-xs text-gray-500 mt-1">{card.desc}</p>
               </div>
-              <button onClick={() => openModal(card.key)} className="p-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 rounded-lg transition-colors">
+              <button onClick={() => openModal(card.key)} className="p-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-700 dark:text-purple-300 rounded-lg transition-colors">
                 <Plus className="w-4 h-4" />
               </button>
             </div>
             
             <div className="space-y-2 max-h-40 overflow-y-auto pr-1 custom-scrollbar">
               {refs[card.key]?.length > 0 ? refs[card.key].map(item => (
-                <div key={item.id} className="flex items-center justify-between bg-[#0a0a0c] border border-white/5 rounded-lg px-3 py-2 group">
-                  <span className="text-sm text-gray-300">{item.name}</span>
+                <div key={item.id} className="flex items-center justify-between bg-gray-50 dark:bg-[#0a0a0c] border border-gray-200 dark:border-white/5 rounded-lg px-3 py-2 group">
+                  <span className="text-sm text-gray-700 dark:text-gray-300">{item.name}</span>
                   <div className="flex gap-1 opacity-15 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => openModal(card.key, item)} className="p-1.5 text-gray-400 hover:text-purple-300 hover:bg-white/5 rounded">
+                    <button onClick={() => openModal(card.key, item)} className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-300 hover:bg-gray-200 dark:hover:bg-white/5 rounded">
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
-                    <button onClick={() => handleDelete(card.key, item.id)} className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-white/5 rounded">
+                    <button onClick={() => handleDelete(card.key, item.id)} className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-200 dark:hover:bg-white/5 rounded">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
               )) : (
-                <p className="text-xs text-gray-600 py-2 text-center">Список пуст</p>
+                <p className="text-xs text-gray-400 dark:text-gray-600 py-2 text-center">Список пуст</p>
               )}
             </div>
           </div>
@@ -130,10 +130,10 @@ export default function SettingsTab() {
           >
             <motion.div 
               initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }}
-              className="bg-[#141416] border border-white/10 rounded-xl p-6 w-full max-w-sm"
+              className="bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 rounded-xl p-6 w-full max-w-sm"
               onClick={e => e.stopPropagation()}
             >
-              <h3 className="text-lg font-semibold text-white mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 {modal.editId ? 'Редактировать' : 'Добавить'} запись
               </h3>
               <input
@@ -141,14 +141,14 @@ export default function SettingsTab() {
                 value={modal.name}
                 onChange={e => setModal(prev => ({ ...prev, name: e.target.value }))}
                 placeholder="Название (например, AM5)"
-                className="w-full bg-[#0a0a0c] border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white focus:border-purple-500 focus:outline-none mb-4"
+                className="w-full bg-gray-50 dark:bg-[#0a0a0c] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-2.5 text-sm text-gray-900 dark:text-white focus:border-purple-500 focus:outline-none mb-4"
                 onKeyDown={e => e.key === 'Enter' && handleSave()}
                 autoFocus
               />
               <div className="flex gap-2 justify-end">
                 <button 
                   onClick={() => setModal(prev => ({ ...prev, isOpen: false }))}
-                  className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+                  className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
                   Отмена
                 </button>
@@ -171,10 +171,10 @@ export default function SettingsTab() {
 
 export function PlaceholderComponent({ title, icon: Icon }) {
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-[#141416] border border-white/10 rounded-xl p-12 text-center">
-      <Icon className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-      <h3 className="text-xl font-semibold text-white mb-2">{title}</h3>
-      <p className="text-gray-400 text-sm">Раздел в разработке</p>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 rounded-xl p-12 text-center">
+      <Icon className="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+      <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{title}</h3>
+      <p className="text-gray-500 dark:text-gray-400 text-sm">Раздел в разработке</p>
     </motion.div>
   );
 }
