@@ -43,19 +43,6 @@ export default function AdminOrderDetail() {
     }
   };
 
-  const updateItemStatus = async (itemId, newStatus) => {
-    setUpdating(true);
-    try {
-      await api.patch(`/admin/orders/${id}/items/${itemId}/status`, { status: newStatus });
-      fetchOrder();
-    } catch (error) {
-      console.error('Error updating item status:', error);
-      alert('Ошибка при обновлении статуса элемента');
-    } finally {
-      setUpdating(false);
-    }
-  };
-
   const getStatusColor = (status) => {
     const colors = {
       pending: 'bg-yellow-100 text-yellow-800',
@@ -205,53 +192,23 @@ export default function AdminOrderDetail() {
                   </span>
                 </div>
 
-                {item.components && Object.keys(item.components).length > 0 && (
+                {item.components && typeof item.components === 'object' && Object.keys(item.components).length > 0 ? (
                   <div className="mt-3">
                     <h5 className="font-medium text-gray-700 mb-2">Комплектующие:</h5>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {Object.entries(item.components).map(([category, component]) => (
                         <div key={category} className="text-sm text-gray-600">
-                          <span className="font-medium capitalize">{category}:</span>{' '}
-                          {component?.name || component?.model || 'Не указано'}
+                          <span className="font-medium capitalize">{category}: </span>
+                          {component?.name || component?.model || (typeof component === 'string' ? component : 'Не указано')}
                         </div>
                       ))}
                     </div>
                   </div>
-                )}
-
-                <div className="mt-3">
-                  <h5 className="font-medium text-gray-700 mb-2">Статус готовности:</h5>
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      onClick={() => updateItemStatus(item.id, 'pending')}
-                      disabled={updating || item.status === 'pending'}
-                      className={`px-2 py-1 rounded text-xs ${item.status === 'pending' ? 'bg-yellow-600 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}
-                    >
-                      Ожидает
-                    </button>
-                    <button
-                      onClick={() => updateItemStatus(item.id, 'ready')}
-                      disabled={updating || item.status === 'ready'}
-                      className={`px-2 py-1 rounded text-xs ${item.status === 'ready' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}
-                    >
-                      Готов к отправке
-                    </button>
-                    <button
-                      onClick={() => updateItemStatus(item.id, 'shipped')}
-                      disabled={updating || item.status === 'shipped'}
-                      className={`px-2 py-1 rounded text-xs ${item.status === 'shipped' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}
-                    >
-                      Отправлен
-                    </button>
-                    <button
-                      onClick={() => updateItemStatus(item.id, 'delivered')}
-                      disabled={updating || item.status === 'delivered'}
-                      className={`px-2 py-1 rounded text-xs ${item.status === 'delivered' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}
-                    >
-                      Доставлен
-                    </button>
+                ) : (
+                  <div className="mt-3 text-sm text-gray-500">
+                    Комплектующие не указаны
                   </div>
-                </div>
+                )}
               </div>
             ))}
           </div>

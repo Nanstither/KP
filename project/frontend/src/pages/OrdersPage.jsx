@@ -28,10 +28,12 @@ export default function OrdersPage() {
   };
   const getStatusInfo = (status) => {
     switch (status) {
-      case 'new':
-        return { label: 'Новый', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/30', icon: Clock };
-      case 'processing':
-        return { label: 'Обрабатывается', color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/30', icon: Truck };
+      case 'pending':
+        return { label: 'Ожидает оплаты', color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-500/10', border: 'border-yellow-500/30', icon: Clock };
+      case 'paid':
+        return { label: 'Оплачен', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/30', icon: CheckCircle };
+      case 'preparing':
+        return { label: 'Готовится', color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/30', icon: Package };
       case 'shipped':
         return { label: 'Отправлен', color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/30', icon: Truck };
       case 'delivered':
@@ -150,7 +152,7 @@ export default function OrdersPage() {
                                 {item.name}
                               </span>
                               <span className="font-medium text-gray-900 dark:text-white">
-                                {Number(item.total_price).toLocaleString()} ₽
+                                {typeof item.total_price === 'number' ? item.total_price.toLocaleString() : Number(item.total_price || 0).toLocaleString()} ₽
                               </span>
                             </div>
                           ))
@@ -195,7 +197,7 @@ export default function OrdersPage() {
                       </p>
                       <div className="bg-gray-50 dark:bg-[#0a0a0c] rounded-lg p-3">
                         <p className="text-lg font-bold text-purple-600 dark:text-purple-300">
-                          {order.total ? order.total.toLocaleString() : '0'} ₽
+                          {typeof order.total === 'number' ? order.total.toLocaleString() : Number(order.total || 0).toLocaleString()} ₽
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-500">
                           Оплачено онлайн
