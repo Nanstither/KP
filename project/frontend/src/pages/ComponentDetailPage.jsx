@@ -43,6 +43,12 @@ export default function ComponentDetailPage() {
   const formatSpecs = () => Object.entries(specs || {})
     .filter(([_, v]) => v !== null && v !== undefined)
     .map(([k, v]) => {
+      // Превращаем объекты в строку (берем name или id), чтобы React не упал
+      let displayValue = v;
+      if (typeof v === 'object' && v !== null) {
+        displayValue = v.name || v.id || JSON.stringify(v);
+      }
+      
       const labels = {
         socket: "Сокет", cores: "Ядра", threads: "Потоки", base_clock_mhz: "Баз. частота (МГц)", boost_clock_mhz: "Буст. частота (МГц)", tdp_watts: "TDP (Вт)",
         vram_gb: "VRAM (GB)", vram_type: "Тип памяти", memory_bus_bit: "Шина (бит)", length_mm: "Длина (мм)", width_mm: "Ширина (мм)", pcie_slots_required: "Слоты PCIe",
@@ -54,7 +60,7 @@ export default function ComponentDetailPage() {
         case_type: "Тип корпуса", top_fan_slots: "Слоты сверху", fans_included: "В комплекте", drive_bays_3_5: "Отсеки 3.5\"", drive_bays_2_5: "Отсеки 2.5\"",
         front_usb_a: "USB-A", front_usb_c: "USB-C", front_audio_jack: "Аудио", material: "Материал"
       };
-      return { label: labels[k] || k, value: typeof v === 'boolean' ? (v ? "Да" : "Нет") : v };
+      return { label: labels[k] || k, value: typeof displayValue === 'boolean' ? (displayValue ? "Да" : "Нет") : displayValue };
     });
 
   const formattedSpecs = formatSpecs();
