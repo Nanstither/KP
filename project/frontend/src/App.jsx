@@ -18,6 +18,8 @@ import ConfiguratorPage from './pages/ConfiguratorPage';
 import ProfilePage from './pages/ProfilePage';
 import PrebuiltPcCreate from './pages/admin/PrebuiltPcCreate';
 import PrebuiltPcEdit from './pages/admin/PrebuiltPcEdit';
+import CheckoutPage from './pages/CheckoutPage';
+import OrdersPage from './pages/OrdersPage';
 import '@/App.css';
 
 // Компонент для защиты роутов
@@ -57,6 +59,8 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/knowledge" element={<KnowledgeBase />} />
           <Route path="/cart" element={<CartPage />} />
+          <Route path="/checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
+          <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
           <Route path="/components/:id" element={<ComponentDetailPage />} />
           <Route path="/config" element={<ConfiguratorPage />} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />

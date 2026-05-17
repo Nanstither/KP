@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Monitor, Sun, Moon, User as UserIcon, LogOut, Settings, LogIn, UserPlus } from "lucide-react";
+import { Menu, X, Monitor, Sun, Moon, User as UserIcon, LogOut, Settings, LogIn, UserPlus, Package } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
@@ -182,6 +182,15 @@ const Navigation = () => {
                           <UserIcon className="w-4 h-4 text-purple-500" />
                           Профиль
                         </Link>
+
+                        <Link
+                          to="/orders"
+                          onClick={() => setDropdownOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-purple-200/70 hover:bg-purple-100/50 dark:hover:bg-purple-500/10 transition-colors"
+                        >
+                          <Package className="w-4 h-4 text-purple-500" />
+                          История покупок
+                        </Link>
                         
                         {user?.role === 'admin' || user?.role === 'manager' ? (
                           <Link
@@ -337,6 +346,15 @@ const Navigation = () => {
                 >
                   <UserIcon className="w-4 h-4 text-purple-500" />
                   Профиль
+                </Link>
+
+                <Link
+                  to="/orders"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-purple-200/70 hover:bg-purple-100/50 dark:hover:bg-purple-500/10 transition-colors rounded-lg"
+                >
+                  <Package className="w-4 h-4 text-purple-500" />
+                  История покупок
                 </Link>
                 
                 {user?.role === 'admin' || user?.role === 'manager' ? (
