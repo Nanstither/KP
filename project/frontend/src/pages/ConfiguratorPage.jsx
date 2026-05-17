@@ -411,7 +411,7 @@ export default function ConfiguratorPage() {
         componentIds.push(selectedCase.id);
       }
       
-      // Добавляем остальные компоненты из build
+      // Добавляем остальные компоненты из build с учетом количества
       Object.values(build).forEach(({ item, quantity }) => {
         if (item?.id) {
           for (let i = 0; i < quantity; i++) {
@@ -433,8 +433,23 @@ export default function ConfiguratorPage() {
       
       if (editCartItemId) {
         // Обновляем существующую сборку в корзине
+        // Формируем payload с количеством для каждого компонента
+        const componentsPayload = [];
+        
+        // Добавляем корпус (quantity: 1)
+        if (selectedCase?.id) {
+          componentsPayload.push({ id: selectedCase.id, quantity: 1 });
+        }
+        
+        // Добавляем остальные компоненты с их количеством
+        Object.values(build).forEach(({ item, quantity }) => {
+          if (item?.id) {
+            componentsPayload.push({ id: item.id, quantity: quantity || 1 });
+          }
+        });
+        
         const payload = {
-          components: componentIds,
+          components: componentsPayload,
           name: buildName
         };
         
@@ -443,10 +458,25 @@ export default function ConfiguratorPage() {
         navigate('/cart');
       } else {
         // Создаем новую сборку в корзине
+        // Формируем payload с количеством для каждого компонента
+        const componentsPayload = [];
+        
+        // Добавляем корпус (quantity: 1)
+        if (selectedCase?.id) {
+          componentsPayload.push({ id: selectedCase.id, quantity: 1 });
+        }
+        
+        // Добавляем остальные компоненты с их количеством
+        Object.values(build).forEach(({ item, quantity }) => {
+          if (item?.id) {
+            componentsPayload.push({ id: item.id, quantity: quantity || 1 });
+          }
+        });
+        
         const payload = {
           type: 'custom',
           name: buildName,
-          components: componentIds
+          components: componentsPayload
         };
 
         // Отправляем на сервер (теперь доступно и для гостей)
