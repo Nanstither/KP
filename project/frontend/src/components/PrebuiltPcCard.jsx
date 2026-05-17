@@ -78,18 +78,18 @@ const ComponentBlock = ({ role, data, isExpanded, onToggle }) => {
   const specs = formatSpecs(data.specs, role);
 
   return (
-    <div className="border border-white/10 rounded-xl overflow-hidden bg-[#0f0f10]/80 backdrop-blur-sm">
+    <div className="border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden bg-gray-50 dark:bg-[#0f0f10]/80 backdrop-blur-sm">
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between p-4 hover:bg-white/5 transition-colors text-left"
+        className="w-full flex items-center justify-between p-4 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors text-left"
       >
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-purple-500/10 text-purple-400">
+          <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400">
             <Icon className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-sm text-gray-400 font-medium">{label}</p>
-            <p className="text-white font-semibold tracking-wide">{data.model}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">{label}</p>
+            <p className="text-gray-900 dark:text-white font-semibold tracking-wide">{data.model}</p>
           </div>
         </div>
         {/* Кнопка "Подробнее" */}
@@ -99,14 +99,14 @@ const ComponentBlock = ({ role, data, isExpanded, onToggle }) => {
             e.stopPropagation(); // Чтобы не срабатывал аккордеон при клике на ссылку
             setIsModalOpen(false); // Закрыть модалку при переходе
           }}
-          className="ml-auto mr-2 px-2.5 py-1 text-[11px] font-medium text-purple-300 
-                    rounded-md hover:bg-purple-500/10 
-                    hover:text-white transition-all"
+          className="ml-auto mr-2 px-2.5 py-1 text-[11px] font-medium text-purple-600 dark:text-purple-300 
+                    rounded-md hover:bg-purple-100 dark:hover:bg-purple-500/10 
+                    hover:text-purple-800 dark:hover:text-white transition-all"
         >
         <Info/>
         </Link>
         <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
-          <ChevronDown className="w-5 h-5 text-gray-500" />
+          <ChevronDown className="w-5 h-5 text-gray-400 dark:text-gray-500" />
         </motion.div>
       </button>
 
@@ -121,9 +121,9 @@ const ComponentBlock = ({ role, data, isExpanded, onToggle }) => {
           >
             <div className="px-4 pb-4 pt-2 grid grid-cols-2 gap-3">
               {specs.map((s, i) => (
-                <div key={i} className="flex flex-col gap-1 p-2.5 rounded-lg bg-white/[0.03] border border-white/5">
-                  <span className="text-[11px] uppercase tracking-wider text-gray-500 font-medium">{s.label}</span>
-                  <span className="text-sm text-gray-200 font-mono">{s.value}</span>
+                <div key={i} className="flex flex-col gap-1 p-2.5 rounded-lg bg-gray-100 dark:bg-white/[0.03] border border-gray-200 dark:border-white/5">
+                  <span className="text-[11px] uppercase tracking-wider text-gray-500 dark:text-gray-500 font-medium">{s.label}</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-200 font-mono">{s.value}</span>
                 </div>
               ))}
             </div>
@@ -159,12 +159,12 @@ export default function PrebuiltPcCard({ pc, onAddToCart }) {
   return (
     <>
       {/* Карточка */}
-      <article className="group relative bg-[#0f0f10] border border-white/10 rounded-2xl overflow-hidden 
+      <article className="group relative bg-white dark:bg-[#0f0f10] border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden 
                           hover:border-purple-500/30 hover:shadow-[0_0_40px_rgba(168,85,247,0.08)] 
                           transition-all duration-300">
         
         {/* Изображение */}
-        <div className="relative aspect-[4/3] overflow-hidden bg-[#0a0a0c]">
+        <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-[#0a0a0c]">
           <img 
             src={`${STORAGE_URL}/${pc.image}`} 
             alt={pc.name} 
@@ -172,14 +172,14 @@ export default function PrebuiltPcCard({ pc, onAddToCart }) {
             className="mx-auto scale-90 h-full object-center object-cover opacity-90 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500"
             loading="lazy"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f10] via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-[#0f0f10] via-transparent to-transparent" />
           
           {/* Теги */}
           {pc.tags?.length > 0 && (
             <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
               {pc.tags.slice(0, 2).map(tag => (
                 <span key={tag.slug} className="px-2 py-0.5 text-[10px] font-medium rounded-md 
-                                               bg-black/40 backdrop-blur-md text-gray-300 border border-white/10">
+                                               bg-white/60 dark:bg-black/40 backdrop-blur-md text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10">
                   {tag.name}
                 </span>
               ))}
@@ -191,8 +191,8 @@ export default function PrebuiltPcCard({ pc, onAddToCart }) {
         <div className="p-5 space-y-5">
           {/* Заголовок и цена */}
           <div className="space-y-1">
-            <h3 className="text-lg font-bold text-white tracking-tight line-clamp-1">{pc.name}</h3>
-            <p className="text-2xl font-semibold bg-gradient-to-r from-purple-300 via-pink-300 to-purple-400 bg-clip-text text-transparent">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight line-clamp-1">{pc.name}</h3>
+            <p className="text-2xl font-semibold bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600 dark:from-purple-300 dark:via-pink-300 dark:to-purple-400 bg-clip-text text-transparent">
               {Number(pc.price).toLocaleString('ru-RU')} ₽
             </p>
           </div>
@@ -204,9 +204,9 @@ export default function PrebuiltPcCard({ pc, onAddToCart }) {
               const { icon: Icon } = ROLE_CONFIG[role];
               return (
                 <div key={role} className="flex flex-col items-center justify-center p-2.5 rounded-xl 
-                                          bg-white/[0.03] border border-white/5 text-center">
-                  <Icon className="w-4 h-4 text-purple-400 mb-1.5" />
-                  <span className="text-[11px] text-gray-400 leading-tight line-clamp-2 font-mono">
+                                          bg-gray-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/5 text-center">
+                  <Icon className="w-4 h-4 text-purple-600 dark:text-purple-400 mb-1.5" />
+                  <span className="text-[11px] text-gray-600 dark:text-gray-400 leading-tight line-clamp-2 font-mono">
                     {data?.model || '—'}
                   </span>
                 </div>
@@ -218,8 +218,8 @@ export default function PrebuiltPcCard({ pc, onAddToCart }) {
           <div className="flex gap-2">
             <button
               onClick={() => setIsModalOpen(true)}
-              className="flex-1 py-2.5 text-sm font-medium text-gray-300 border border-white/10 rounded-xl 
-                         hover:bg-white/5 hover:text-white transition-all duration-200"
+              className="flex-1 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10 rounded-xl 
+                         hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white transition-all duration-200"
             >
               Характеристики
             </button>
@@ -228,11 +228,11 @@ export default function PrebuiltPcCard({ pc, onAddToCart }) {
               disabled={isLoading}
               className={`flex-1 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 flex items-center justify-center gap-2
                          ${isAdded 
-                           ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
+                           ? 'bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-green-400 border border-green-500/20' 
                            : 'bg-purple-600 hover:bg-purple-500 text-white shadow-[0_0_20px_rgba(147,51,234,0.3)] hover:shadow-purple-500/20'}`}
             >
               {isLoading ? (
-                <span className="animate-spin w-4 h-4 border-2 border-white/30 border-t-white rounded-full" />
+                <span className="animate-spin w-4 h-4 border-2 border-gray-300 dark:border-white/30 border-t-white rounded-full" />
               ) : isAdded ? (
                 <> <Check className="w-4 h-4" /> Готово </>
               ) : (
@@ -260,16 +260,16 @@ export default function PrebuiltPcCard({ pc, onAddToCart }) {
               exit={{ opacity: 0, scale: 0.96, y: 20 }}
               className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
                          w-[95%] max-w-lg max-h-[85vh] overflow-hidden
-                         bg-[#0f0f10] border border-white/10 rounded-2xl z-50 shadow-2xl"
+                         bg-white dark:bg-[#0f0f10] border border-gray-200 dark:border-white/10 rounded-2xl z-50 shadow-2xl"
             >
               {/* Шапка модалки */}
-              <div className="flex items-center justify-between p-5 border-b border-white/10">
+              <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-white/10">
                 <div>
-                  <h3 className="text-lg font-semibold text-white">{pc.name}</h3>
-                  <p className="text-sm text-gray-500">Полная конфигурация сборки</p>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{pc.name}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-500">Полная конфигурация сборки</p>
                 </div>
-                <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                  <X className="w-5 h-5 text-gray-400" />
+                <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors">
+                  <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                 </button>
               </div>
 
