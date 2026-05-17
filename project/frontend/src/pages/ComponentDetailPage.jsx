@@ -110,7 +110,7 @@ export default function ComponentDetailPage() {
             {/* Две колонки на ПК, одна на мобильных */}
             <div className="grid md:grid-cols-2 gap-x-8 gap-y-3">
               {formattedSpecs.map((s, i) => (
-                <div key={i} className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-white/10 last:border-0">
+                <div key={i} className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-white/10 max-md:last:border-0">
                   <span className="text-sm text-gray-600 dark:text-gray-400">{s.label}</span>
                   <span className="text-sm font-medium text-gray-900 dark:text-gray-200 ml-4">{s.value}</span>
                 </div>
