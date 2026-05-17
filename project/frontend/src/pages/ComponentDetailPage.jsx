@@ -76,7 +76,7 @@ export default function ComponentDetailPage() {
             <div className="flex items-end justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-white">{data.model}</h1>
-                <p className="text-gray-400">{data.brand?.name} • {data.category?.name}</p>
+                <p className="text-gray-400">{data.brand?.name || 'Бренд'} • {data.category?.name || 'Категория'}</p>
               </div>
               <div className="text-right">
                 <p className="text-2xl font-semibold text-purple-300">{Number(data.price).toLocaleString('ru-RU')} ₽</p>

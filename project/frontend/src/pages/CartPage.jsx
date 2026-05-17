@@ -398,14 +398,22 @@ export default function CartPage() {
                 {(selectedItem.type === 'prebuilt' ? prebuiltComponents : selectedItem.components || []).map((comp, idx) => {
                   const component = comp.component || comp;
                   if (!component) return null;
+                  const quantity = comp.quantity || 1;
                   
                   return (
                     <div 
                       key={idx}
                       className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-white/5 rounded-lg border border-gray-200 dark:border-white/5"
                     >
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{component.model || 'Компонент'}</p>
+                      <div className="flex-1 min-w-0 text-left">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{component.model || 'Компонент'}</p>
+                          {quantity > 1 && (
+                            <span className="text-xs font-semibold text-purple-600 dark:text-purple-300 bg-purple-100 dark:bg-purple-900/30 px-2 py-0.5 rounded">
+                              x{quantity}
+                            </span>
+                          )}
+                        </div>
                         {component.category && (
                           <p className="text-xs text-gray-500 dark:text-gray-400">{component.category.name || component.category.slug}</p>
                         )}
