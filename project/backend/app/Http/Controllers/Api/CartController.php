@@ -167,20 +167,22 @@ class CartController extends Controller
             // Получаем новые компоненты и считаем цену
             $components = Component::whereIn('id', $newComponentIds)->get();
             $newTotalPrice = 0;
-            $dataToSync = [];
 
             foreach ($components as $comp) {
                 $newTotalPrice += $comp->price;
-                // Если компонента еще нет в связях, добавим snapshot
-                // Если он уже есть, Eloquent сам обновит quantity, но цену лучше перепроверить
-                $dataToSync[$comp->id] = [
-                    'price_snapshot' => $comp->price, 
-                    'quantity' => 1
-                ];
             }
 
-            // sync обновит связи: удалит лишние, добавит новые, обновит pivot данные
-            $cartItem->components()->sync($dataToSync);
+            // Удаляем старые связи (компоненты сборки)
+            $cartItem->components()->delete();
+
+            // Создаем новые связи
+            foreach ($components as $comp) {
+                $cartItem->components()->create([
+                    'component_id'   => $comp->id,
+                    'price_snapshot' => $comp->price,
+                    'quantity'       => 1
+                ]);
+            }
 
             // Обновляем общую цену и имя (если нужно)
             $cartItem->update([
