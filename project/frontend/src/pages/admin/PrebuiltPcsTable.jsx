@@ -74,7 +74,7 @@ export default function PrebuiltPcsTable({
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
       {/* Панель управления */}
-      <div className="flex flex-col md:flex-row gap-3 justify-between items-center bg-[#141416] border border-white/10 rounded-xl p-3">
+      <div className="flex flex-col md:flex-row gap-3 justify-between items-center bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 rounded-xl p-3">
         <div className="flex flex-wrap gap-2 w-full md:w-auto">
           <div className="relative flex-1 md:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
@@ -83,10 +83,10 @@ export default function PrebuiltPcsTable({
               placeholder="Поиск..." 
               value={search} 
               onChange={e => { setSearch(e.target.value); setPage(1); }} 
-              className="w-full bg-black/[0.30] border border-white/10 rounded-lg pl-9 pr-3 py-2 text-sm text-gray-200 focus:border-purple-500/50 focus:outline-none" 
+              className="w-full bg-gray-50 dark:bg-black/[0.30] border border-gray-200 dark:border-white/10 rounded-lg pl-9 pr-3 py-2 text-sm text-gray-900 dark:text-gray-200 focus:border-purple-500/50 focus:outline-none" 
             />
           </div>
-          <select value={categoryFilter} onChange={e => { setCategoryFilter(e.target.value); setPage(1); }} className="bg-[#1b1b1d] border border-white/10 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none">
+          <select value={categoryFilter} onChange={e => { setCategoryFilter(e.target.value); setPage(1); }} className="bg-gray-50 dark:bg-[#1b1b1d] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-gray-200 focus:outline-none">
             <option value="all">Все теги</option>
             <option value="Игровой">Игровой</option>
             <option value="Для офиса">Для офиса</option>
@@ -100,10 +100,10 @@ export default function PrebuiltPcsTable({
       </div>
 
       {/* Таблица */}
-      <div className="bg-[#141416] border border-white/10 rounded-xl overflow-hidden">
+      <div className="bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="bg-[#0a0a0c] text-gray-400 border-b border-white/10">
+            <thead className="bg-gray-50 dark:bg-[#0a0a0c] text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-white/10">
               <tr>
                 <th className="px-4 py-3">ID</th>
                 <th className="px-4 py-3">Название</th>
@@ -114,48 +114,48 @@ export default function PrebuiltPcsTable({
                 <th className="px-4 py-3 text-right">Действия</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-gray-100 dark:divide-white/5">
               {paginated.map(pc => {
                 const isEditing = pc.id === editingId;
                 return (
-                  <tr key={pc.id} className={`hover:bg-white/[0.02] transition-colors ${isEditing ? 'bg-purple-500/5' : ''}`}>
-                    <td className="px-4 py-3 text-gray-500">#{pc.id}</td>
+                  <tr key={pc.id} className={`hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors ${isEditing ? 'bg-purple-500/5' : ''}`}>
+                    <td className="px-4 py-3 text-gray-400 dark:text-gray-500">#{pc.id}</td>
                     <td className="px-4 py-3">
-                      <button onClick={() => navigate(`/admin/prebuilt-pcs/${pc.id}/edit`)} className="cursor-pointer text-purple-400 hover:text-purple-300 font-medium transition-colors">
+                      <button onClick={() => navigate(`/admin/prebuilt-pcs/${pc.id}/edit`)} className="cursor-pointer text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300 font-medium transition-colors">
                         {pc.name}
                       </button>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap gap-1">
                         {pc.tags?.slice(0, 3).map(tag => (
-                          <span key={tag.id} className="px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded text-xs">
+                          <span key={tag.id} className="px-2 py-0.5 bg-purple-500/20 text-purple-700 dark:text-purple-300 rounded text-xs">
                             {tag.name}
                           </span>
                         ))}
                         {pc.tags?.length > 3 && (
-                          <span className="px-2 py-0.5 bg-gray-500/20 text-gray-400 rounded text-xs">+{pc.tags.length - 3}</span>
+                          <span className="px-2 py-0.5 bg-gray-500/20 text-gray-600 dark:text-gray-400 rounded text-xs">+{pc.tags.length - 3}</span>
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-gray-400">
+                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400">
                       {pc.components?.length || 0} шт.
                     </td>
                     <td className="px-4 py-3">
                       {isEditing ? (
-                        <input type="number" min="0" step="100" value={editValues.price} onChange={e => setEditValues({...editValues, price: e.target.value})} className="w-24 bg-[#0a0a0c] border border-purple-500/30 rounded-lg px-2 py-1.5 text-sm text-white focus:outline-none focus:border-purple-500 transition-colors" />
+                        <input type="number" min="0" step="100" value={editValues.price} onChange={e => setEditValues({...editValues, price: e.target.value})} className="w-24 bg-gray-50 dark:bg-[#0a0a0c] border border-purple-500/30 rounded-lg px-2 py-1.5 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-purple-500 transition-colors" />
                       ) : (
-                        <span className="text-purple-300">{pc.price?.toLocaleString('ru-RU')} ₽</span>
+                        <span className="text-purple-600 dark:text-purple-300">{pc.price?.toLocaleString('ru-RU')} ₽</span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-center">
                       {isEditing ? (
-                        <select value={editValues.is_active ? 'active' : 'inactive'} onChange={e => setEditValues({...editValues, is_active: e.target.value === 'active'})} className="bg-[#0a0a0c] border border-purple-500/30 rounded-lg px-2 py-1.5 text-sm text-white focus:outline-none focus:border-purple-500 transition-colors">
+                        <select value={editValues.is_active ? 'active' : 'inactive'} onChange={e => setEditValues({...editValues, is_active: e.target.value === 'active'})} className="bg-gray-50 dark:bg-[#0a0a0c] border border-purple-500/30 rounded-lg px-2 py-1.5 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-purple-500 transition-colors">
                           <option value="active">Активен</option>
                           <option value="inactive">Скрыт</option>
                         </select>
                       ) : (
                         <span className={`px-2 py-1 rounded text-xs font-bold ${
-                          pc.is_active ? 'bg-green-500/10 text-green-400' : 'bg-gray-500/10 text-gray-400'
+                          pc.is_active ? 'bg-green-500/10 text-green-700 dark:text-green-400' : 'bg-gray-500/10 text-gray-500 dark:text-gray-400'
                         }`}>
                           {pc.is_active ? 'Активен' : 'Скрыт'}
                         </span>
@@ -164,19 +164,19 @@ export default function PrebuiltPcsTable({
                     <td className="px-4 py-3 text-right space-x-2">
                       {isEditing ? (
                         <>
-                          <button onClick={saveEditing} disabled={saving} className="text-green-400 hover:text-green-300 disabled:opacity-50 transition-colors">
+                          <button onClick={saveEditing} disabled={saving} className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 disabled:opacity-50 transition-colors">
                             {saving ? <Loader2 className="w-4 h-4 inline animate-spin" /> : <Check className="w-4 h-4 inline" />}
                           </button>
-                          <button onClick={cancelEditing} disabled={saving} className="text-gray-400 hover:text-white disabled:opacity-50 transition-colors">
+                          <button onClick={cancelEditing} disabled={saving} className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white disabled:opacity-50 transition-colors">
                             <X className="w-4 h-4 inline" />
                           </button>
                         </>
                       ) : (
                         <>
-                          <button onClick={() => startEditing(pc)} className="text-gray-400 hover:text-white transition-colors">
+                          <button onClick={() => startEditing(pc)} className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors">
                             <Edit className="w-4 h-4 inline" />
                           </button>
-                          <button onClick={() => handleDelete(pc.id, pc.name)} className="text-gray-400 hover:text-red-400 transition-colors" title="Удалить">
+                          <button onClick={() => handleDelete(pc.id, pc.name)} className="text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors" title="Удалить">
                             <Trash2 className="w-4 h-4 inline" />
                           </button>
                         </>
@@ -191,16 +191,16 @@ export default function PrebuiltPcsTable({
 
         {/* Пагинация */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between p-4 border-t border-white/10 bg-[#0a0a0c]">
-            <div className="flex items-center gap-2 text-sm text-gray-400">
+          <div className="flex items-center justify-between p-4 border-t border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#0a0a0c]">
+            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
               Показывать по: {[10, 25, 50].map(n => (
-                <button key={n} onClick={() => { setPerPage(n); setPage(1); }} className={`px-2 py-1 rounded ${perPage === n ? 'bg-purple-600/30 text-white' : 'hover:bg-white/5'}`}>{n}</button>
+                <button key={n} onClick={() => { setPerPage(n); setPage(1); }} className={`px-2 py-1 rounded ${perPage === n ? 'bg-purple-600/30 text-white' : 'hover:bg-gray-200 dark:hover:bg-white/5'}`}>{n}</button>
               ))}
             </div>
             <div className="flex items-center gap-2">
-              <button disabled={page === 1} onClick={() => setPage(p => p - 1)} className="p-2 rounded-lg border border-white/10 disabled:opacity-30 hover:bg-white/5">&lt;</button>
-              <span className="text-sm text-gray-300 px-2">Стр. {page} из {totalPages}</span>
-              <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)} className="p-2 rounded-lg border border-white/10 disabled:opacity-30 hover:bg-white/5">&gt;</button>
+              <button disabled={page === 1} onClick={() => setPage(p => p - 1)} className="p-2 rounded-lg border border-gray-200 dark:border-white/10 disabled:opacity-30 hover:bg-gray-200 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300">&lt;</button>
+              <span className="text-sm text-gray-700 dark:text-gray-300 px-2">Стр. {page} из {totalPages}</span>
+              <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)} className="p-2 rounded-lg border border-gray-200 dark:border-white/10 disabled:opacity-30 hover:bg-gray-200 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300">&gt;</button>
             </div>
           </div>
         )}
