@@ -157,7 +157,7 @@ export default function CartPage() {
                     <div className="flex gap-2">
                       {item.type === "custom" && (
                         <button
-                          onClick={() => navigate(`/configurator?edit=${item.id}`)}
+                          onClick={() => navigate(`/config?edit=${item.id}`)}
                           className="p-2 text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-300 hover:bg-purple-600/10 rounded-lg transition-colors"
                           title="Изменить сборку"
                         >

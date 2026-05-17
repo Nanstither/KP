@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "@/services/api";
 import { STORAGE_URL, API_URL } from "@/lib/config";
-import { Search, Monitor, Cpu, Filter, ShoppingCart, Loader2 } from "lucide-react";
+import { Search, Monitor, Cpu, Filter, ShoppingCart, Loader2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 
 export default function CatalogPage() {
   const navigate = useNavigate();
