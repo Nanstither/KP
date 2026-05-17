@@ -105,18 +105,27 @@ export default function PrebuiltPcEdit() {
     setSaving(true);
     try {
       const payload = {
-        ...base,
+        name: base.name?.trim() || '',
+        description: base.description?.trim() || '',
         price: Number(base.price),
-        is_active: base.is_active,
+        image: base.image?.trim() || '',
+        is_active: Boolean(base.is_active),
         components: selectedComponents.filter(c => c.component_id),
         tag_ids: selectedTagIds
       };
+      
+      console.log('Отправка данных:', payload);
       
       await api.put(`/admin/prebuilt-pcs/${id}`, payload);
       navigate('/admin/prebuilt-pcs');
     } catch (err) {
       console.error('Ошибка сохранения:', err);
-      alert('Не удалось обновить ПК');
+      if (err.response?.data?.errors) {
+        setErrors(err.response.data.errors);
+        alert('Проверьте правильность заполнения полей');
+      } else {
+        alert('Не удалось обновить ПК');
+      }
     } finally {
       setSaving(false);
     }
