@@ -1,1 +1,1 @@
-Nothing should be ignored since the changes only include source files (.jsx) without any build artifacts, dependencies, or temporary files.
+(project/frontend/src/pages/CartPage.jsx, project/frontend/src/pages/CatalogPage.jsx)

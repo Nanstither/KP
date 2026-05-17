@@ -3,12 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "@/services/api";
 import { STORAGE_URL, API_URL } from "@/lib/config";
-import { useAuth } from "@/context/AuthContext";
-import { Search, Monitor, Cpu, Filter, ShoppingCart, Loader2, LogIn, UserPlus, X, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { Search, Monitor, Cpu, Filter, ShoppingCart, Loader2 } from "lucide-react";
 
 export default function CatalogPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [view, setView] = useState("components");
   const [components, setComponents] = useState([]);
   const [prebuilts, setPrebuilts] = useState([]);
@@ -16,9 +14,6 @@ export default function CatalogPage() {
   const [search, setSearch] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [addingId, setAddingId] = useState(null);
-  
-  // ✅ Состояние для окна авторизации
-  const [showAuthModal, setShowAuthModal] = useState(false);
   
   // ✅ Пагинация
   const [currentPage, setCurrentPage] = useState(1);
@@ -85,14 +80,8 @@ export default function CatalogPage() {
     setCurrentPage(1);
   }, [search, selectedFilter, view]);
 
-  // ✅ Логика добавления в корзину
+  // ✅ Логика добавления в корзину (работает для всех, включая гостей)
   const handleAddToCart = async (pc) => {
-    // Если нет пользователя — показываем модалку и прерываем
-    if (!user) {
-      setShowAuthModal(true);
-      return;
-    }
-
     setAddingId(pc.id);
     try {
       await api.post("/cart", { type: "prebuilt", prebuilt_id: pc.id });
@@ -198,56 +187,6 @@ export default function CatalogPage() {
           )}
         </main>
       </div>
-
-      {/* ✅ МОДАЛЬНОЕ ОКНО АВТОРИЗАЦИИ */}
-      <AnimatePresence>
-        {showAuthModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-            onClick={() => setShowAuthModal(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white dark:bg-[#141416] border border-purple-500/30 rounded-2xl p-6 max-w-sm w-full shadow-2xl relative"
-              onClick={e => e.stopPropagation()}
-            >
-              <button onClick={() => setShowAuthModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-white">
-                <X className="w-5 h-5" />
-              </button>
-              
-              <div className="flex flex-col items-center text-center space-y-4">
-                <div className="w-16 h-16 bg-purple-100 dark:bg-purple-600/20 rounded-full flex items-center justify-center">
-                  <LogIn className="w-8 h-8 text-purple-600 dark:text-purple-400" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Требуется авторизация</h3>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  Чтобы добавить товар в корзину и сохранить сборку, пожалуйста, войдите в аккаунт или зарегистрируйтесь.
-                </p>
-                
-                <div className="w-full space-y-3 pt-2">
-                  <button 
-                    onClick={() => navigate('/login')} 
-                    className="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-xl font-medium transition-colors"
-                  >
-                    <LogIn className="w-4 h-4" /> Войти
-                  </button>
-                  <button 
-                    onClick={() => navigate('/register')} 
-                    className="w-full flex items-center justify-center gap-2 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white py-3 rounded-xl font-medium transition-colors border border-gray-200 dark:border-white/10"
-                  >
-                    <UserPlus className="w-4 h-4" /> Регистрация
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

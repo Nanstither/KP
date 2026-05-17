@@ -1,38 +1,15 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Trash2, Edit3, ShoppingCart, ArrowRight, Package, Cpu, Monitor, Sun, Moon } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Trash2, Edit3, ShoppingCart, ArrowRight, Package, Cpu, Monitor, LogIn, UserPlus, X } from "lucide-react";
 import api from "@/services/api";
-
-// Получение текущей темы
-const getInitialTheme = () => {
-  const saved = localStorage.getItem('theme');
-  if (saved) return saved === 'dark';
-  return true; // по умолчанию тёмная
-};
 
 export default function CartPage() {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isDark, setIsDark] = useState(getInitialTheme);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const navigate = useNavigate();
-  
-  // Переключение темы
-  const toggleTheme = () => {
-    const html = document.documentElement;
-    const newIsDark = !html.classList.contains('dark');
-    
-    if (newIsDark) {
-      html.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      html.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-    
-    setIsDark(newIsDark);
-  };
 
   useEffect(() => {
     loadCart();
@@ -106,13 +83,6 @@ export default function CartPage() {
               </span>
             )}
           </h1>
-          <button
-            onClick={toggleTheme}
-            className="p-2 rounded-lg bg-gray-200 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 transition-colors"
-            title="Переключить тему"
-          >
-            {isDark ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-gray-600" />}
-          </button>
         </motion.div>
 
         {totalItems === 0 ? (
@@ -243,7 +213,15 @@ export default function CartPage() {
                 </div>
 
                 <button
-                  onClick={() => navigate("/checkout")}
+                  onClick={() => {
+                    // Проверяем, авторизован ли пользователь (через localStorage token)
+                    const token = localStorage.getItem('token');
+                    if (!token) {
+                      setShowAuthModal(true);
+                    } else {
+                      navigate("/checkout");
+                    }
+                  }}
                   className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-4 rounded-xl transition-all flex items-center justify-center gap-2"
                 >
                   Оформить заказ <ArrowRight className="w-5 h-5" />
@@ -263,6 +241,56 @@ export default function CartPage() {
           </div>
         )}
       </div>
+
+      {/* ✅ МОДАЛЬНОЕ ОКНО АВТОРИЗАЦИИ ДЛЯ ОФОРМЛЕНИЯ ЗАКАЗА */}
+      <AnimatePresence>
+        {showAuthModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            onClick={() => setShowAuthModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white dark:bg-[#141416] border border-purple-500/30 rounded-2xl p-6 max-w-sm w-full shadow-2xl relative"
+              onClick={e => e.stopPropagation()}
+            >
+              <button onClick={() => setShowAuthModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+              
+              <div className="flex flex-col items-center text-center space-y-4">
+                <div className="w-16 h-16 bg-purple-100 dark:bg-purple-600/20 rounded-full flex items-center justify-center">
+                  <LogIn className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Требуется авторизация</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">
+                  Для оформления заказа пожалуйста, войдите в аккаунт или зарегистрируйтесь.
+                </p>
+                
+                <div className="w-full space-y-3 pt-2">
+                  <button 
+                    onClick={() => navigate('/login')} 
+                    className="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-xl font-medium transition-colors"
+                  >
+                    <LogIn className="w-4 h-4" /> Войти
+                  </button>
+                  <button 
+                    onClick={() => navigate('/register')} 
+                    className="w-full flex items-center justify-center gap-2 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white py-3 rounded-xl font-medium transition-colors border border-gray-200 dark:border-white/10"
+                  >
+                    <UserPlus className="w-4 h-4" /> Регистрация
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
