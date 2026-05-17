@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trash2, Edit3, ShoppingCart, ArrowRight, Package, LogIn, UserPlus, X, List, ChevronRight } from "lucide-react";
+import { Trash2, Edit3, ShoppingCart, ArrowRight, Package, LogIn, UserPlus, X, List, ChevronRight, ExternalLink } from "lucide-react";
 import api from "@/services/api";
 
 export default function CartPage() {
@@ -404,26 +404,29 @@ export default function CartPage() {
                       key={idx}
                       className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-white/5 rounded-lg border border-gray-200 dark:border-white/5"
                     >
-                      <div className="w-10 h-10 bg-gray-200 dark:bg-white/10 rounded-md overflow-hidden flex-shrink-0">
-                        {component.image ? (
-                          <img src={component.image} alt={component.model} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Package className="w-5 h-5 text-gray-400" />
-                          </div>
-                        )}
-                      </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{component.model || 'Компонент'}</p>
                         {component.category && (
                           <p className="text-xs text-gray-500 dark:text-gray-400">{component.category.name || component.category.slug}</p>
                         )}
                       </div>
-                      {component.price && (
-                        <span className="text-sm font-semibold text-purple-600 dark:text-purple-300">
-                          {Number(component.price).toLocaleString()} ₽
-                        </span>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {component.price && (
+                          <span className="text-sm font-semibold text-purple-600 dark:text-purple-300">
+                            {Number(component.price).toLocaleString()} ₽
+                          </span>
+                        )}
+                        {component.id && (
+                          <Link
+                            to={`/components/${component.id}`}
+                            className="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-300 hover:bg-blue-600/10 rounded transition-colors"
+                            title="Подробнее"
+                            onClick={() => setComponentsModalOpen(false)}
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </Link>
+                        )}
+                      </div>
                     </div>
                   );
                 })}

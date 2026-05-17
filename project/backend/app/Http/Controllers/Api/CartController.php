@@ -104,12 +104,41 @@ class CartController extends Controller
 
             // 🟡 Сборка из конфигуратора (можно редактировать)
             if ($type === 'custom') {
-                $ids = $request->input('components', []);
-                $components = Component::whereIn('id', $ids)->get();
+                $componentsData = $request->input('components', []);
+                
+                // Поддерживаем два формата:
+                // 1. Старый: плоский массив ID [1, 2, 2, 3] (для обратной совместимости)
+                // 2. Новый: массив объектов [{id: 1, quantity: 2}, {id: 2, quantity: 1}]
                 
                 $totalPrice = 0;
-                foreach ($components as $c) {
-                    $totalPrice += $c->price;
+                $componentsToSave = [];
+                
+                // Если это плоский массив ID (старый формат)
+                if (count($componentsData) > 0 && !isset($componentsData[0]['id'])) {
+                    $uniqueIds = array_unique($componentsData);
+                    $components = Component::whereIn('id', $uniqueIds)->get();
+                    
+                    // Считаем количество каждого ID
+                    $quantityMap = array_count_values($componentsData);
+                    
+                    foreach ($components as $c) {
+                        $qty = $quantityMap[$c->id] ?? 1;
+                        $totalPrice += $c->price * $qty;
+                        $componentsToSave[] = ['component' => $c, 'quantity' => $qty];
+                    }
+                } else {
+                    // Новый формат с объектами {id, quantity}
+                    $componentIds = array_column($componentsData, 'id');
+                    $components = Component::whereIn('id', $componentIds)->get();
+                    
+                    foreach ($componentsData as $item) {
+                        $comp = $components->firstWhere('id', $item['id']);
+                        if ($comp) {
+                            $qty = $item['quantity'] ?? 1;
+                            $totalPrice += $comp->price * $qty;
+                            $componentsToSave[] = ['component' => $comp, 'quantity' => $qty];
+                        }
+                    }
                 }
 
                 $cartItem = CartItem::create([
@@ -119,11 +148,11 @@ class CartController extends Controller
                     'total_price' => $totalPrice,
                 ]);
 
-                foreach ($components as $c) {
+                foreach ($componentsToSave as $item) {
                     $cartItem->components()->create([
-                        'component_id'   => $c->id,
-                        'price_snapshot' => $c->price,
-                        'quantity'       => 1
+                        'component_id'   => $item['component']->id,
+                        'price_snapshot' => $item['component']->price,
+                        'quantity'       => $item['quantity']
                     ]);
                 }
                 return $cartItem;
