@@ -105,11 +105,11 @@ export default function ComponentDetailPage() {
             </div>
 
             {/* Совместимость (сокеты/форм-факторы) */}
-            {(data.compatible_sockets?.length > 0 || data.supported_form_factors?.length > 0) && (
+            {(data.compatible_sockets && data.compatible_sockets.length > 0 || data.supported_form_factors && data.supported_form_factors.length > 0) && (
               <div className="bg-[#0f0f10] border border-white/10 rounded-xl p-5">
                 <h3 className="text-lg font-semibold text-white mb-3">Совместимость</h3>
                 <div className="flex flex-wrap gap-2">
-                  {data.compatible_sockets?.map((s, idx) => {
+                  {data.compatible_sockets && Array.isArray(data.compatible_sockets) && data.compatible_sockets.map((s, idx) => {
                     const socketName = typeof s === 'object' && s !== null ? (s.name || String(s.id || '')) : String(s);
                     if (!socketName) return null;
                     return (
@@ -118,7 +118,7 @@ export default function ComponentDetailPage() {
                       </span>
                     );
                   })}
-                  {data.supported_form_factors?.map((f, idx) => {
+                  {data.supported_form_factors && Array.isArray(data.supported_form_factors) && data.supported_form_factors.map((f, idx) => {
                     const formFactorName = typeof f === 'object' && f !== null ? (f.name || String(f.id || '')) : String(f);
                     if (!formFactorName) return null;
                     return (
