@@ -109,6 +109,7 @@ class CartController extends Controller
                         'component_id'   => $pcComp->id,
                         'price_snapshot' => $pcComp->price,
                         'quantity'       => 1,
+                        'role'           => $pcComp->pivot->role ?? null,
                     ]);
                 }
 

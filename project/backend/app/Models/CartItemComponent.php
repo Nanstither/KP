@@ -9,7 +9,7 @@ class CartItemComponent extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['cart_item_id', 'component_id', 'price_snapshot', 'quantity'];
+    protected $fillable = ['cart_item_id', 'component_id', 'price_snapshot', 'quantity', 'role'];
 
     // Связь: Деталь принадлежит строке корзины
     public function cartItem(): BelongsTo
