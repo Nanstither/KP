@@ -93,14 +93,26 @@ export default function CheckoutPage() {
       const itemsWithComponents = (cart?.items || []).map((item) => {
         let componentsArray = [];
         
-        // Если это готовый ПК и есть компоненты в корзине, используем их
-        if (item.type === 'prebuilt' && item.components && Array.isArray(item.components)) {
-          // Преобразуем массив компонентов из корзины в формат для отправки: { component_id, price, quantity }
-          componentsArray = item.components.map(comp => ({
-            component_id: comp.component_id || comp.component?.id || comp.id,
-            price: Number(comp.price_snapshot || comp.component?.price || comp.price || 0),
-            quantity: comp.quantity || 1,
-          }));
+        // Если это готовый ПК или кастомная сборка и есть компоненты в корзине, используем их
+        if ((item.type === 'prebuilt' || item.type === 'custom') && item.components && Array.isArray(item.components)) {
+          // Преобразуем массив компонентов из корзины в формат для отправки: { component_id, price, quantity, role }
+          componentsArray = item.components.map(comp => {
+            // Получаем component_id из разных возможных полей
+            const componentId = comp.component_id || comp.component?.id || comp.id;
+            // Получаем цену
+            const price = Number(comp.price_snapshot || comp.component?.price || comp.price || 0);
+            // Получаем количество
+            const quantity = comp.quantity || 1;
+            // Получаем роль из pivot или непосредственно из объекта
+            const role = comp.pivot?.role || comp.role || 0;
+            
+            return {
+              component_id: componentId,
+              price: price,
+              quantity: quantity,
+              role: role,
+            };
+          });
         }
         
         return {
