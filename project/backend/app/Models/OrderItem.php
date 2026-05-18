@@ -43,6 +43,11 @@ class OrderItem extends Model
 
     public function getComponentsDataAttribute()
     {
+        // Если отношение components еще не загружено, загружаем его
+        if (!$this->relationLoaded('components')) {
+            $this->load('components');
+        }
+        
         return $this->components->map(function($component) {
             return [
                 'id' => $component->id,
