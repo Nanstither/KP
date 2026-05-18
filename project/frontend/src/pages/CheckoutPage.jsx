@@ -91,25 +91,19 @@ export default function CheckoutPage() {
     try {
       // Сначала загрузим компоненты для всех товаров типа prebuilt
       const itemsWithComponents = await Promise.all((cart?.items || []).map(async (item) => {
-        let components = item.components || {};
+        let componentsArray = [];
         
         // Если это готовый ПК и компоненты не загружены, загружаем их
-        if (item.type === 'prebuilt' && item.prebuilt_pc_id && (!components || Object.keys(components).length === 0)) {
+        if (item.type === 'prebuilt' && item.prebuilt_pc_id) {
           try {
             const res = await api.get(`/prebuilt/${item.prebuilt_pc_id}`);
-            if (res.data && res.data.components) {
-              // Преобразуем массив компонентов в объект по ролям
-              components = {};
-              res.data.components.forEach(comp => {
-                if (comp.role) {
-                  components[comp.role] = {
-                    id: comp.component?.id || comp.id,
-                    name: comp.component?.name || comp.name,
-                    model: comp.component?.model || comp.model,
-                    price: comp.component?.price || comp.price,
-                  };
-                }
-              });
+            if (res.data && res.data.components && Array.isArray(res.data.components)) {
+              // Преобразуем массив компонентов в формат для отправки: { component_id, price, quantity }
+              componentsArray = res.data.components.map(comp => ({
+                component_id: comp.component?.id || comp.id,
+                price: Number(comp.component?.price || comp.price || 0),
+                quantity: 1,
+              }));
             }
           } catch (err) {
             console.error(`Ошибка загрузки компонентов для ПК ${item.prebuilt_pc_id}:`, err);
@@ -121,7 +115,7 @@ export default function CheckoutPage() {
           name: item.name || item.product_name,
           quantity: item.quantity || 1,
           price: Number(item.price || item.total_price || 0),
-          components: components,
+          components: componentsArray,
         };
       }));
 
