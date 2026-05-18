@@ -39,7 +39,7 @@ class OrderController extends Controller
     {
         $user = Auth::user();
         
-        $query = Order::with('items.prebuiltPc.components');
+        $query = Order::with('items.prebuiltPc.components', 'items.components.component');
         
         if ($user) {
             $query->where('user_id', $user->id);
@@ -48,6 +48,28 @@ class OrderController extends Controller
         }
         
         $orders = $query->orderBy('created_at', 'desc')->get();
+        
+        // Добавляем components_data вручную
+        $orders->transform(function($order) {
+            $order->items->transform(function($item) {
+                $item->components_data = $item->components->map(function($oc) {
+                    return [
+                        'id' => $oc->id,
+                        'component_id' => $oc->component_id,
+                        'price_snapshot' => $oc->price_snapshot,
+                        'quantity' => $oc->quantity,
+                        'component' => $oc->component ? [
+                            'id' => $oc->component->id,
+                            'name' => $oc->component->name,
+                            'model' => $oc->component->model,
+                            'price' => $oc->component->price,
+                        ] : null,
+                    ];
+                });
+                return $item;
+            });
+            return $order;
+        });
         
         return response()->json($orders);
     }
@@ -178,9 +200,31 @@ class OrderController extends Controller
 
             DB::commit();
 
+            // Загружаем заказ с данными о компонентах
+            $order->load('items.components.component');
+            
+            // Добавляем components_data вручную для ответа
+            $order->items->transform(function($item) {
+                $item->components_data = $item->components->map(function($oc) {
+                    return [
+                        'id' => $oc->id,
+                        'component_id' => $oc->component_id,
+                        'price_snapshot' => $oc->price_snapshot,
+                        'quantity' => $oc->quantity,
+                        'component' => $oc->component ? [
+                            'id' => $oc->component->id,
+                            'name' => $oc->component->name,
+                            'model' => $oc->component->model,
+                            'price' => $oc->component->price,
+                        ] : null,
+                    ];
+                });
+                return $item;
+            });
+
             return response()->json([
                 'message' => 'Order created successfully',
-                'order' => $order->load('items.prebuiltPc.components'),
+                'order' => $order,
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -195,7 +239,7 @@ class OrderController extends Controller
     {
         $user = Auth::user();
         
-        $order = Order::with('items.prebuiltPc.components')->findOrFail($id);
+        $order = Order::with('items.components.component', 'items.prebuiltPc.components')->findOrFail($id);
         
         // Проверка прав доступа
         if ($user && $order->user_id !== $user->id && !$user->hasRole(['admin', 'manager'])) {
@@ -205,6 +249,25 @@ class OrderController extends Controller
         if (!$user && $order->session_id !== request()->session_id) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
+        
+        // Добавляем components_data вручную
+        $order->items->transform(function($item) {
+            $item->components_data = $item->components->map(function($oc) {
+                return [
+                    'id' => $oc->id,
+                    'component_id' => $oc->component_id,
+                    'price_snapshot' => $oc->price_snapshot,
+                    'quantity' => $oc->quantity,
+                    'component' => $oc->component ? [
+                        'id' => $oc->component->id,
+                        'name' => $oc->component->name,
+                        'model' => $oc->component->model,
+                        'price' => $oc->component->price,
+                    ] : null,
+                ];
+            });
+            return $item;
+        });
         
         return response()->json($order);
     }
@@ -237,8 +300,8 @@ class OrderController extends Controller
 
         return response()->json([
             'message' => 'Status updated successfully',
-            'item' => $orderItem->load('components'),
-            'order' => $order->fresh('items.prebuiltPc.components'),
+            'item' => $orderItem->load('component'),
+            'order' => $order->fresh(['items.components.component', 'items.prebuiltPc.components']),
         ]);
     }
 
@@ -264,9 +327,29 @@ class OrderController extends Controller
             $order->update(['paid_at' => now()]);
         }
 
+        // Загружаем и добавляем components_data
+        $order->load('items.components.component');
+        $order->items->transform(function($item) {
+            $item->components_data = $item->components->map(function($oc) {
+                return [
+                    'id' => $oc->id,
+                    'component_id' => $oc->component_id,
+                    'price_snapshot' => $oc->price_snapshot,
+                    'quantity' => $oc->quantity,
+                    'component' => $oc->component ? [
+                        'id' => $oc->component->id,
+                        'name' => $oc->component->name,
+                        'model' => $oc->component->model,
+                        'price' => $oc->component->price,
+                    ] : null,
+                ];
+            });
+            return $item;
+        });
+
         return response()->json([
             'message' => 'Order status updated successfully',
-            'order' => $order->fresh('items.prebuiltPc.components'),
+            'order' => $order,
         ]);
     }
 
@@ -275,7 +358,7 @@ class OrderController extends Controller
      */
     public function adminIndex(Request $request)
     {
-        $query = Order::with('items.prebuiltPc.components', 'user');
+        $query = Order::with('items.components.component', 'items.prebuiltPc.components', 'user');
         
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -292,6 +375,28 @@ class OrderController extends Controller
         
         $orders = $query->orderBy('created_at', 'desc')->paginate(20);
         
+        // Добавляем components_data вручную
+        $orders->getCollection()->transform(function($order) {
+            $order->items->transform(function($item) {
+                $item->components_data = $item->components->map(function($oc) {
+                    return [
+                        'id' => $oc->id,
+                        'component_id' => $oc->component_id,
+                        'price_snapshot' => $oc->price_snapshot,
+                        'quantity' => $oc->quantity,
+                        'component' => $oc->component ? [
+                            'id' => $oc->component->id,
+                            'name' => $oc->component->name,
+                            'model' => $oc->component->model,
+                            'price' => $oc->component->price,
+                        ] : null,
+                    ];
+                });
+                return $item;
+            });
+            return $order;
+        });
+        
         return response()->json($orders);
     }
 
@@ -300,7 +405,27 @@ class OrderController extends Controller
      */
     public function adminShow($id)
     {
-        $order = Order::with('items.prebuiltPc.components', 'user')->findOrFail($id);
+        $order = Order::with('items.components.component', 'items.prebuiltPc.components', 'user')->findOrFail($id);
+        
+        // Добавляем components_data вручную
+        $order->items->transform(function($item) {
+            $item->components_data = $item->components->map(function($oc) {
+                return [
+                    'id' => $oc->id,
+                    'component_id' => $oc->component_id,
+                    'price_snapshot' => $oc->price_snapshot,
+                    'quantity' => $oc->quantity,
+                    'component' => $oc->component ? [
+                        'id' => $oc->component->id,
+                        'name' => $oc->component->name,
+                        'model' => $oc->component->model,
+                        'price' => $oc->component->price,
+                    ] : null,
+                ];
+            });
+            return $item;
+        });
+        
         return response()->json($order);
     }
 }
