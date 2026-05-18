@@ -89,35 +89,28 @@ export default function CheckoutPage() {
 
     setProcessing(true);
     try {
-      // Сначала загрузим компоненты для всех товаров типа prebuilt
-      const itemsWithComponents = await Promise.all((cart?.items || []).map(async (item) => {
+      // Используем компоненты напрямую из корзины (cart_item_components)
+      const itemsWithComponents = (cart?.items || []).map((item) => {
         let componentsArray = [];
         
-        // Если это готовый ПК и компоненты не загружены, загружаем их
-        if (item.type === 'prebuilt' && item.prebuilt_pc_id) {
-          try {
-            const res = await api.get(`/prebuilt/${item.prebuilt_pc_id}`);
-            if (res.data && res.data.components && Array.isArray(res.data.components)) {
-              // Преобразуем массив компонентов в формат для отправки: { component_id, price, quantity }
-              componentsArray = res.data.components.map(comp => ({
-                component_id: comp.component?.id || comp.id,
-                price: Number(comp.component?.price || comp.price || 0),
-                quantity: 1,
-              }));
-            }
-          } catch (err) {
-            console.error(`Ошибка загрузки компонентов для ПК ${item.prebuilt_pc_id}:`, err);
-          }
+        // Если это готовый ПК и есть компоненты в корзине, используем их
+        if (item.type === 'prebuilt' && item.components && Array.isArray(item.components)) {
+          // Преобразуем массив компонентов из корзины в формат для отправки: { component_id, price, quantity }
+          componentsArray = item.components.map(comp => ({
+            component_id: comp.component_id || comp.component?.id || comp.id,
+            price: Number(comp.price_snapshot || comp.component?.price || comp.price || 0),
+            quantity: comp.quantity || 1,
+          }));
         }
         
         return {
-          prebuilt_pc_id: item.prebuilt_pc_id || null,
+          prebuilt_pc_id: item.prebuilt_pc_id || item.prebuilt_id || null,
           name: item.name || item.product_name,
           quantity: item.quantity || 1,
           price: Number(item.price || item.total_price || 0),
           components: componentsArray,
         };
-      }));
+      });
 
       // Формируем данные для отправки на бэкенд
       const orderPayload = {
