@@ -30,11 +30,13 @@ class CartController extends Controller
 
         // Загружаем элементы корзины + компоненты внутри них (для сборок)
         // Связь component нужна, чтобы на фронте показать картинку и название детали
+        // Также загружаем pivot данные для получения role
         $cart->load([
             'items' => function ($query) {
                 $query->with([
                     'components' => function ($q) {
-                        $q->with('component:id,model,image,price');
+                        $q->with('component:id,model,image,price,category')
+                          ->withPivot('role');
                     }
                 ]);
             }
@@ -88,18 +90,29 @@ class CartController extends Controller
 
             // 🟢 Готовый ПК (нельзя редактировать, фиксированная цена)
             if ($type === 'prebuilt') {
-                $pc = PrebuiltPc::findOrFail($request->prebuilt_id);
+                $pc = PrebuiltPc::with('components')->findOrFail($request->prebuilt_id);
                 if (!$pc->is_active) {
                     throw new \Exception("Данный ПК временно недоступен для заказа");
                 }
 
-                return CartItem::create([
+                $cartItem = CartItem::create([
                     'cart_id'     => $cart->id,
                     'type'        => 'prebuilt',
                     'name'        => $pc->name,
                     'total_price' => $pc->price, // Цена фиксируется из БД
                     'prebuilt_id' => $pc->id,
                 ]);
+
+                // Сохраняем компоненты ПК в cart_item_components
+                foreach ($pc->components as $pcComp) {
+                    $cartItem->components()->create([
+                        'component_id'   => $pcComp->id,
+                        'price_snapshot' => $pcComp->price,
+                        'quantity'       => 1,
+                    ]);
+                }
+
+                return $cartItem;
             }
 
             // 🟡 Сборка из конфигуратора (можно редактировать)
