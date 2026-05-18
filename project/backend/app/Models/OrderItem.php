@@ -24,6 +24,8 @@ class OrderItem extends Model
         'price' => 'decimal:2',
     ];
 
+    protected $appends = ['components_data'];
+
     public function order()
     {
         return $this->belongsTo(Order::class);
@@ -32,5 +34,28 @@ class OrderItem extends Model
     public function prebuiltPc()
     {
         return $this->belongsTo(PrebuiltPc::class);
+    }
+
+    public function components()
+    {
+        return $this->hasMany(OrderComponent::class);
+    }
+
+    public function getComponentsDataAttribute()
+    {
+        return $this->components->map(function($component) {
+            return [
+                'id' => $component->id,
+                'component_id' => $component->component_id,
+                'price_snapshot' => $component->price_snapshot,
+                'quantity' => $component->quantity,
+                'component' => $component->component ? [
+                    'id' => $component->component->id,
+                    'name' => $component->component->name,
+                    'model' => $component->component->model,
+                    'price' => $component->component->price,
+                ] : null,
+            ];
+        });
     }
 }
