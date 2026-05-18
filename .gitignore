@@ -1,90 +1,72 @@
-```gitignore
 # Compiled and build artifacts
 *.pyc
 __pycache__/
 *.o
 *.obj
-dist/
-build/
-target/
+*.class
+*.exe
+*.dll
+*.so
+*.a
+*.out
 
 # Dependencies
 node_modules/
-vendor/
-*.lock
+venv/
+.venv/
+.env
+.env.local
+.env.*
 
 # Logs and temp files
 *.log
 *.tmp
 *.swp
-
-# Environment
-.env
-.env.local
-*.env.*
+*.swo
 
 # Editors
 .vscode/
 .idea/
-*.swp
-*.swo
 
-# OS specific
-.DS_Store
-Thumbs.db
-
-# Coverage
+# Coverage reports
 coverage/
 htmlcov/
 .coverage
 
-# Python specific
-*.pyc
-__pycache__/
-*.pyo
-*.pyd
-.Python
-*.so
-.Python
-*.egg-info/
-.eggs/
-
-# PHP specific
-*.phar
-vendor/composer/
-composer.lock
-
-# Node specific
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Build outputs
-build/
+# Build directories
 dist/
-out/
-public/build/
-static/css/*.css.map
-static/js/*.js.map
+build/
+target/
+.gradle/
 
-# Testing
-.phpunit.result.cache
-.nyc_output/
-coverage/
+# Python specific
+.mypy_cache/
+.pytest_cache/
 
-# IDE
-.vscode/
-.idea/
-*.sublime-project
-*.sublime-workspace
-nbproject/
-
-# System
+# System files
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
-```
+
+# Compressed files
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
