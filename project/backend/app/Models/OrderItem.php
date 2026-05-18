@@ -24,7 +24,8 @@ class OrderItem extends Model
         'price' => 'decimal:2',
     ];
 
-    protected $appends = ['components_data'];
+    // Убрали $appends чтобы избежать конфликта при сериализации
+    // protected $appends = ['components_data'];
 
     public function order()
     {
