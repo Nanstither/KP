@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\OrderComponent;
 use App\Models\PrebuiltPc;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -38,7 +39,7 @@ class OrderController extends Controller
     {
         $user = Auth::user();
         
-        $query = Order::with('items.prebuiltPc');
+        $query = Order::with('items.prebuiltPc.components');
         
         if ($user) {
             $query->where('user_id', $user->id);
@@ -100,11 +101,12 @@ class OrderController extends Controller
                         $components = [];
                         foreach ($pc->components as $component) {
                             $role = $component->pivot->role;
-                            $components[$role] = [
-                                'id' => $component->id,
-                                'name' => $component->name,
+                            $components[] = [
+                                'component_id' => $component->id,
+                                'price_snapshot' => $component->price,
+                                'quantity' => 1,
+                                'role' => $role,
                                 'model' => $component->model,
-                                'price' => $component->price,
                             ];
                         }
                     }
@@ -112,33 +114,48 @@ class OrderController extends Controller
                 
                 // Преобразуем компоненты в формат для отображения: ['Процессор' => 'Model Name', ...]
                 $componentsFormatted = [];
+                $componentsForDb = []; // Для сохранения в таблицу order_components
+                
                 if (is_array($components)) {
-                    foreach ($components as $key => $compData) {
-                        // Если ключ - это числовой ID роли (0, 1, 2...)
-                        if (is_numeric($key) && is_array($compData)) {
-                            $role = $compData['role'] ?? $key;
-                            $modelName = $compData['model'] ?? $compData['name'] ?? 'Не указано';
-                            $roleName = $this->getRoleName($role);
-                            $componentsFormatted[$roleName] = $modelName;
-                        } 
-                        // Если ключ - это уже имя роли или данные приходят в другом формате
-                        elseif (is_array($compData)) {
-                            $role = $compData['role'] ?? $key;
-                            $modelName = $compData['model'] ?? $compData['name'] ?? 'Не указано';
-                            $roleName = is_numeric($role) ? $this->getRoleName($role) : $role;
-                            $componentsFormatted[$roleName] = $modelName;
-                        }
-                        // Если данные пришли как объект компонента внутри массива (из корзины)
-                        elseif (isset($compData['component'])) {
-                            $role = $compData['role'] ?? $key;
+                    foreach ($components as $compData) {
+                        // Обработка данных из корзины или конфигуратора
+                        if (isset($compData['component'])) {
+                            // Данные из корзины: {component: {...}, role: 0, ...}
+                            $componentId = $compData['component']['id'];
                             $modelName = $compData['component']['model'] ?? 'Не указано';
+                            $price = $compData['price_snapshot'] ?? $compData['component']['price'] ?? 0;
+                            $role = $compData['role'] ?? 0;
+                            
                             $roleName = $this->getRoleName($role);
                             $componentsFormatted[$roleName] = $modelName;
+                            
+                            $componentsForDb[] = [
+                                'component_id' => $componentId,
+                                'price_snapshot' => $price,
+                                'quantity' => 1,
+                            ];
+                        }
+                        // Обработка данных напрямую от ПК
+                        elseif (isset($compData['component_id'])) {
+                            // Данные из БД: {component_id: 1, model: '...', ...}
+                            $componentId = $compData['component_id'];
+                            $modelName = $compData['model'] ?? 'Не указано';
+                            $price = $compData['price_snapshot'] ?? 0;
+                            $role = $compData['role'] ?? 0;
+                            
+                            $roleName = $this->getRoleName($role);
+                            $componentsFormatted[$roleName] = $modelName;
+                            
+                            $componentsForDb[] = [
+                                'component_id' => $componentId,
+                                'price_snapshot' => $price,
+                                'quantity' => 1,
+                            ];
                         }
                     }
                 }
                 
-                OrderItem::create([
+                $orderItem = OrderItem::create([
                     'order_id' => $order->id,
                     'prebuilt_pc_id' => $itemData['prebuilt_pc_id'] ?? null,
                     'name' => $itemData['name'],
@@ -147,13 +164,23 @@ class OrderController extends Controller
                     'status' => 'pending',
                     'components' => $componentsFormatted,
                 ]);
+                
+                // Сохраняем компоненты в отдельную таблицу
+                foreach ($componentsForDb as $compDb) {
+                    OrderComponent::create([
+                        'order_item_id' => $orderItem->id,
+                        'component_id' => $compDb['component_id'],
+                        'price_snapshot' => $compDb['price_snapshot'],
+                        'quantity' => $compDb['quantity'],
+                    ]);
+                }
             }
 
             DB::commit();
 
             return response()->json([
                 'message' => 'Order created successfully',
-                'order' => $order->load('items.prebuiltPc'),
+                'order' => $order->load('items.prebuiltPc.components'),
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -168,7 +195,7 @@ class OrderController extends Controller
     {
         $user = Auth::user();
         
-        $order = Order::with('items.prebuiltPc')->findOrFail($id);
+        $order = Order::with('items.prebuiltPc.components')->findOrFail($id);
         
         // Проверка прав доступа
         if ($user && $order->user_id !== $user->id && !$user->hasRole(['admin', 'manager'])) {
@@ -210,8 +237,8 @@ class OrderController extends Controller
 
         return response()->json([
             'message' => 'Status updated successfully',
-            'item' => $orderItem,
-            'order' => $order->fresh('items.prebuiltPc'),
+            'item' => $orderItem->load('components'),
+            'order' => $order->fresh('items.prebuiltPc.components'),
         ]);
     }
 
@@ -239,7 +266,7 @@ class OrderController extends Controller
 
         return response()->json([
             'message' => 'Order status updated successfully',
-            'order' => $order->fresh('items.prebuiltPc'),
+            'order' => $order->fresh('items.prebuiltPc.components'),
         ]);
     }
 
@@ -248,7 +275,7 @@ class OrderController extends Controller
      */
     public function adminIndex(Request $request)
     {
-        $query = Order::with('items.prebuiltPc', 'user');
+        $query = Order::with('items.prebuiltPc.components', 'user');
         
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -273,7 +300,7 @@ class OrderController extends Controller
      */
     public function adminShow($id)
     {
-        $order = Order::with('items.prebuiltPc', 'user')->findOrFail($id);
+        $order = Order::with('items.prebuiltPc.components', 'user')->findOrFail($id);
         return response()->json($order);
     }
 }

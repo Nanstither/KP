@@ -1,15 +1,81 @@
-(project/backend/storage/)
-(project/backend/vendor/)
-(project/backend/.env)
-(project/backend/.env.*)
-(project/backend/node_modules/)
-(project/backend/composer.lock)
-(project/frontend/node_modules/)
-(project/frontend/.env)
-(project/frontend/.env.*)
-(project/frontend/dist/)
-(project/frontend/build/)
-(project/frontend/.next/)
-(project/frontend/out/)
-(project/frontend/yarn.lock)
-(project/frontend/package-lock.json)
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+*.o
+*.obj
+*.class
+*.exe
+*.dll
+*.so
+*.a
+*.out
+
+# Dependencies
+node_modules/
+vendor/
+composer.lock
+*.lock
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+.env.*
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build and distribution
+dist/
+build/
+target/
+coverage/
+htmlcov/
+.coverage
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Database migrations backup (if needed)
+*.sql.bak
+*.bak
+
+# Cache directories
+.cache/
+.mypy_cache/
+.pytest_cache/
+.gradle/
+.npm/
+
+# Compressed files
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst

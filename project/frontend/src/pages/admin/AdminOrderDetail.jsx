@@ -204,6 +204,17 @@ export default function AdminOrderDetail() {
                       ))}
                     </div>
                   </div>
+                ) : item.components_data && Array.isArray(item.components_data) && item.components_data.length > 0 ? (
+                  <div className="mt-3">
+                    <h5 className="font-medium text-gray-700 mb-2">Комплектующие:</h5>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      {item.components_data.map((comp, index) => (
+                        <div key={index} className="text-sm text-gray-600">
+                          <span className="font-medium">{comp.component?.model || comp.component?.name || 'Не указано'}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 ) : (
                   <div className="mt-3 text-sm text-gray-500">
                     Комплектующие не указаны
