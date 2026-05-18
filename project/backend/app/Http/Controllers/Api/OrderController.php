@@ -52,7 +52,13 @@ class OrderController extends Controller
         // Добавляем components_data вручную
         $orders->transform(function($order) {
             $order->items->transform(function($item) {
-                $item->components_data = $item->components->map(function($oc) {
+                $components = $item->components;
+                if (!$components) {
+                    $item->components_data = [];
+                    return $item;
+                }
+                
+                $item->components_data = $components->map(function($oc) {
                     return [
                         'id' => $oc->id,
                         'component_id' => $oc->component_id,
@@ -205,7 +211,14 @@ class OrderController extends Controller
             
             // Добавляем components_data вручную для ответа
             $order->items->transform(function($item) {
-                $item->components_data = $item->components->map(function($oc) {
+                // Проверяем, что relation загружен и это коллекция
+                $components = $item->components;
+                if (!$components) {
+                    $item->components_data = [];
+                    return $item;
+                }
+                
+                $item->components_data = $components->map(function($oc) {
                     return [
                         'id' => $oc->id,
                         'component_id' => $oc->component_id,
@@ -252,7 +265,13 @@ class OrderController extends Controller
         
         // Добавляем components_data вручную
         $order->items->transform(function($item) {
-            $item->components_data = $item->components->map(function($oc) {
+            $components = $item->components;
+            if (!$components) {
+                $item->components_data = [];
+                return $item;
+            }
+            
+            $item->components_data = $components->map(function($oc) {
                 return [
                     'id' => $oc->id,
                     'component_id' => $oc->component_id,
@@ -330,7 +349,13 @@ class OrderController extends Controller
         // Загружаем и добавляем components_data
         $order->load('items.components.component');
         $order->items->transform(function($item) {
-            $item->components_data = $item->components->map(function($oc) {
+            $components = $item->components;
+            if (!$components) {
+                $item->components_data = [];
+                return $item;
+            }
+            
+            $item->components_data = $components->map(function($oc) {
                 return [
                     'id' => $oc->id,
                     'component_id' => $oc->component_id,
