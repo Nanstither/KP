@@ -30,14 +30,10 @@ class CartController extends Controller
 
         // Загружаем элементы корзины + компоненты внутри них (для сборок)
         // Связь component нужна, чтобы на фронте показать картинку и название детали
-        // Также загружаем pivot данные для получения role
         $cart->load([
             'items' => function ($query) {
                 $query->with([
-                    'components' => function ($q) {
-                        $q->with('component:id,model,image,price,category')
-                          ->withPivot('role');
-                    }
+                    'components.component:id,model,image,price,category'
                 ]);
             }
         ]);
