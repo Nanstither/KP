@@ -231,7 +231,9 @@ class OrderController extends Controller
             $order->items->transform(function($item) {
                 // Проверяем, что relation загружен и это коллекция
                 $components = $item->components;
-                if (!$components) {
+                
+                // Если components null или не коллекция, возвращаем пустой массив
+                if (!$components || !($components instanceof \Illuminate\Support\Collection)) {
                     $item->components_data = [];
                     return $item;
                 }
