@@ -52,8 +52,8 @@ class OrderController extends Controller
         // Добавляем components_data вручную
         $orders->transform(function($order) {
             $order->items->transform(function($item) {
-                $components = $item->components;
-                if (!$components) {
+                $components = $item->getRelation('components');
+                if (!$components || !is_object($components) || !method_exists($components, 'map')) {
                     $item->components_data = [];
                     return $item;
                 }
@@ -275,8 +275,8 @@ class OrderController extends Controller
         
         // Добавляем components_data вручную
         $order->items->transform(function($item) {
-            $components = $item->components;
-            if (!$components) {
+            $components = $item->getRelation('components');
+            if (!$components || !is_object($components) || !method_exists($components, 'map')) {
                 $item->components_data = [];
                 return $item;
             }
@@ -413,7 +413,13 @@ class OrderController extends Controller
         // Добавляем components_data вручную
         $orders->getCollection()->transform(function($order) {
             $order->items->transform(function($item) {
-                $item->components_data = $item->components->map(function($oc) {
+                $components = $item->getRelation('components');
+                if (!$components || !is_object($components) || !method_exists($components, 'map')) {
+                    $item->components_data = [];
+                    return $item;
+                }
+                
+                $item->components_data = $components->map(function($oc) {
                     return [
                         'id' => $oc->id,
                         'component_id' => $oc->component_id,
@@ -444,7 +450,13 @@ class OrderController extends Controller
         
         // Добавляем components_data вручную
         $order->items->transform(function($item) {
-            $item->components_data = $item->components->map(function($oc) {
+            $components = $item->getRelation('components');
+            if (!$components || !is_object($components) || !method_exists($components, 'map')) {
+                $item->components_data = [];
+                return $item;
+            }
+            
+            $item->components_data = $components->map(function($oc) {
                 return [
                     'id' => $oc->id,
                     'component_id' => $oc->component_id,
