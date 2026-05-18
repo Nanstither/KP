@@ -150,6 +150,7 @@ class OrderController extends Controller
                         if (isset($compData['component_id'])) {
                             $componentId = $compData['component_id'];
                             $price = $compData['price'] ?? $compData['price_snapshot'] ?? 0;
+                            $quantity = $compData['quantity'] ?? 1;
                             
                             // Загружаем компонент из БД чтобы получить роль и модель
                             $component = \App\Models\Component::find($componentId);
@@ -170,7 +171,36 @@ class OrderController extends Controller
                                 $componentsForDb[] = [
                                     'component_id' => $componentId,
                                     'price_snapshot' => $price,
-                                    'quantity' => $compData['quantity'] ?? 1,
+                                    'quantity' => $quantity,
+                                ];
+                            }
+                        }
+                        // Старый формат данных из корзины: {component_id: X, price_snapshot: Y, quantity: Z}
+                        elseif (isset($compData['component_id']) && !isset($compData['component'])) {
+                            // Это прямой формат из cart_item_components
+                            $componentId = $compData['component_id'];
+                            $price = $compData['price_snapshot'] ?? $compData['price'] ?? 0;
+                            $quantity = $compData['quantity'] ?? 1;
+                            
+                            $component = \App\Models\Component::find($componentId);
+                            if ($component) {
+                                // Находим роль этого компонента в данном ПК
+                                $pc = PrebuiltPc::with('components')->find($itemData['prebuilt_pc_id']);
+                                $role = 0;
+                                if ($pc) {
+                                    $pcComponent = $pc->components->firstWhere('id', $componentId);
+                                    if ($pcComponent) {
+                                        $role = $pcComponent->pivot->role ?? 0;
+                                    }
+                                }
+                                
+                                $roleName = $this->getRoleName($role);
+                                $componentsFormatted[$roleName] = $component->model ?? 'Не указано';
+                                
+                                $componentsForDb[] = [
+                                    'component_id' => $componentId,
+                                    'price_snapshot' => $price,
+                                    'quantity' => $quantity,
                                 ];
                             }
                         }
