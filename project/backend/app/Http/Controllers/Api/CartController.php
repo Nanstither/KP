@@ -33,7 +33,7 @@ class CartController extends Controller
         $cart->load([
             'items' => function ($query) {
                 $query->with([
-                    'components.component:id,model,image,price,category'
+                    'components.component:id,model,image,price,category_id'
                 ]);
             }
         ]);
