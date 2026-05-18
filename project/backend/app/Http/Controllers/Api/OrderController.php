@@ -13,6 +13,25 @@ use Illuminate\Support\Facades\DB;
 class OrderController extends Controller
 {
     /**
+     * Get role name by ID
+     */
+    private function getRoleName($role)
+    {
+        $roles = [
+            0 => 'Процессор',
+            1 => 'Материнская плата',
+            2 => 'Видеокарта',
+            3 => 'Оперативная память',
+            4 => 'Накопитель',
+            5 => 'Блок питания',
+            6 => 'Корпус',
+            7 => 'Охлаждение',
+        ];
+        
+        return $roles[$role] ?? 'Компонент';
+    }
+
+    /**
      * Display a listing of user's orders.
      */
     public function index(Request $request)
@@ -91,14 +110,30 @@ class OrderController extends Controller
                     }
                 }
                 
-                // Преобразуем объект компонентов в массив для сохранения в JSON
-                $componentsArray = [];
+                // Преобразуем компоненты в формат для отображения: ['Процессор' => 'Model Name', ...]
+                $componentsFormatted = [];
                 if (is_array($components)) {
-                    foreach ($components as $role => $compData) {
-                        if (is_array($compData)) {
-                            $componentsArray[] = array_merge($compData, ['role' => $role]);
-                        } else {
-                            $componentsArray[] = $compData;
+                    foreach ($components as $key => $compData) {
+                        // Если ключ - это числовой ID роли (0, 1, 2...)
+                        if (is_numeric($key) && is_array($compData)) {
+                            $role = $compData['role'] ?? $key;
+                            $modelName = $compData['model'] ?? $compData['name'] ?? 'Не указано';
+                            $roleName = $this->getRoleName($role);
+                            $componentsFormatted[$roleName] = $modelName;
+                        } 
+                        // Если ключ - это уже имя роли или данные приходят в другом формате
+                        elseif (is_array($compData)) {
+                            $role = $compData['role'] ?? $key;
+                            $modelName = $compData['model'] ?? $compData['name'] ?? 'Не указано';
+                            $roleName = is_numeric($role) ? $this->getRoleName($role) : $role;
+                            $componentsFormatted[$roleName] = $modelName;
+                        }
+                        // Если данные пришли как объект компонента внутри массива (из корзины)
+                        elseif (isset($compData['component'])) {
+                            $role = $compData['role'] ?? $key;
+                            $modelName = $compData['component']['model'] ?? 'Не указано';
+                            $roleName = $this->getRoleName($role);
+                            $componentsFormatted[$roleName] = $modelName;
                         }
                     }
                 }
@@ -110,7 +145,7 @@ class OrderController extends Controller
                     'quantity' => $itemData['quantity'],
                     'price' => $itemData['price'],
                     'status' => 'pending',
-                    'components' => $componentsArray,
+                    'components' => $componentsFormatted,
                 ]);
             }
 
