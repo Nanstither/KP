@@ -89,6 +89,42 @@ export default function CheckoutPage() {
 
     setProcessing(true);
     try {
+      // Сначала загрузим компоненты для всех товаров типа prebuilt
+      const itemsWithComponents = await Promise.all((cart?.items || []).map(async (item) => {
+        let components = item.components || {};
+        
+        // Если это готовый ПК и компоненты не загружены, загружаем их
+        if (item.type === 'prebuilt' && item.prebuilt_pc_id && (!components || Object.keys(components).length === 0)) {
+          try {
+            const res = await api.get(`/prebuilt/${item.prebuilt_pc_id}`);
+            if (res.data && res.data.components) {
+              // Преобразуем массив компонентов в объект по ролям
+              components = {};
+              res.data.components.forEach(comp => {
+                if (comp.role) {
+                  components[comp.role] = {
+                    id: comp.component?.id || comp.id,
+                    name: comp.component?.name || comp.name,
+                    model: comp.component?.model || comp.model,
+                    price: comp.component?.price || comp.price,
+                  };
+                }
+              });
+            }
+          } catch (err) {
+            console.error(`Ошибка загрузки компонентов для ПК ${item.prebuilt_pc_id}:`, err);
+          }
+        }
+        
+        return {
+          prebuilt_pc_id: item.prebuilt_pc_id || null,
+          name: item.name || item.product_name,
+          quantity: item.quantity || 1,
+          price: Number(item.price || item.total_price || 0),
+          components: components,
+        };
+      }));
+
       // Формируем данные для отправки на бэкенд
       const orderPayload = {
         recipient_name: formData.name,
@@ -97,13 +133,7 @@ export default function CheckoutPage() {
         delivery_address: selectedPickpoint.address,
         delivery_type: 'pickup',
         cdek_code: selectedPickpoint.id?.toString() || null,
-        items: (cart?.items || []).map(item => ({
-          prebuilt_pc_id: item.prebuilt_pc_id || null,
-          name: item.name || item.product_name,
-          quantity: item.quantity || 1,
-          price: Number(item.price || item.total_price || 0),
-          components: item.components || {},
-        })),
+        items: itemsWithComponents,
       };
 
       // Отправляем заказ на бэкенд

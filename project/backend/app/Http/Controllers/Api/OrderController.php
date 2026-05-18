@@ -91,6 +91,18 @@ class OrderController extends Controller
                     }
                 }
                 
+                // Преобразуем объект компонентов в массив для сохранения в JSON
+                $componentsArray = [];
+                if (is_array($components)) {
+                    foreach ($components as $role => $compData) {
+                        if (is_array($compData)) {
+                            $componentsArray[] = array_merge($compData, ['role' => $role]);
+                        } else {
+                            $componentsArray[] = $compData;
+                        }
+                    }
+                }
+                
                 OrderItem::create([
                     'order_id' => $order->id,
                     'prebuilt_pc_id' => $itemData['prebuilt_pc_id'] ?? null,
@@ -98,7 +110,7 @@ class OrderController extends Controller
                     'quantity' => $itemData['quantity'],
                     'price' => $itemData['price'],
                     'status' => 'pending',
-                    'components' => $components,
+                    'components' => $componentsArray,
                 ]);
             }
 
