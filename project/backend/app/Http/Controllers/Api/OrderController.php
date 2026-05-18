@@ -146,29 +146,39 @@ class OrderController extends Controller
                 
                 if (is_array($components)) {
                     foreach ($components as $compData) {
-                        // Обработка данных из корзины или конфигуратора
-                        if (isset($compData['component'])) {
-                            // Данные из корзины: {component: {...}, role: 0, ...}
+                        // Новый формат данных с фронта: { component_id, price, quantity }
+                        if (isset($compData['component_id'])) {
+                            $componentId = $compData['component_id'];
+                            $price = $compData['price'] ?? $compData['price_snapshot'] ?? 0;
+                            
+                            // Загружаем компонент из БД чтобы получить роль и модель
+                            $component = \App\Models\Component::find($componentId);
+                            if ($component) {
+                                // Находим роль этого компонента в данном ПК
+                                $pc = PrebuiltPc::with('components')->find($itemData['prebuilt_pc_id']);
+                                $role = 0;
+                                if ($pc) {
+                                    $pcComponent = $pc->components->firstWhere('id', $componentId);
+                                    if ($pcComponent) {
+                                        $role = $pcComponent->pivot->role ?? 0;
+                                    }
+                                }
+                                
+                                $roleName = $this->getRoleName($role);
+                                $componentsFormatted[$roleName] = $component->model ?? 'Не указано';
+                                
+                                $componentsForDb[] = [
+                                    'component_id' => $componentId,
+                                    'price_snapshot' => $price,
+                                    'quantity' => $compData['quantity'] ?? 1,
+                                ];
+                            }
+                        }
+                        // Старый формат данных из корзины: {component: {...}, role: 0, ...}
+                        elseif (isset($compData['component'])) {
                             $componentId = $compData['component']['id'];
                             $modelName = $compData['component']['model'] ?? 'Не указано';
                             $price = $compData['price_snapshot'] ?? $compData['component']['price'] ?? 0;
-                            $role = $compData['role'] ?? 0;
-                            
-                            $roleName = $this->getRoleName($role);
-                            $componentsFormatted[$roleName] = $modelName;
-                            
-                            $componentsForDb[] = [
-                                'component_id' => $componentId,
-                                'price_snapshot' => $price,
-                                'quantity' => 1,
-                            ];
-                        }
-                        // Обработка данных напрямую от ПК
-                        elseif (isset($compData['component_id'])) {
-                            // Данные из БД: {component_id: 1, model: '...', ...}
-                            $componentId = $compData['component_id'];
-                            $modelName = $compData['model'] ?? 'Не указано';
-                            $price = $compData['price_snapshot'] ?? 0;
                             $role = $compData['role'] ?? 0;
                             
                             $roleName = $this->getRoleName($role);
