@@ -14,6 +14,7 @@ class OrderComponent extends Model
         'component_id',
         'price_snapshot',
         'quantity',
+        'role',
     ];
 
     public function orderItem()

@@ -176,6 +176,7 @@ class OrderController extends Controller
                                     'component_id' => $componentId,
                                     'price_snapshot' => $price,
                                     'quantity' => $quantity,
+                                    'role' => $role,
                                 ];
                             }
                         }
@@ -193,6 +194,7 @@ class OrderController extends Controller
                                 'component_id' => $componentId,
                                 'price_snapshot' => $price,
                                 'quantity' => 1,
+                                'role' => $role,
                             ];
                         }
                     }
@@ -215,6 +217,7 @@ class OrderController extends Controller
                         'component_id' => $compDb['component_id'],
                         'price_snapshot' => $compDb['price_snapshot'],
                         'quantity' => $compDb['quantity'],
+                        'role' => $compDb['role'] ?? null,
                     ]);
                 }
             }
