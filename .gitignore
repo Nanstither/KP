@@ -1,39 +1,37 @@
-```
+```gitignore
 # Compiled and build artifacts
 *.pyc
 __pycache__/
 *.o
 *.obj
-*.class
-*.exe
-*.dll
-*.so
-*.a
-*.out
+dist/
+build/
+target/
 
 # Dependencies
 node_modules/
-venv/
-.venv/
-.env
-.env.local
-.env.*
+vendor/
+*.lock
 
 # Logs and temp files
 *.log
 *.tmp
 *.swp
-*.swo
+
+# Environment
+.env
+.env.local
+*.env.*
 
 # Editors
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# Build directories
-dist/
-build/
-target/
-.gradle/
+# OS
+.DS_Store
+Thumbs.db
 
 # Coverage
 coverage/
@@ -41,10 +39,32 @@ htmlcov/
 .coverage
 
 # Python specific
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+*.so
+.Python
+*.egg-info/
+.eggs/
 .mypy_cache/
 .pytest_cache/
+.tox/
+.hypothesis/
 
-# System files
-.DS_Store
-Thumbs.db
+# Node.js specific
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# PHP specific
+*.php~
+.htaccess
+
+# Build systems
+.gradle/
+build/
+target/
+dist/
 ```

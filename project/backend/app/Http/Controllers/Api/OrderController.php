@@ -479,15 +479,41 @@ class OrderController extends Controller
     public function adminShow($id)
     {
         $order = Order::with('items.components.component', 'items.prebuiltPc.components', 'user')->findOrFail($id);
-        
+
         // Добавляем components_data вручную
         $order->items->transform(function($item) {
             $components = $item->getRelation('components');
+            
+            // Если компоненты не загружены напрямую, пробуем загрузить из prebuiltPc
+            if ((!$components || !is_object($components) || !method_exists($components, 'map') || $components->count() === 0) 
+                && $item->prebuiltPc) {
+                // Загружаем компоненты из prebuilt_pc
+                $pcComponents = $item->prebuiltPc->components;
+                if ($pcComponents && $pcComponents->count() > 0) {
+                    $item->components_data = $pcComponents->map(function($component) use ($item) {
+                        return [
+                            'id' => null,
+                            'component_id' => $component->id,
+                            'price_snapshot' => $component->price,
+                            'quantity' => 1,
+                            'role' => $component->pivot->role ?? null,
+                            'component' => [
+                                'id' => $component->id,
+                                'name' => $component->name,
+                                'model' => $component->model,
+                                'price' => $component->price,
+                            ],
+                        ];
+                    });
+                    return $item;
+                }
+            }
+            
             if (!$components || !is_object($components) || !method_exists($components, 'map')) {
                 $item->components_data = [];
                 return $item;
             }
-            
+
             $item->components_data = $components->map(function($oc) {
                 return [
                     'id' => $oc->id,
@@ -504,7 +530,7 @@ class OrderController extends Controller
             });
             return $item;
         });
-        
+
         return response()->json($order);
     }
 }
