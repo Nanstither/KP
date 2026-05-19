@@ -39,7 +39,7 @@ class OrderController extends Controller
     {
         $user = Auth::user();
         
-        $query = Order::with(['items.components.component', 'items.prebuiltPc']);
+        $query = Order::with(['items.components.component.category', 'items.prebuiltPc']);
         
         if ($user) {
             $query->where('user_id', $user->id);

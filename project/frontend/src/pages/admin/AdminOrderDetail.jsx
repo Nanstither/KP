@@ -69,6 +69,20 @@ export default function AdminOrderDetail() {
     return labels[status] || status;
   };
 
+  const getRoleName = (roleId) => {
+    const roles = {
+      0: 'Процессор',
+      1: 'Материнская плата',
+      2: 'Видеокарта',
+      3: 'Оперативная память',
+      4: 'Накопитель',
+      5: 'Блок питания',
+      6: 'Корпус',
+      7: 'Охлаждение',
+    };
+    return roles[roleId] || 'Компонент';
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -196,24 +210,27 @@ export default function AdminOrderDetail() {
                   <div className="mt-3">
                     <h5 className="font-medium text-gray-700 mb-2">Комплектующие:</h5>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {item.components_data.map((comp, index) => (
-                        <div key={index} className="text-sm text-gray-600">
-                          <span className="font-medium">{comp.component?.model || comp.component?.name || 'Не указано'}</span>
-                        </div>
-                      ))}
+                      {item.components_data.map((comp, index) => {
+                        const componentName = comp.component?.model 
+                          || comp.component?.name 
+                          || (typeof comp.component === 'string' ? comp.component : 'Не указано');
+                        const categoryInfo = comp.component?.category?.name 
+                          ? ` (${comp.component.category.name})` 
+                          : '';
+                        const roleInfo = comp.role !== null && comp.role !== undefined
+                          ? ` [${getRoleName(comp.role)}]`
+                          : '';
+                        return (
+                          <div key={index} className="text-sm text-gray-600">
+                            <span className="font-medium">{componentName}{categoryInfo}{roleInfo}</span>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
-                ) : item.components && typeof item.components === 'object' && !Array.isArray(item.components) && Object.keys(item.components).length > 0 ? (
-                  <div className="mt-3">
-                    <h5 className="font-medium text-gray-700 mb-2">Комплектующие:</h5>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {Object.entries(item.components).map(([roleName, modelName]) => (
-                        <div key={roleName} className="text-sm text-gray-600">
-                          <span className="font-medium">{roleName}: </span>
-                          {modelName || 'Не указано'}
-                        </div>
-                      ))}
-                    </div>
+                ) : item.prebuilt_pc_id ? (
+                  <div className="mt-3 text-sm text-gray-500">
+                    Готовый ПК - комплектующие согласно конфигурации
                   </div>
                 ) : (
                   <div className="mt-3 text-sm text-gray-500">
