@@ -152,19 +152,34 @@ class OrderController extends Controller
                             $price = $compData['price'] ?? $compData['price_snapshot'] ?? 0;
                             $quantity = $compData['quantity'] ?? 1;
                             
-                            // Загружаем компонент из БД
-                            $component = \App\Models\Component::find($componentId);
+                            // Загружаем компонент из БД с категорией
+                            $component = \App\Models\Component::with('category')->find($componentId);
                             if ($component) {
                                 // Пытаемся определить роль из данных компонента или из prebuilt_pc
-                                $role = $compData['role'] ?? 0;
+                                $role = $compData['role'] ?? null;
                                 
-                                // Если роль не передана и есть prebuilt_pc_id, пытаемся получить роль из связи
-                                if ($role === 0 && !empty($itemData['prebuilt_pc_id'])) {
+                                // Если роль не передана, определяем её по категории компонента
+                                if (!$role && $component->category?->slug) {
+                                    $roleMap = [
+                                        'cpu' => 0,
+                                        'motherboard' => 1,
+                                        'gpu' => 2,
+                                        'ram' => 3,
+                                        'storage' => 4,
+                                        'psu' => 5,
+                                        'cooler' => 7,
+                                        'case' => 6,
+                                    ];
+                                    $role = $roleMap[$component->category->slug] ?? null;
+                                }
+                                
+                                // Если роль всё ещё не определена и есть prebuilt_pc_id, пытаемся получить роль из связи
+                                if (!$role && !empty($itemData['prebuilt_pc_id'])) {
                                     $pc = PrebuiltPc::with('components')->find($itemData['prebuilt_pc_id']);
                                     if ($pc) {
                                         $pcComponent = $pc->components->firstWhere('id', $componentId);
                                         if ($pcComponent) {
-                                            $role = $pcComponent->pivot->role ?? 0;
+                                            $role = $pcComponent->pivot->role ?? null;
                                         }
                                     }
                                 }
@@ -185,7 +200,25 @@ class OrderController extends Controller
                             $componentId = $compData['component']['id'];
                             $modelName = $compData['component']['model'] ?? 'Не указано';
                             $price = $compData['price_snapshot'] ?? $compData['component']['price'] ?? 0;
-                            $role = $compData['role'] ?? 0;
+                            $role = $compData['role'] ?? null;
+                            
+                            // Если роль не передана, загружаем компонент и определяем по категории
+                            if (!$role) {
+                                $component = \App\Models\Component::with('category')->find($componentId);
+                                if ($component && $component->category?->slug) {
+                                    $roleMap = [
+                                        'cpu' => 0,
+                                        'motherboard' => 1,
+                                        'gpu' => 2,
+                                        'ram' => 3,
+                                        'storage' => 4,
+                                        'psu' => 5,
+                                        'cooler' => 7,
+                                        'case' => 6,
+                                    ];
+                                    $role = $roleMap[$component->category->slug] ?? null;
+                                }
+                            }
                             
                             $roleName = $this->getRoleName($role);
                             $componentsFormatted[$roleName] = $modelName;

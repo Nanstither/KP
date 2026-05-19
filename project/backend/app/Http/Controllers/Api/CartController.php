@@ -30,10 +30,12 @@ class CartController extends Controller
 
         // Загружаем элементы корзины + компоненты внутри них (для сборок)
         // Связь component нужна, чтобы на фронте показать картинку и название детали
+        // Также загружаем category для определения роли компонента
         $cart->load([
             'items' => function ($query) {
                 $query->with([
-                    'components.component:id,model,image,price,category_id'
+                    'components.component:id,model,image,price,category_id',
+                    'components.component.category:id,name,slug'
                 ]);
             }
         ]);
@@ -159,10 +161,29 @@ class CartController extends Controller
                 ]);
 
                 foreach ($componentsToSave as $item) {
+                    // Определяем роль компонента по его категории (slug)
+                    $role = null;
+                    $categorySlug = $item['component']->category?->slug;
+                    
+                    if ($categorySlug) {
+                        $roleMap = [
+                            'cpu' => 'cpu',
+                            'motherboard' => 'motherboard',
+                            'gpu' => 'gpu',
+                            'ram' => 'ram',
+                            'storage' => 'storage',
+                            'psu' => 'psu',
+                            'cooler' => 'cooler',
+                            'case' => 'case',
+                        ];
+                        $role = $roleMap[$categorySlug] ?? null;
+                    }
+                    
                     $cartItem->components()->create([
                         'component_id'   => $item['component']->id,
                         'price_snapshot' => $item['component']->price,
-                        'quantity'       => $item['quantity']
+                        'quantity'       => $item['quantity'],
+                        'role'           => $role,
                     ]);
                 }
                 return $cartItem;
@@ -204,7 +225,7 @@ class CartController extends Controller
             $newComponentIds = $request->input('components');
             
             // Получаем новые компоненты и считаем цену
-            $components = Component::whereIn('id', $newComponentIds)->get();
+            $components = Component::with('category')->whereIn('id', $newComponentIds)->get();
             $newTotalPrice = 0;
 
             foreach ($components as $comp) {
@@ -214,12 +235,31 @@ class CartController extends Controller
             // Удаляем старые связи (компоненты сборки)
             $cartItem->components()->delete();
 
-            // Создаем новые связи
+            // Создаем новые связи с правильным role
             foreach ($components as $comp) {
+                // Определяем роль компонента по его категории (slug)
+                $role = null;
+                $categorySlug = $comp->category?->slug;
+                
+                if ($categorySlug) {
+                    $roleMap = [
+                        'cpu' => 'cpu',
+                        'motherboard' => 'motherboard',
+                        'gpu' => 'gpu',
+                        'ram' => 'ram',
+                        'storage' => 'storage',
+                        'psu' => 'psu',
+                        'cooler' => 'cooler',
+                        'case' => 'case',
+                    ];
+                    $role = $roleMap[$categorySlug] ?? null;
+                }
+                
                 $cartItem->components()->create([
                     'component_id'   => $comp->id,
                     'price_snapshot' => $comp->price,
-                    'quantity'       => 1
+                    'quantity'       => 1,
+                    'role'           => $role,
                 ]);
             }
 

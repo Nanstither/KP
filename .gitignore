@@ -1,1 +1,1 @@
-Nothing needs to be added to the .gitignore file based on the provided changes. The modified file 'project/backend/app/Http/Controllers/Api/OrderController.php' is a source code file and should not be ignored. No build artifacts, dependencies, or temporary files are present in the change list.
+Nothing should be ignored since the changes only include source code files (.php) without any build artifacts, dependencies, or temporary files.
