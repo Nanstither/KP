@@ -39,7 +39,7 @@ class OrderController extends Controller
     {
         $user = Auth::user();
         
-        $query = Order::with('items.prebuiltPc.components', 'items.components.component');
+        $query = Order::with(['items.components.component', 'items.prebuiltPc']);
         
         if ($user) {
             $query->where('user_id', $user->id);
@@ -52,8 +52,9 @@ class OrderController extends Controller
         // Добавляем components_data вручную
         $orders->transform(function($order) {
             $order->items->transform(function($item) {
-                $components = $item->getRelation('components');
-                if (!$components || !is_object($components) || !method_exists($components, 'map')) {
+                $components = $item->components;
+                
+                if (!$components || !($components instanceof \Illuminate\Support\Collection)) {
                     $item->components_data = [];
                     return $item;
                 }
@@ -64,11 +65,17 @@ class OrderController extends Controller
                         'component_id' => $oc->component_id,
                         'price_snapshot' => $oc->price_snapshot,
                         'quantity' => $oc->quantity,
+                        'role' => $oc->role,
                         'component' => $oc->component ? [
                             'id' => $oc->component->id,
                             'name' => $oc->component->name,
                             'model' => $oc->component->model,
                             'price' => $oc->component->price,
+                            'category' => $oc->component->category ? [
+                                'id' => $oc->component->category->id,
+                                'name' => $oc->component->category->name,
+                                'slug' => $oc->component->category->slug,
+                            ] : null,
                         ] : null,
                     ];
                 });
@@ -247,7 +254,7 @@ class OrderController extends Controller
             DB::commit();
 
             // Загружаем заказ с данными о компонентах
-            $order->load('items.components.component');
+            $order->load('items.components.component.category');
             
             // Добавляем components_data вручную для ответа
             $order->items->transform(function($item) {
@@ -266,11 +273,17 @@ class OrderController extends Controller
                         'component_id' => $oc->component_id,
                         'price_snapshot' => $oc->price_snapshot,
                         'quantity' => $oc->quantity,
+                        'role' => $oc->role,
                         'component' => $oc->component ? [
                             'id' => $oc->component->id,
                             'name' => $oc->component->name,
                             'model' => $oc->component->model,
                             'price' => $oc->component->price,
+                            'category' => $oc->component->category ? [
+                                'id' => $oc->component->category->id,
+                                'name' => $oc->component->category->name,
+                                'slug' => $oc->component->category->slug,
+                            ] : null,
                         ] : null,
                     ];
                 });
@@ -294,7 +307,7 @@ class OrderController extends Controller
     {
         $user = Auth::user();
         
-        $order = Order::with('items.components.component', 'items.prebuiltPc.components')->findOrFail($id);
+        $order = Order::with(['items.components.component.category', 'items.prebuiltPc'])->findOrFail($id);
         
         // Проверка прав доступа
         if ($user && $order->user_id !== $user->id && !$user->hasRole(['admin', 'manager'])) {
@@ -307,8 +320,9 @@ class OrderController extends Controller
         
         // Добавляем components_data вручную
         $order->items->transform(function($item) {
-            $components = $item->getRelation('components');
-            if (!$components || !is_object($components) || !method_exists($components, 'map')) {
+            $components = $item->components;
+            
+            if (!$components || !($components instanceof \Illuminate\Support\Collection)) {
                 $item->components_data = [];
                 return $item;
             }
@@ -319,11 +333,17 @@ class OrderController extends Controller
                     'component_id' => $oc->component_id,
                     'price_snapshot' => $oc->price_snapshot,
                     'quantity' => $oc->quantity,
+                    'role' => $oc->role,
                     'component' => $oc->component ? [
                         'id' => $oc->component->id,
                         'name' => $oc->component->name,
                         'model' => $oc->component->model,
                         'price' => $oc->component->price,
+                        'category' => $oc->component->category ? [
+                            'id' => $oc->component->category->id,
+                            'name' => $oc->component->category->name,
+                            'slug' => $oc->component->category->slug,
+                        ] : null,
                     ] : null,
                 ];
             });
@@ -361,8 +381,8 @@ class OrderController extends Controller
 
         return response()->json([
             'message' => 'Status updated successfully',
-            'item' => $orderItem->load('component'),
-            'order' => $order->fresh(['items.components.component', 'items.prebuiltPc.components']),
+            'item' => $orderItem->load('component.category'),
+            'order' => $order->fresh(['items.components.component.category', 'items.prebuiltPc']),
         ]);
     }
 
@@ -389,7 +409,7 @@ class OrderController extends Controller
         }
 
         // Загружаем и добавляем components_data
-        $order->load('items.components.component');
+        $order->load('items.components.component.category');
         $order->items->transform(function($item) {
             $components = $item->components;
             if (!$components) {
@@ -403,11 +423,17 @@ class OrderController extends Controller
                     'component_id' => $oc->component_id,
                     'price_snapshot' => $oc->price_snapshot,
                     'quantity' => $oc->quantity,
+                    'role' => $oc->role,
                     'component' => $oc->component ? [
                         'id' => $oc->component->id,
                         'name' => $oc->component->name,
                         'model' => $oc->component->model,
                         'price' => $oc->component->price,
+                        'category' => $oc->component->category ? [
+                            'id' => $oc->component->category->id,
+                            'name' => $oc->component->category->name,
+                            'slug' => $oc->component->category->slug,
+                        ] : null,
                     ] : null,
                 ];
             });
@@ -425,7 +451,7 @@ class OrderController extends Controller
      */
     public function adminIndex(Request $request)
     {
-        $query = Order::with('items.components.component', 'items.prebuiltPc.components', 'user');
+        $query = Order::with(['items.components.component.category', 'items.prebuiltPc', 'user']);
         
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -445,8 +471,9 @@ class OrderController extends Controller
         // Добавляем components_data вручную
         $orders->getCollection()->transform(function($order) {
             $order->items->transform(function($item) {
-                $components = $item->getRelation('components');
-                if (!$components || !is_object($components) || !method_exists($components, 'map')) {
+                $components = $item->components;
+                
+                if (!$components || !($components instanceof \Illuminate\Support\Collection)) {
                     $item->components_data = [];
                     return $item;
                 }
@@ -457,11 +484,17 @@ class OrderController extends Controller
                         'component_id' => $oc->component_id,
                         'price_snapshot' => $oc->price_snapshot,
                         'quantity' => $oc->quantity,
+                        'role' => $oc->role,
                         'component' => $oc->component ? [
                             'id' => $oc->component->id,
                             'name' => $oc->component->name,
                             'model' => $oc->component->model,
                             'price' => $oc->component->price,
+                            'category' => $oc->component->category ? [
+                                'id' => $oc->component->category->id,
+                                'name' => $oc->component->category->name,
+                                'slug' => $oc->component->category->slug,
+                            ] : null,
                         ] : null,
                     ];
                 });
@@ -478,38 +511,13 @@ class OrderController extends Controller
      */
     public function adminShow($id)
     {
-        $order = Order::with('items.components.component', 'items.prebuiltPc.components', 'user')->findOrFail($id);
+        $order = Order::with(['items.components.component.category', 'items.prebuiltPc', 'user'])->findOrFail($id);
 
         // Добавляем components_data вручную
         $order->items->transform(function($item) {
-            $components = $item->getRelation('components');
+            $components = $item->components;
             
-            // Если компоненты не загружены напрямую, пробуем загрузить из prebuiltPc
-            if ((!$components || !is_object($components) || !method_exists($components, 'map') || $components->count() === 0) 
-                && $item->prebuiltPc) {
-                // Загружаем компоненты из prebuilt_pc
-                $pcComponents = $item->prebuiltPc->components;
-                if ($pcComponents && $pcComponents->count() > 0) {
-                    $item->components_data = $pcComponents->map(function($component) use ($item) {
-                        return [
-                            'id' => null,
-                            'component_id' => $component->id,
-                            'price_snapshot' => $component->price,
-                            'quantity' => 1,
-                            'role' => $component->pivot->role ?? null,
-                            'component' => [
-                                'id' => $component->id,
-                                'name' => $component->name,
-                                'model' => $component->model,
-                                'price' => $component->price,
-                            ],
-                        ];
-                    });
-                    return $item;
-                }
-            }
-            
-            if (!$components || !is_object($components) || !method_exists($components, 'map')) {
+            if (!$components || !($components instanceof \Illuminate\Support\Collection)) {
                 $item->components_data = [];
                 return $item;
             }
@@ -520,11 +528,17 @@ class OrderController extends Controller
                     'component_id' => $oc->component_id,
                     'price_snapshot' => $oc->price_snapshot,
                     'quantity' => $oc->quantity,
+                    'role' => $oc->role,
                     'component' => $oc->component ? [
                         'id' => $oc->component->id,
                         'name' => $oc->component->name,
                         'model' => $oc->component->model,
                         'price' => $oc->component->price,
+                        'category' => $oc->component->category ? [
+                            'id' => $oc->component->category->id,
+                            'name' => $oc->component->category->name,
+                            'slug' => $oc->component->category->slug,
+                        ] : null,
                     ] : null,
                 ];
             });
