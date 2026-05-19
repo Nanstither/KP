@@ -97,7 +97,6 @@ class OrderController extends Controller
             'items.*.name' => 'required|string',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.price' => 'required|numeric|min:0',
-            'items.*.components' => 'nullable|array',
         ]);
 
         $user = Auth::user();
@@ -140,8 +139,6 @@ class OrderController extends Controller
                     }
                 }
                 
-                // Преобразуем компоненты в формат для отображения: ['Процессор' => 'Model Name', ...]
-                $componentsFormatted = [];
                 $componentsForDb = []; // Для сохранения в таблицу order_components
                 
                 if (is_array($components) && count($components) > 0) {
@@ -184,9 +181,6 @@ class OrderController extends Controller
                                     }
                                 }
                                 
-                                $roleName = $this->getRoleName($role);
-                                $componentsFormatted[$roleName] = $component->model ?? 'Не указано';
-                                
                                 $componentsForDb[] = [
                                     'component_id' => $componentId,
                                     'price_snapshot' => $price,
@@ -198,7 +192,6 @@ class OrderController extends Controller
                         // Старый формат данных из корзины: {component: {...}, role: 0, ...}
                         elseif (isset($compData['component'])) {
                             $componentId = $compData['component']['id'];
-                            $modelName = $compData['component']['model'] ?? 'Не указано';
                             $price = $compData['price_snapshot'] ?? $compData['component']['price'] ?? 0;
                             $role = $compData['role'] ?? null;
                             
@@ -220,9 +213,6 @@ class OrderController extends Controller
                                 }
                             }
                             
-                            $roleName = $this->getRoleName($role);
-                            $componentsFormatted[$roleName] = $modelName;
-                            
                             $componentsForDb[] = [
                                 'component_id' => $componentId,
                                 'price_snapshot' => $price,
@@ -240,7 +230,6 @@ class OrderController extends Controller
                     'quantity' => $itemData['quantity'],
                     'price' => $itemData['price'],
                     'status' => 'pending',
-                    'components' => $componentsFormatted,
                 ]);
                 
                 // Сохраняем компоненты в отдельную таблицу

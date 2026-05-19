@@ -16,16 +16,11 @@ class OrderItem extends Model
         'quantity',
         'price',
         'status',
-        'components',
     ];
 
     protected $casts = [
-        'components' => 'array',
         'price' => 'decimal:2',
     ];
-
-    // Убрали $appends чтобы избежать конфликта при сериализации
-    // protected $appends = ['components_data'];
 
     public function order()
     {
