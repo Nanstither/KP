@@ -175,17 +175,7 @@ class OrderController extends Controller
                             if ($component) {
                                 // Если роль не передана, определяем её по категории компонента
                                 if (!$role && $component->category?->slug) {
-                                    $roleMap = [
-                                        'cpu' => 0,
-                                        'motherboard' => 1,
-                                        'gpu' => 2,
-                                        'ram' => 3,
-                                        'storage' => 4,
-                                        'psu' => 5,
-                                        'cooler' => 7,
-                                        'case' => 6,
-                                    ];
-                                    $role = $roleMap[$component->category->slug] ?? null;
+                                    $role = $component->category->slug; // Используем slug напрямую (cpu, motherboard, gpu...)
                                 }
                                 
                                 $componentsForDb[] = [
@@ -206,17 +196,7 @@ class OrderController extends Controller
                             if (!$role) {
                                 $component = \App\Models\Component::with('category')->find($componentId);
                                 if ($component && $component->category?->slug) {
-                                    $roleMap = [
-                                        'cpu' => 0,
-                                        'motherboard' => 1,
-                                        'gpu' => 2,
-                                        'ram' => 3,
-                                        'storage' => 4,
-                                        'psu' => 5,
-                                        'cooler' => 7,
-                                        'case' => 6,
-                                    ];
-                                    $role = $roleMap[$component->category->slug] ?? null;
+                                    $role = $component->category->slug; // Используем slug напрямую
                                 }
                             }
                             
