@@ -8,9 +8,9 @@ dist/
 build/
 
 # Dependencies
-.venv/
-venv/
 node_modules/
+vendor/
+composer.lock
 
 # Logs and temp files
 *.log
@@ -30,28 +30,13 @@ node_modules/
 .DS_Store
 Thumbs.db
 
-# Coverage reports
-coverage/
-htmlcov/
-.coverage
-
-# Python specific
-*.pyc
-__pycache__/
-*.pyo
-*.pyd
-.Python
-*.so
-
 # PHP specific
-vendor/
-composer.lock
+*.php~
+.php_cs.cache
 
-# Frontend specific
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Original rules preserved
-*.log
+# Frontend build artifacts
+*.min.js
+*.min.css
+coverage/
+.nyc_output/
 ```

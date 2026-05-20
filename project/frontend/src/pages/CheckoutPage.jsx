@@ -114,6 +114,7 @@ export default function CheckoutPage() {
         }
         
         return {
+          cart_item_id: item.id, // Добавляем ID элемента корзины
           prebuilt_pc_id: item.type === 'prebuilt' ? (item.prebuilt_pc_id || item.prebuilt_id) : null,
           name: item.name || item.product_name,
           quantity: item.quantity || 1,
