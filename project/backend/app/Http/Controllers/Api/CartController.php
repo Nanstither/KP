@@ -167,22 +167,7 @@ class CartController extends Controller
 
                 foreach ($componentsToSave as $item) {
                     // Определяем роль компонента по его категории (slug)
-                    $role = null;
-                    $categorySlug = $item['component']->category?->slug;
-                    
-                    if ($categorySlug) {
-                        $roleMap = [
-                            'cpu' => 'cpu',
-                            'motherboard' => 'motherboard',
-                            'gpu' => 'gpu',
-                            'ram' => 'ram',
-                            'storage' => 'storage',
-                            'psu' => 'psu',
-                            'cooler' => 'cooler',
-                            'case' => 'case',
-                        ];
-                        $role = $roleMap[$categorySlug] ?? null;
-                    }
+                    $role = $item['component']->category?->slug;
                     
                     $cartItem->components()->create([
                         'component_id'   => $item['component']->id,
@@ -243,22 +228,7 @@ class CartController extends Controller
             // Создаем новые связи с правильным role
             foreach ($components as $comp) {
                 // Определяем роль компонента по его категории (slug)
-                $role = null;
-                $categorySlug = $comp->category?->slug;
-                
-                if ($categorySlug) {
-                    $roleMap = [
-                        'cpu' => 'cpu',
-                        'motherboard' => 'motherboard',
-                        'gpu' => 'gpu',
-                        'ram' => 'ram',
-                        'storage' => 'storage',
-                        'psu' => 'psu',
-                        'cooler' => 'cooler',
-                        'case' => 'case',
-                    ];
-                    $role = $roleMap[$categorySlug] ?? null;
-                }
+                $role = $comp->category?->slug;
                 
                 $cartItem->components()->create([
                     'component_id'   => $comp->id,
