@@ -104,7 +104,7 @@ export default function CheckoutPage() {
             // Получаем количество
             const quantity = comp.quantity || 1;
             // Получаем роль из pivot или непосредственно из объекта
-            const role = comp.pivot?.role || comp.role || 0;
+            const role = comp.pivot?.role || comp.role || null;
             
             return {
               component_id: componentId,
@@ -116,7 +116,7 @@ export default function CheckoutPage() {
         }
         
         return {
-          prebuilt_pc_id: item.prebuilt_pc_id || item.prebuilt_id || null,
+          prebuilt_pc_id: item.type === 'prebuilt' ? (item.prebuilt_pc_id || item.prebuilt_id) : null,
           name: item.name || item.product_name,
           quantity: item.quantity || 1,
           price: Number(item.price || item.total_price || 0),
