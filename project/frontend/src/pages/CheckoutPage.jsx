@@ -97,8 +97,8 @@ export default function CheckoutPage() {
         if ((item.type === 'prebuilt' || item.type === 'custom') && item.components && Array.isArray(item.components)) {
           // Преобразуем массив компонентов из корзины в формат для отправки: { component_id, price, quantity, role }
           componentsArray = item.components.map(comp => {
-            // Получаем component_id - теперь он лежит прямо в объекте компонента
-            const componentId = comp.component_id;
+            // Получаем component_id - он может быть либо напрямую, либо через связанную модель component
+            const componentId = comp.component_id || comp.component?.id;
             // Получаем цену из price_snapshot
             const price = Number(comp.price_snapshot || 0);
             // Получаем количество

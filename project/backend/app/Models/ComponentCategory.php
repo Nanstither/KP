@@ -10,6 +10,6 @@ class ComponentCategory extends Model
 
     public function components(): HasMany
     {
-        return $this->hasMany(Components::class);
+        return $this->hasMany(Component::class);
     }
 }
