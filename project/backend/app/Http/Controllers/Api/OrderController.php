@@ -81,7 +81,7 @@ class OrderController extends Controller
                         'quantity' => $oc->quantity,
                         'component' => $oc->component ? [
                             'id' => $oc->component->id,
-                            'name' => $oc->component->name,
+                            
                             'model' => $oc->component->model,
                             'price' => $oc->component->price,
                         ] : null,
@@ -270,7 +270,7 @@ class OrderController extends Controller
                         'quantity' => $oc->quantity,
                         'component' => $oc->component ? [
                             'id' => $oc->component->id,
-                            'name' => $oc->component->name,
+                            
                             'model' => $oc->component->model,
                             'price' => $oc->component->price,
                         ] : null,
@@ -323,7 +323,7 @@ class OrderController extends Controller
                     'quantity' => $oc->quantity,
                     'component' => $oc->component ? [
                         'id' => $oc->component->id,
-                        'name' => $oc->component->name,
+                        
                         'model' => $oc->component->model,
                         'price' => $oc->component->price,
                     ] : null,
@@ -407,7 +407,7 @@ class OrderController extends Controller
                     'quantity' => $oc->quantity,
                     'component' => $oc->component ? [
                         'id' => $oc->component->id,
-                        'name' => $oc->component->name,
+                        
                         'model' => $oc->component->model,
                         'price' => $oc->component->price,
                     ] : null,
@@ -461,7 +461,7 @@ class OrderController extends Controller
                         'quantity' => $oc->quantity,
                         'component' => $oc->component ? [
                             'id' => $oc->component->id,
-                            'name' => $oc->component->name,
+                            
                             'model' => $oc->component->model,
                             'price' => $oc->component->price,
                         ] : null,
@@ -498,7 +498,7 @@ class OrderController extends Controller
                     'quantity' => $oc->quantity,
                     'component' => $oc->component ? [
                         'id' => $oc->component->id,
-                        'name' => $oc->component->name,
+                        
                         'model' => $oc->component->model,
                         'price' => $oc->component->price,
                     ] : null,
