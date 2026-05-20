@@ -38,7 +38,7 @@ class CartController extends Controller
                         $q->select('id', 'cart_item_id', 'component_id', 'price_snapshot', 'quantity', 'role');
                         $q->with([
                             'component' => function($cq) {
-                                $cq->select('id', 'name', 'model', 'price')->with('category');
+                                $cq->select('id', 'category_id', 'brand_id', 'model', 'price', 'stock', 'image')->with('category');
                             }
                         ]);
                     }
