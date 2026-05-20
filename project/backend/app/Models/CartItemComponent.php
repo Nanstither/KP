@@ -11,6 +11,8 @@ class CartItemComponent extends Model
 
     protected $fillable = ['cart_item_id', 'component_id', 'price_snapshot', 'quantity', 'role'];
 
+    protected $appends = ['component_id', 'price_snapshot', 'quantity', 'role'];
+
     // Связь: Деталь принадлежит строке корзины
     public function cartItem(): BelongsTo
     {
@@ -22,7 +24,4 @@ class CartItemComponent extends Model
     {
         return $this->belongsTo(Component::class);
     }
-
-    // Добавляем pivot данные для доступа к role (если используется через prebuilt_pc_component)
-    // Для cart_item_components у нас нет role, но мы можем получить его через компонент
 }
