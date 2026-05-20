@@ -2,6 +2,22 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
+import { 
+  ArrowLeft, 
+  Package, 
+  User, 
+  Phone, 
+  Mail, 
+  Truck, 
+  MapPin, 
+  CreditCard, 
+  Calendar, 
+  CheckCircle, 
+  Clock, 
+  XCircle, 
+  Cpu, 
+  Hash 
+} from 'lucide-react';
 
 export default function AdminOrderDetail() {
   const { id } = useParams();
@@ -10,6 +26,41 @@ export default function AdminOrderDetail() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+
+  // Маппинг технических имен ролей в понятные названия
+  const roleNames = {
+    cpu: 'Процессор',
+    gpu: 'Видеокарта',
+    motherboard: 'Материнская плата',
+    ram: 'Оперативная память',
+    storage: 'Накопитель',
+    psu: 'Блок питания',
+    case: 'Корпус',
+    cooler: 'Охлаждение',
+    fan: 'Вентилятор',
+    default: 'Компонент'
+  };
+
+  // Цвета статусов для темной темы
+  const statusColors = {
+    pending: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
+    paid: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+    preparing: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
+    shipped: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20',
+    delivered: 'bg-green-500/10 text-green-500 border-green-500/20',
+    cancelled: 'bg-red-500/10 text-red-500 border-red-500/20',
+    ready: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
+  };
+
+  const statusLabels = {
+    pending: 'Ожидает оплаты',
+    paid: 'Оплачен',
+    preparing: 'Готовится к отправке',
+    shipped: 'Отправлен',
+    delivered: 'Доставлен',
+    cancelled: 'Отменён',
+    ready: 'Готов к отправке',
+  };
 
   useEffect(() => {
     if (!user || !['admin', 'manager'].includes(user.role)) {
@@ -22,7 +73,8 @@ export default function AdminOrderDetail() {
   const fetchOrder = async () => {
     try {
       const response = await api.get(`/admin/orders/${id}`);
-      setOrder(response.data);
+      // Адаптируем ответ, если данные лежат внутри ключа order
+      setOrder(response.data.order || response.data);
     } catch (error) {
       console.error('Error fetching order:', error);
     } finally {
@@ -43,43 +95,17 @@ export default function AdminOrderDetail() {
     }
   };
 
-  const getStatusColor = (status) => {
-    const colors = {
-      pending: 'bg-yellow-100 text-yellow-800',
-      paid: 'bg-blue-100 text-blue-800',
-      preparing: 'bg-purple-100 text-purple-800',
-      shipped: 'bg-indigo-100 text-indigo-800',
-      delivered: 'bg-green-100 text-green-800',
-      cancelled: 'bg-red-100 text-red-800',
-      ready: 'bg-green-100 text-green-800',
-    };
-    return colors[status] || 'bg-gray-100 text-gray-800';
-  };
-
-  const getStatusLabel = (status) => {
-    const labels = {
-      pending: 'Ожидает оплаты',
-      paid: 'Оплачен',
-      preparing: 'Готовится к отправке',
-      shipped: 'Отправлен',
-      delivered: 'Доставлен',
-      cancelled: 'Отменён',
-      ready: 'Готов к отправке',
-    };
-    return labels[status] || status;
-  };
-
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="flex items-center justify-center min-h-screen bg-gray-900">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     );
   }
 
   if (!order) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 bg-gray-900 min-h-screen text-gray-100">
         <h1 className="text-2xl font-bold mb-4">Заказ не найден</h1>
         <button
           onClick={() => navigate('/admin/orders')}
@@ -92,147 +118,270 @@ export default function AdminOrderDetail() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 bg-white min-h-screen">
-      <div className="mb-6">
+    <div className="min-h-screen bg-gray-900 text-gray-100 p-6">
+      {/* Header */}
+      <div className="max-w-7xl mx-auto mb-8">
         <button
           onClick={() => navigate('/admin/orders')}
-          className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+          className="flex items-center text-gray-400 hover:text-white transition-colors mb-6 group"
         >
-          ← Назад к заказам
+          <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
+          Назад к заказам
         </button>
+
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-3xl font-bold text-white">Заказ #{order.id}</h1>
+              <span className={`px-3 py-1 rounded-full text-sm font-medium border flex items-center gap-2 ${statusColors[order.status]}`}>
+                {order.status === 'pending' && <Clock className="w-4 h-4" />}
+                {order.status === 'paid' && <CheckCircle className="w-4 h-4" />}
+                {order.status === 'delivered' && <CheckCircle className="w-4 h-4" />}
+                {order.status === 'cancelled' && <XCircle className="w-4 h-4" />}
+                {statusLabels[order.status]}
+              </span>
+            </div>
+            <p className="text-gray-400 flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              Создан: {new Date(order.created_at).toLocaleString('ru-RU')}
+            </p>
+          </div>
+          <div className="text-right">
+            <div className="text-3xl font-bold text-blue-400">
+              {parseFloat(order.total_amount).toLocaleString('ru-RU')} ₽
+            </div>
+            <div className="text-sm text-gray-400">Итоговая сумма</div>
+          </div>
+        </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div className="flex justify-between items-start mb-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Заказ #{order.id}</h1>
-            <p className="text-gray-600">от {new Date(order.created_at).toLocaleDateString('ru-RU')}</p>
-          </div>
-          <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
-            {getStatusLabel(order.status)}
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div>
-            <h3 className="font-semibold text-gray-700 mb-2">Информация о клиенте</h3>
-            <p className="text-gray-600"><strong>Имя:</strong> {order.recipient_name}</p>
-            <p className="text-gray-600"><strong>Телефон:</strong> {order.recipient_phone}</p>
-            {order.recipient_email && (
-              <p className="text-gray-600"><strong>Email:</strong> {order.recipient_email}</p>
-            )}
-            {order.user && (
-              <p className="text-gray-600"><strong>Аккаунт:</strong> {order.user.name} ({order.user.email})</p>
-            )}
-          </div>
-          <div>
-            <h3 className="font-semibold text-gray-700 mb-2">Доставка</h3>
-            <p className="text-gray-600"><strong>Тип:</strong> {order.delivery_type === 'pickup' ? 'Самовывоз (СДЭК)' : 'Курьер'}</p>
-            <p className="text-gray-600"><strong>Адрес:</strong> {order.delivery_address}</p>
-            {order.cdek_code && (
-              <p className="text-gray-600"><strong>Код ПВЗ:</strong> {order.cdek_code}</p>
-            )}
-          </div>
-        </div>
-
-        <div className="mb-6">
-          <h3 className="font-semibold text-gray-700 mb-2">Управление статусом заказа</h3>
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => updateOrderStatus('paid')}
-              disabled={updating || order.status === 'paid'}
-              className={`px-3 py-1 rounded text-sm ${order.status === 'paid' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}
-            >
-              Оплачен
-            </button>
-            <button
-              onClick={() => updateOrderStatus('preparing')}
-              disabled={updating || order.status === 'preparing'}
-              className={`px-3 py-1 rounded text-sm ${order.status === 'preparing' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}
-            >
-              Готовится
-            </button>
-            <button
-              onClick={() => updateOrderStatus('shipped')}
-              disabled={updating || order.status === 'shipped'}
-              className={`px-3 py-1 rounded text-sm ${order.status === 'shipped' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}
-            >
-              Отправлен
-            </button>
-            <button
-              onClick={() => updateOrderStatus('delivered')}
-              disabled={updating || order.status === 'delivered'}
-              className={`px-3 py-1 rounded text-sm ${order.status === 'delivered' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}
-            >
-              Доставлен
-            </button>
-            <button
-              onClick={() => updateOrderStatus('cancelled')}
-              disabled={updating || order.status === 'cancelled'}
-              className={`px-3 py-1 rounded text-sm ${order.status === 'cancelled' ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}
-            >
-              Отменён
-            </button>
-          </div>
-        </div>
-
-        <div className="border-t pt-4">
-          <h3 className="font-semibold text-gray-700 mb-4">Товары в заказе</h3>
-          <div className="space-y-4">
-            {order.items.map((item) => (
-              <div key={item.id} className="border rounded-lg p-4 bg-gray-50">
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <h4 className="font-semibold text-gray-900">{item.name}</h4>
-                    <p className="text-gray-600">Количество: {item.quantity} × {item.price.toLocaleString()} ₽</p>
-                    <p className="text-gray-800 font-medium">Итого: {(item.quantity * item.price).toLocaleString()} ₽</p>
+      {/* Main Grid */}
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Left Column: Items & Components */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-lg">
+            <div className="px-6 py-4 border-b border-gray-700 bg-gray-800/50">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <Package className="w-5 h-5 text-blue-500" />
+                Товары в заказе
+              </h2>
+            </div>
+            
+            <div className="divide-y divide-gray-700">
+              {order.items.map((item) => (
+                <div key={item.id} className="p-6 hover:bg-gray-750 transition-colors">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="text-lg font-medium text-white mb-1">{item.name}</h3>
+                      {item.prebuilt_pc_id ? (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                          Готовая сборка
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                          Конфигуратор
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-bold text-white">
+                        {parseFloat(item.price).toLocaleString('ru-RU')} ₽
+                      </div>
+                      <div className="text-sm text-gray-400">x{item.quantity} шт.</div>
+                    </div>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(item.status)}`}>
-                    {getStatusLabel(item.status)}
-                  </span>
+
+                  {/* Components List Logic */}
+                  {item.components && item.components.length > 0 ? (
+                    <div className="mt-4 pt-4 border-t border-gray-700">
+                      <h4 className="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
+                        <Cpu className="w-4 h-4" />
+                        Комплектующие:
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {item.components.map((comp) => {
+                          // Определяем имя роли
+                          const roleName = roleNames[comp.role] || roleNames.default;
+                          
+                          return (
+                            <div key={comp.id} className="bg-gray-900/50 rounded-lg p-3 border border-gray-700/50 flex flex-col justify-between">
+                              <div className="flex justify-between items-start mb-2">
+                                <span className="text-xs font-medium text-blue-400 uppercase tracking-wider bg-blue-500/10 px-2 py-0.5 rounded">
+                                  {roleName}
+                                </span>
+                                <span className="flex items-center text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded">
+                                  <Hash className="w-3 h-3 mr-1" />
+                                  {comp.quantity} шт.
+                                </span>
+                              </div>
+                              <div className="text-sm text-gray-200 font-medium truncate" title={comp.component?.model}>
+                                {comp.component?.model || `ID: ${comp.component_id}`}
+                              </div>
+                              <div className="text-xs text-gray-500 mt-1">
+                                {parseFloat(comp.price_snapshot).toLocaleString('ru-RU')} ₽
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mt-4 pt-4 border-t border-gray-700 text-sm text-gray-500 italic">
+                      Детали комплектующих недоступны
+                    </div>
+                  )}
                 </div>
-
-                {item.components && typeof item.components === 'object' && !Array.isArray(item.components) && Object.keys(item.components).length > 0 ? (
-                  <div className="mt-3">
-                    <h5 className="font-medium text-gray-700 mb-2">Комплектующие:</h5>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {Object.entries(item.components).map(([roleName, modelName]) => (
-                        <div key={roleName} className="text-sm text-gray-600">
-                          <span className="font-medium">{roleName}: </span>
-                          {modelName || 'Не указано'}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : item.components_data && Array.isArray(item.components_data) && item.components_data.length > 0 ? (
-                  <div className="mt-3">
-                    <h5 className="font-medium text-gray-700 mb-2">Комплектующие:</h5>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {item.components_data.map((comp, index) => (
-                        <div key={index} className="text-sm text-gray-600">
-                          <span className="font-medium">{comp.component?.model || comp.component?.name || 'Не указано'}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="mt-3 text-sm text-gray-500">
-                    Комплектующие не указаны
-                  </div>
-                )}
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className="border-t pt-4 mt-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-xl font-semibold text-gray-900">Итого:</h3>
-            <p className="text-2xl font-bold text-gray-900">{order.total_amount.toLocaleString()} ₽</p>
+        {/* Right Column: Info Cards */}
+        <div className="space-y-6">
+          {/* Customer Info */}
+          <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-lg">
+            <div className="px-6 py-4 border-b border-gray-700 bg-gray-800/50">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <User className="w-5 h-5 text-green-500" />
+                Покупатель
+              </h2>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="text-xs text-gray-500 uppercase tracking-wider">ФИО</label>
+                <div className="text-white font-medium mt-1">{order.recipient_name}</div>
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                  <Phone className="w-3 h-3" /> Телефон
+                </label>
+                <div className="text-white font-medium mt-1">{order.recipient_phone}</div>
+              </div>
+              {order.recipient_email && (
+                <div>
+                  <label className="text-xs text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                    <Mail className="w-3 h-3" /> Email
+                  </label>
+                  <div className="text-white font-medium mt-1 break-all">{order.recipient_email}</div>
+                </div>
+              )}
+              {order.user && (
+                <div className="pt-4 mt-4 border-t border-gray-700">
+                  <div className="text-xs text-gray-500 mb-2">Аккаунт</div>
+                  <div className="text-sm text-white font-medium">{order.user.name}</div>
+                  <div className="text-xs text-gray-500">{order.user.email}</div>
+                </div>
+              )}
+            </div>
           </div>
-          {order.paid_at && (
-            <p className="text-gray-600 mt-2">Оплачено: {new Date(order.paid_at).toLocaleDateString('ru-RU')}</p>
-          )}
+
+          {/* Delivery Info */}
+          <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-lg">
+            <div className="px-6 py-4 border-b border-gray-700 bg-gray-800/50">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <Truck className="w-5 h-5 text-orange-500" />
+                Доставка
+              </h2>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="text-xs text-gray-500 uppercase tracking-wider">Тип</label>
+                <div className="flex items-center gap-2 mt-1 text-white font-medium capitalize">
+                  {order.delivery_type === 'pickup' ? <MapPin className="w-4 h-4 text-orange-400"/> : <Truck className="w-4 h-4 text-orange-400"/>}
+                  {order.delivery_type === 'pickup' ? 'Самовывоз (СДЭК)' : 'Курьер'}
+                </div>
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 uppercase tracking-wider">Адрес</label>
+                <div className="text-white font-medium mt-1">{order.delivery_address}</div>
+              </div>
+              {order.cdek_code && (
+                <div>
+                  <label className="text-xs text-gray-500 uppercase tracking-wider">Код ПВЗ</label>
+                  <div className="text-white font-mono bg-gray-900 px-3 py-2 rounded border border-gray-700 inline-block mt-1">
+                    {order.cdek_code}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Status Controls */}
+          <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-lg">
+            <div className="px-6 py-4 border-b border-gray-700 bg-gray-800/50">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-emerald-500" />
+                Управление
+              </h2>
+            </div>
+            <div className="p-6 space-y-3">
+              <div className="flex justify-between items-center pb-4 border-b border-gray-700">
+                <span className="text-gray-400">Статус</span>
+                <span className={`px-2 py-1 rounded text-xs font-medium ${statusColors[order.status]}`}>
+                  {statusLabels[order.status]}
+                </span>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => updateOrderStatus('paid')}
+                  disabled={updating || order.status === 'paid'}
+                  className={`px-3 py-2 rounded text-xs font-medium transition-colors ${
+                    order.status === 'paid' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:opacity-50'
+                  }`}
+                >
+                  Оплачен
+                </button>
+                <button
+                  onClick={() => updateOrderStatus('preparing')}
+                  disabled={updating || order.status === 'preparing'}
+                  className={`px-3 py-2 rounded text-xs font-medium transition-colors ${
+                    order.status === 'preparing' 
+                      ? 'bg-purple-600 text-white' 
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:opacity-50'
+                  }`}
+                >
+                  Сборка
+                </button>
+                <button
+                  onClick={() => updateOrderStatus('shipped')}
+                  disabled={updating || order.status === 'shipped'}
+                  className={`px-3 py-2 rounded text-xs font-medium transition-colors ${
+                    order.status === 'shipped' 
+                      ? 'bg-indigo-600 text-white' 
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:opacity-50'
+                  }`}
+                >
+                  Отправлен
+                </button>
+                <button
+                  onClick={() => updateOrderStatus('delivered')}
+                  disabled={updating || order.status === 'delivered'}
+                  className={`px-3 py-2 rounded text-xs font-medium transition-colors ${
+                    order.status === 'delivered' 
+                      ? 'bg-green-600 text-white' 
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:opacity-50'
+                  }`}
+                >
+                  Доставлен
+                </button>
+                <button
+                  onClick={() => updateOrderStatus('cancelled')}
+                  disabled={updating || order.status === 'cancelled'}
+                  className={`col-span-2 px-3 py-2 rounded text-xs font-medium transition-colors ${
+                    order.status === 'cancelled' 
+                      ? 'bg-red-600 text-white' 
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:opacity-50'
+                  }`}
+                >
+                  Отменён
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
