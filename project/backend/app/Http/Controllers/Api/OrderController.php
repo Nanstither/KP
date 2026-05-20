@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderComponent;
 use App\Models\PrebuiltPc;
+use App\Models\CartItemComponent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -108,6 +109,7 @@ class OrderController extends Controller
             'delivery_type' => 'required|in:pickup,courier',
             'cdek_code' => 'nullable|string|max:50',
             'items' => 'required|array|min:1',
+            'items.*.cart_item_id' => 'nullable|integer|exists:cart_items,id',
             'items.*.prebuilt_pc_id' => 'nullable|exists:prebuilt_pcs,id',
             'items.*.name' => 'required|string',
             'items.*.quantity' => 'required|integer|min:1',
@@ -135,9 +137,32 @@ class OrderController extends Controller
 
             foreach ($validated['items'] as $itemData) {
                 $components = $itemData['components'] ?? null;
+                $cartItemId = $itemData['cart_item_id'] ?? null;
                 
                 // Отладка: логируем данные компонентов
-                \Log::info('Order item components:', ['item' => $itemData['name'], 'components' => $components]);
+                \Log::info('Order item components:', ['item' => $itemData['name'], 'components' => $components, 'cart_item_id' => $cartItemId]);
+                
+                // Если компоненты не переданы явно, но есть cart_item_id, загружаем из cart_item_components
+                if ((!$components || (is_array($components) && count($components) === 0)) && $cartItemId) {
+                    $cartItemComponents = CartItemComponent::with('component.category')
+                        ->where('cart_item_id', $cartItemId)
+                        ->get();
+                    
+                    if ($cartItemComponents->isNotEmpty()) {
+                        $components = [];
+                        foreach ($cartItemComponents as $cic) {
+                            $role = $cic->role ?? ($cic->component?->category?->slug ?? null);
+                            $components[] = [
+                                'component_id' => $cic->component_id,
+                                'price_snapshot' => $cic->price_snapshot,
+                                'quantity' => $cic->quantity ?? 1,
+                                'role' => $role,
+                                'model' => $cic->component?->model,
+                            ];
+                        }
+                        \Log::info('Loaded components from cart_item_components:', ['components' => $components]);
+                    }
+                }
                 
                 // Если указан prebuilt_pc_id и компоненты не переданы явно, загружаем их из БД
                 if ((!$components || (is_array($components) && count($components) === 0)) && !empty($itemData['prebuilt_pc_id'])) {
