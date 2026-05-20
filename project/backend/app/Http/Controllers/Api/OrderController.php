@@ -29,6 +29,21 @@ class OrderController extends Controller
             7 => 'Охлаждение',
         ];
         
+        // Если роль передана как строка (cpu, gpu, etc.)
+        if (is_string($role)) {
+            $stringRoles = [
+                'cpu' => 'Процессор',
+                'motherboard' => 'Материнская плата',
+                'gpu' => 'Видеокарта',
+                'ram' => 'Оперативная память',
+                'storage' => 'Накопитель',
+                'psu' => 'Блок питания',
+                'case' => 'Корпус',
+                'cooler' => 'Охлаждение',
+            ];
+            return $stringRoles[$role] ?? 'Компонент';
+        }
+        
         return $roles[$role] ?? 'Компонент';
     }
 
