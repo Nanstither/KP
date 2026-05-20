@@ -34,9 +34,14 @@ class CartController extends Controller
         $cart->load([
             'items' => function ($query) {
                 $query->with([
-                    'components:id,cart_item_id,component_id,price_snapshot,quantity,role',
-                    'components.component:id,model,image,price,category_id',
-                    'components.component.category:id,name,slug'
+                    'components' => function($q) {
+                        $q->with([
+                            'component' => function($cq) {
+                                $cq->with('category');
+                            }
+                        ]);
+                    },
+                    'components.component.category'
                 ]);
             }
         ]);
