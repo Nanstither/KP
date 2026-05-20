@@ -81,7 +81,7 @@ class OrderController extends Controller
                         'quantity' => $oc->quantity,
                         'component' => $oc->component ? [
                             'id' => $oc->component->id,
-                            'name' => $oc->component->name,
+                            
                             'model' => $oc->component->model,
                             'price' => $oc->component->price,
                         ] : null,
@@ -136,6 +136,9 @@ class OrderController extends Controller
             foreach ($validated['items'] as $itemData) {
                 $components = $itemData['components'] ?? null;
                 
+                // Отладка: логируем данные компонентов
+                \Log::info('Order item components:', ['item' => $itemData['name'], 'components' => $components]);
+                
                 // Если указан prebuilt_pc_id и компоненты не переданы явно, загружаем их из БД
                 if ((!$components || (is_array($components) && count($components) === 0)) && !empty($itemData['prebuilt_pc_id'])) {
                     $pc = PrebuiltPc::with('components')->find($itemData['prebuilt_pc_id']);
@@ -158,6 +161,8 @@ class OrderController extends Controller
                 
                 if (is_array($components) && count($components) > 0) {
                     foreach ($components as $compData) {
+                        \Log::info('Processing component:', ['compData' => $compData]);
+                        
                         // Формат данных с фронта: { component_id, price, quantity, role }
                         if (isset($compData['component_id'])) {
                             $componentId = $compData['component_id'];
@@ -225,6 +230,8 @@ class OrderController extends Controller
                     }
                 }
                 
+                \Log::info('Components for DB:', ['componentsForDb' => $componentsForDb]);
+                
                 $orderItem = OrderItem::create([
                     'order_id' => $order->id,
                     'prebuilt_pc_id' => $itemData['prebuilt_pc_id'] ?? null,
@@ -270,7 +277,7 @@ class OrderController extends Controller
                         'quantity' => $oc->quantity,
                         'component' => $oc->component ? [
                             'id' => $oc->component->id,
-                            'name' => $oc->component->name,
+                            
                             'model' => $oc->component->model,
                             'price' => $oc->component->price,
                         ] : null,
@@ -323,7 +330,7 @@ class OrderController extends Controller
                     'quantity' => $oc->quantity,
                     'component' => $oc->component ? [
                         'id' => $oc->component->id,
-                        'name' => $oc->component->name,
+                        
                         'model' => $oc->component->model,
                         'price' => $oc->component->price,
                     ] : null,
@@ -407,7 +414,7 @@ class OrderController extends Controller
                     'quantity' => $oc->quantity,
                     'component' => $oc->component ? [
                         'id' => $oc->component->id,
-                        'name' => $oc->component->name,
+                        
                         'model' => $oc->component->model,
                         'price' => $oc->component->price,
                     ] : null,
@@ -461,7 +468,7 @@ class OrderController extends Controller
                         'quantity' => $oc->quantity,
                         'component' => $oc->component ? [
                             'id' => $oc->component->id,
-                            'name' => $oc->component->name,
+                            
                             'model' => $oc->component->model,
                             'price' => $oc->component->price,
                         ] : null,
@@ -498,7 +505,7 @@ class OrderController extends Controller
                     'quantity' => $oc->quantity,
                     'component' => $oc->component ? [
                         'id' => $oc->component->id,
-                        'name' => $oc->component->name,
+                        
                         'model' => $oc->component->model,
                         'price' => $oc->component->price,
                     ] : null,

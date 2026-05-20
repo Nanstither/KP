@@ -11,8 +11,6 @@ class CartItemComponent extends Model
 
     protected $fillable = ['cart_item_id', 'component_id', 'price_snapshot', 'quantity', 'role'];
 
-    protected $appends = ['component_id', 'price_snapshot', 'quantity', 'role'];
-
     // Связь: Деталь принадлежит строке корзины
     public function cartItem(): BelongsTo
     {
