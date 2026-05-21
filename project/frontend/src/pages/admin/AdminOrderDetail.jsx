@@ -41,15 +41,15 @@ export default function AdminOrderDetail() {
     default: 'Компонент'
   };
 
-  // Цвета статусов для темной темы
+  // Цвета статусов для светлой и темной темы
   const statusColors = {
-    pending: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
-    paid: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-    preparing: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
-    shipped: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20',
-    delivered: 'bg-green-500/10 text-green-500 border-green-500/20',
-    cancelled: 'bg-red-500/10 text-red-500 border-red-500/20',
-    ready: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
+    pending: 'bg-yellow-100 dark:bg-yellow-500/10 text-yellow-700 dark:text-yellow-500 border-yellow-200 dark:border-yellow-500/20',
+    paid: 'bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-500 border-blue-200 dark:border-blue-500/20',
+    preparing: 'bg-purple-100 dark:bg-purple-500/10 text-purple-700 dark:text-purple-500 border-purple-200 dark:border-purple-500/20',
+    shipped: 'bg-indigo-100 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-500 border-indigo-200 dark:border-indigo-500/20',
+    delivered: 'bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-green-500 border-green-200 dark:border-green-500/20',
+    cancelled: 'bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-500 border-red-200 dark:border-red-500/20',
+    ready: 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-500 border-emerald-200 dark:border-emerald-500/20',
   };
 
   const statusLabels = {
@@ -97,7 +97,7 @@ export default function AdminOrderDetail() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-900">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     );
@@ -105,7 +105,7 @@ export default function AdminOrderDetail() {
 
   if (!order) {
     return (
-      <div className="container mx-auto px-4 py-8 bg-gray-900 min-h-screen text-gray-100">
+      <div className="container mx-auto px-4 py-8 bg-gray-50 dark:bg-gray-900 min-h-screen text-gray-900 dark:text-gray-100">
         <h1 className="text-2xl font-bold mb-4">Заказ не найден</h1>
         <button
           onClick={() => navigate('/admin/orders')}
@@ -118,12 +118,12 @@ export default function AdminOrderDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-6">
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-8">
         <button
           onClick={() => navigate('/admin/orders')}
-          className="flex items-center text-gray-400 hover:text-white transition-colors mb-6 group"
+          className="flex items-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors mb-6 group"
         >
           <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
           Назад к заказам
@@ -132,7 +132,7 @@ export default function AdminOrderDetail() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-3xl font-bold text-white">Заказ #{order.id}</h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Заказ #{order.id}</h1>
               <span className={`px-3 py-1 rounded-full text-sm font-medium border flex items-center gap-2 ${statusColors[order.status]}`}>
                 {order.status === 'pending' && <Clock className="w-4 h-4" />}
                 {order.status === 'paid' && <CheckCircle className="w-4 h-4" />}
@@ -141,16 +141,16 @@ export default function AdminOrderDetail() {
                 {statusLabels[order.status]}
               </span>
             </div>
-            <p className="text-gray-400 flex items-center gap-2">
+            <p className="text-gray-500 dark:text-gray-400 flex items-center gap-2">
               <Calendar className="w-4 h-4" />
               Создан: {new Date(order.created_at).toLocaleString('ru-RU')}
             </p>
           </div>
           <div className="text-right">
-            <div className="text-3xl font-bold text-blue-400">
+            <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
               {parseFloat(order.total_amount).toLocaleString('ru-RU')} ₽
             </div>
-            <div className="text-sm text-gray-400">Итоговая сумма</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Итоговая сумма</div>
           </div>
         </div>
       </div>
@@ -160,42 +160,42 @@ export default function AdminOrderDetail() {
         
         {/* Left Column: Items & Components */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-lg">
-            <div className="px-6 py-4 border-b border-gray-700 bg-gray-800/50">
-              <h2 className="text-xl font-semibold flex items-center gap-2">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-lg">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+              <h2 className="text-xl font-semibold flex items-center gap-2 text-gray-900 dark:text-white">
                 <Package className="w-5 h-5 text-blue-500" />
                 Товары в заказе
               </h2>
             </div>
             
-            <div className="divide-y divide-gray-700">
+            <div className="divide-y divide-gray-200 dark:divide-gray-700">
               {order.items.map((item) => (
-                <div key={item.id} className="p-6 hover:bg-gray-750 transition-colors">
+                <div key={item.id} className="p-6 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
                   <div className="flex justify-between items-start mb-4">
                     <div className='text-left'>
-                      <h3 className="text-lg font-medium text-white mb-1">{item.name}</h3>
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1">{item.name}</h3>
                       {item.prebuilt_pc_id ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-purple-100 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-500/20">
                           Готовая сборка
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-cyan-100 dark:bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-500/20">
                           Конфигуратор
                         </span>
                       )}
                     </div>
                     <div className="text-right">
-                      <div className="text-lg font-bold text-white">
+                      <div className="text-lg font-bold text-gray-900 dark:text-white">
                         {parseFloat(item.price).toLocaleString('ru-RU')} ₽
                       </div>
-                      <div className="text-sm text-gray-400">x{item.quantity} шт.</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">x{item.quantity} шт.</div>
                     </div>
                   </div>
 
                   {/* Components List Logic */}
                   {item.components && item.components.length > 0 ? (
-                    <div className="mt-4 pt-4 border-t border-gray-700">
-                      <h4 className="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
+                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                      <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2">
                         <Cpu className="w-4 h-4" />
                         Комплектующие:
                       </h4>
@@ -205,20 +205,20 @@ export default function AdminOrderDetail() {
                           const roleName = roleNames[comp.role] || roleNames.default;
                           
                           return (
-                            <div key={comp.id} className="bg-gray-900/50 rounded-lg p-3 border border-gray-700/50 flex flex-col justify-between">
+                            <div key={comp.id} className="bg-gray-100 dark:bg-gray-900/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700/50 flex flex-col justify-between">
                               <div className="flex justify-between items-start mb-2">
-                                <span className="text-xs font-medium text-blue-400 uppercase tracking-wider bg-blue-500/10 px-2 py-0.5 rounded">
+                                <span className="text-xs font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wider bg-blue-100 dark:bg-blue-500/10 px-2 py-0.5 rounded">
                                   {roleName}
                                 </span>
-                                <span className="flex items-center text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded">
+                                <span className="flex items-center text-xs text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-800 px-2 py-0.5 rounded">
                                   <Hash className="w-3 h-3 mr-1" />
                                   {comp.quantity} шт.
                                 </span>
                               </div>
-                              <div className="text-sm text-gray-200 font-medium truncate" title={comp.component?.model}>
+                              <div className="text-sm text-gray-700 dark:text-gray-200 font-medium truncate" title={comp.component?.model}>
                                 {comp.component?.model || `ID: ${comp.component_id}`}
                               </div>
-                              <div className="text-xs text-gray-500 mt-1">
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 {parseFloat(comp.price_snapshot).toLocaleString('ru-RU')} ₽
                               </div>
                             </div>
@@ -227,7 +227,7 @@ export default function AdminOrderDetail() {
                       </div>
                     </div>
                   ) : (
-                    <div className="mt-4 pt-4 border-t border-gray-700 text-sm text-gray-500 italic">
+                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400 italic">
                       Детали комплектующих недоступны
                     </div>
                   )}
@@ -240,66 +240,66 @@ export default function AdminOrderDetail() {
         {/* Right Column: Info Cards */}
         <div className="space-y-6">
           {/* Customer Info */}
-          <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-lg">
-            <div className="px-6 py-4 border-b border-gray-700 bg-gray-800/50">
-              <h2 className="text-xl font-semibold flex items-center gap-2">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-lg">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+              <h2 className="text-xl font-semibold flex items-center gap-2 text-gray-900 dark:text-white">
                 <User className="w-5 h-5 text-green-500" />
                 Покупатель
               </h2>
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <label className="text-xs text-gray-500 uppercase tracking-wider">ФИО</label>
-                <div className="text-white font-medium mt-1">{order.recipient_name}</div>
+                <label className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">ФИО</label>
+                <div className="text-gray-900 dark:text-white font-medium mt-1">{order.recipient_name}</div>
               </div>
               <div>
-                <label className="text-xs text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                <label className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-2">
                   <Phone className="w-3 h-3" /> Телефон
                 </label>
-                <div className="text-white font-medium mt-1">{order.recipient_phone}</div>
+                <div className="text-gray-900 dark:text-white font-medium mt-1">{order.recipient_phone}</div>
               </div>
               {order.recipient_email && (
                 <div>
-                  <label className="text-xs text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                  <label className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-2">
                     <Mail className="w-3 h-3" /> Email
                   </label>
-                  <div className="text-white font-medium mt-1 break-all">{order.recipient_email}</div>
+                  <div className="text-gray-900 dark:text-white font-medium mt-1 break-all">{order.recipient_email}</div>
                 </div>
               )}
               {order.user && (
-                <div className="pt-4 mt-4 border-t border-gray-700">
-                  <div className="text-xs text-gray-500 mb-2">Аккаунт</div>
-                  <div className="text-sm text-white font-medium">{order.user.name}</div>
-                  <div className="text-xs text-gray-500">{order.user.email}</div>
+                <div className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">Аккаунт</div>
+                  <div className="text-sm text-gray-900 dark:text-white font-medium">{order.user.name}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">{order.user.email}</div>
                 </div>
               )}
             </div>
           </div>
 
           {/* Delivery Info */}
-          <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-lg">
-            <div className="px-6 py-4 border-b border-gray-700 bg-gray-800/50">
-              <h2 className="text-xl font-semibold flex items-center gap-2">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-lg">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+              <h2 className="text-xl font-semibold flex items-center gap-2 text-gray-900 dark:text-white">
                 <Truck className="w-5 h-5 text-orange-500" />
                 Доставка
               </h2>
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <label className="text-xs text-gray-500 uppercase tracking-wider">Тип</label>
-                <div className="flex items-center gap-2 mt-1 text-white font-medium capitalize">
+                <label className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">Тип</label>
+                <div className="flex items-center gap-2 mt-1 text-gray-900 dark:text-white font-medium capitalize">
                   {order.delivery_type === 'pickup' ? <MapPin className="w-4 h-4 text-orange-400"/> : <Truck className="w-4 h-4 text-orange-400"/>}
                   {order.delivery_type === 'pickup' ? 'Самовывоз (СДЭК)' : 'Курьер'}
                 </div>
               </div>
               <div>
-                <label className="text-xs text-gray-500 uppercase tracking-wider">Адрес</label>
-                <div className="text-white font-medium mt-1">{order.delivery_address}</div>
+                <label className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">Адрес</label>
+                <div className="text-gray-900 dark:text-white font-medium mt-1">{order.delivery_address}</div>
               </div>
               {order.cdek_code && (
                 <div>
-                  <label className="text-xs text-gray-500 uppercase tracking-wider">Код ПВЗ</label>
-                  <div className="text-white font-mono bg-gray-900 px-3 py-2 rounded border border-gray-700 inline-block mt-1">
+                  <label className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">Код ПВЗ</label>
+                  <div className="text-gray-900 dark:text-white font-mono bg-gray-100 dark:bg-gray-900 px-3 py-2 rounded border border-gray-200 dark:border-gray-700 inline-block mt-1">
                     {order.cdek_code}
                   </div>
                 </div>
@@ -308,16 +308,16 @@ export default function AdminOrderDetail() {
           </div>
 
           {/* Status Controls */}
-          <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-lg">
-            <div className="px-6 py-4 border-b border-gray-700 bg-gray-800/50">
-              <h2 className="text-xl font-semibold flex items-center gap-2">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-lg">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+              <h2 className="text-xl font-semibold flex items-center gap-2 text-gray-900 dark:text-white">
                 <CreditCard className="w-5 h-5 text-emerald-500" />
                 Управление
               </h2>
             </div>
             <div className="p-6 space-y-3">
-              <div className="flex justify-between items-center pb-4 border-b border-gray-700">
-                <span className="text-gray-400">Статус</span>
+              <div className="flex justify-between items-center pb-4 border-b border-gray-200 dark:border-gray-700">
+                <span className="text-gray-500 dark:text-gray-400">Статус</span>
                 <span className={`px-2 py-1 rounded text-xs font-medium ${statusColors[order.status]}`}>
                   {statusLabels[order.status]}
                 </span>
@@ -330,7 +330,7 @@ export default function AdminOrderDetail() {
                   className={`px-3 py-2 rounded text-xs font-medium transition-colors ${
                     order.status === 'paid' 
                       ? 'bg-blue-600 text-white' 
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:opacity-50'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50'
                   }`}
                 >
                   Оплачен
@@ -341,7 +341,7 @@ export default function AdminOrderDetail() {
                   className={`px-3 py-2 rounded text-xs font-medium transition-colors ${
                     order.status === 'preparing' 
                       ? 'bg-purple-600 text-white' 
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:opacity-50'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50'
                   }`}
                 >
                   Сборка
@@ -352,7 +352,7 @@ export default function AdminOrderDetail() {
                   className={`px-3 py-2 rounded text-xs font-medium transition-colors ${
                     order.status === 'shipped' 
                       ? 'bg-indigo-600 text-white' 
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:opacity-50'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50'
                   }`}
                 >
                   Отправлен
@@ -363,7 +363,7 @@ export default function AdminOrderDetail() {
                   className={`px-3 py-2 rounded text-xs font-medium transition-colors ${
                     order.status === 'delivered' 
                       ? 'bg-green-600 text-white' 
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:opacity-50'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50'
                   }`}
                 >
                   Доставлен
@@ -374,7 +374,7 @@ export default function AdminOrderDetail() {
                   className={`col-span-2 px-3 py-2 rounded text-xs font-medium transition-colors ${
                     order.status === 'cancelled' 
                       ? 'bg-red-600 text-white' 
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:opacity-50'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50'
                   }`}
                 >
                   Отменён
