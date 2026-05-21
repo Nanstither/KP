@@ -1,1 +1,1 @@
-(project/frontend/src/pages/admin/AdminOrderDetail.jsx)
+Nothing needs to be added to the .gitignore file based on the provided changes. The only modified file is a PHP source code file (`FillDatabaseSeeder.php`), which should not be ignored. There are no build artifacts, dependencies, temporary files, or other items that require ignoring in this case.

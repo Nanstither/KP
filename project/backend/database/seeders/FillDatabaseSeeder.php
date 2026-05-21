@@ -11,12 +11,23 @@ class FillDatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // ========== 0. ПОЛЬЗОВАТЕЛИ ==========
-        DB::table('users');
+        // ========== 0. ПОЛЬЗОВАТЕЛИ (30 шт) ==========
+        DB::table('users')->truncate();
         $users = [
             ['name' => 'Admin Test', 'email' => 'admin@test.com', 'role' => 'admin', 'password' => 'admin'],
             ['name' => 'Manager Test', 'email' => 'manager@test.com', 'password' => 'manager', 'role' => 'manager'],
         ];
+        
+        // Добавляем 28 обычных пользователей
+        for ($i = 1; $i <= 28; $i++) {
+            $users[] = [
+                'name' => "User {$i}",
+                'email' => "user{$i}@test.com",
+                'role' => 'user',
+                'password' => "user{$i}",
+            ];
+        }
+        
         foreach ($users as $user) {
             DB::table('users')->insert([
                 'name' => $user['name'],
@@ -170,57 +181,118 @@ class FillDatabaseSeeder extends Seeder
             'HBM2' => null, 'HBM2e' => null
         ];
 
-        // ========== 6. КОМПОНЕНТЫ + СПЕЦИФИКАЦИИ ==========
+        // ========== 6. КОМПОНЕНТЫ + СПЕЦИФИКАЦИИ (30 шт в каждой категории = 240 шт) ==========
 
-        // 6.1 ПРОЦЕССОРЫ
-        DB::table('cpu_specs'); // Сначала удаляем спеки, если есть
+        // 6.1 ПРОЦЕССОРЫ (30 шт)
+        DB::table('cpu_specs');
         DB::table('components')->where('category_id', $catCpu)->delete();
 
-        $cpus = [
-            ['brand' => $bIntel, 'model' => 'Core i9-14900K', 'price' => 58990, 'socket' => $sLGA1700, 'cores' => 24, 'threads' => 32, 'base' => 3200, 'boost' => 6000, 'tdp' => 253],
-            ['brand' => $bIntel, 'model' => 'Core i5-14400F', 'price' => 18990, 'socket' => $sLGA1700, 'cores' => 10, 'threads' => 16, 'base' => 2500, 'boost' => 4700, 'tdp' => 65],
-            ['brand' => $bAmd, 'model' => 'Ryzen 9 7950X', 'price' => 54990, 'socket' => $sAM5, 'cores' => 16, 'threads' => 32, 'base' => 4500, 'boost' => 5700, 'tdp' => 170],
-            ['brand' => $bAmd, 'model' => 'Ryzen 7 7800X3D', 'price' => 42990, 'socket' => $sAM5, 'cores' => 8, 'threads' => 16, 'base' => 4200, 'boost' => 5000, 'tdp' => 120],
-            ['brand' => $bAmd, 'model' => 'Ryzen 5 5600', 'price' => 11990, 'socket' => $sAM4, 'cores' => 6, 'threads' => 12, 'base' => 3500, 'boost' => 4400, 'tdp' => 65],
+        $cpuModels = [
+            ['brand' => $bIntel, 'socket' => $sLGA1700, 'models' => [
+                ['model' => 'Core i9-14900K', 'price' => 58990, 'cores' => 24, 'threads' => 32, 'base' => 3200, 'boost' => 6000, 'tdp' => 253],
+                ['model' => 'Core i9-14900KF', 'price' => 56990, 'cores' => 24, 'threads' => 32, 'base' => 3200, 'boost' => 6000, 'tdp' => 253],
+                ['model' => 'Core i9-14900', 'price' => 54990, 'cores' => 24, 'threads' => 32, 'base' => 2000, 'boost' => 5800, 'tdp' => 65],
+                ['model' => 'Core i7-14700K', 'price' => 42990, 'cores' => 20, 'threads' => 28, 'base' => 3400, 'boost' => 5600, 'tdp' => 253],
+                ['model' => 'Core i7-14700', 'price' => 40990, 'cores' => 20, 'threads' => 28, 'base' => 2100, 'boost' => 5400, 'tdp' => 65],
+                ['model' => 'Core i5-14600K', 'price' => 32990, 'cores' => 14, 'threads' => 20, 'base' => 3500, 'boost' => 5300, 'tdp' => 125],
+                ['model' => 'Core i5-14600', 'price' => 30990, 'cores' => 14, 'threads' => 20, 'base' => 2700, 'boost' => 5200, 'tdp' => 65],
+                ['model' => 'Core i5-14500', 'price' => 24990, 'cores' => 14, 'threads' => 20, 'base' => 2600, 'boost' => 5000, 'tdp' => 65],
+                ['model' => 'Core i5-14400F', 'price' => 18990, 'cores' => 10, 'threads' => 16, 'base' => 2500, 'boost' => 4700, 'tdp' => 65],
+                ['model' => 'Core i5-14400', 'price' => 19990, 'cores' => 10, 'threads' => 16, 'base' => 2500, 'boost' => 4700, 'tdp' => 65],
+                ['model' => 'Core i3-14100F', 'price' => 11990, 'cores' => 4, 'threads' => 8, 'base' => 3500, 'boost' => 4700, 'tdp' => 58],
+                ['model' => 'Core i3-14100', 'price' => 12990, 'cores' => 4, 'threads' => 8, 'base' => 3500, 'boost' => 4700, 'tdp' => 58],
+            ]],
+            ['brand' => $bAmd, 'socket' => $sAM5, 'models' => [
+                ['model' => 'Ryzen 9 7950X', 'price' => 54990, 'cores' => 16, 'threads' => 32, 'base' => 4500, 'boost' => 5700, 'tdp' => 170],
+                ['model' => 'Ryzen 9 7950X3D', 'price' => 59990, 'cores' => 16, 'threads' => 32, 'base' => 4200, 'boost' => 5700, 'tdp' => 120],
+                ['model' => 'Ryzen 9 7900X', 'price' => 42990, 'cores' => 12, 'threads' => 24, 'base' => 4700, 'boost' => 5600, 'tdp' => 170],
+                ['model' => 'Ryzen 7 7800X3D', 'price' => 42990, 'cores' => 8, 'threads' => 16, 'base' => 4200, 'boost' => 5000, 'tdp' => 120],
+                ['model' => 'Ryzen 7 7700X', 'price' => 32990, 'cores' => 8, 'threads' => 16, 'base' => 4500, 'boost' => 5400, 'tdp' => 105],
+                ['model' => 'Ryzen 7 7700', 'price' => 30990, 'cores' => 8, 'threads' => 16, 'base' => 3800, 'boost' => 5300, 'tdp' => 65],
+                ['model' => 'Ryzen 5 7600X', 'price' => 24990, 'cores' => 6, 'threads' => 12, 'base' => 4700, 'boost' => 5300, 'tdp' => 105],
+                ['model' => 'Ryzen 5 7600', 'price' => 22990, 'cores' => 6, 'threads' => 12, 'base' => 3800, 'boost' => 5100, 'tdp' => 65],
+                ['model' => 'Ryzen 5 7500F', 'price' => 17990, 'cores' => 6, 'threads' => 12, 'base' => 3700, 'boost' => 5000, 'tdp' => 65],
+            ]],
+            ['brand' => $bAmd, 'socket' => $sAM4, 'models' => [
+                ['model' => 'Ryzen 7 5800X3D', 'price' => 32990, 'cores' => 8, 'threads' => 16, 'base' => 3400, 'boost' => 4500, 'tdp' => 105],
+                ['model' => 'Ryzen 7 5800X', 'price' => 24990, 'cores' => 8, 'threads' => 16, 'base' => 3800, 'boost' => 4700, 'tdp' => 105],
+                ['model' => 'Ryzen 7 5700X', 'price' => 19990, 'cores' => 8, 'threads' => 16, 'base' => 3400, 'boost' => 4600, 'tdp' => 65],
+                ['model' => 'Ryzen 5 5600X', 'price' => 14990, 'cores' => 6, 'threads' => 12, 'base' => 3700, 'boost' => 4600, 'tdp' => 65],
+                ['model' => 'Ryzen 5 5600', 'price' => 11990, 'cores' => 6, 'threads' => 12, 'base' => 3500, 'boost' => 4400, 'tdp' => 65],
+                ['model' => 'Ryzen 5 5500', 'price' => 9990, 'cores' => 6, 'threads' => 12, 'base' => 3600, 'boost' => 4200, 'tdp' => 65],
+            ]],
         ];
-        foreach ($cpus as $cpu) {
-            $id = DB::table('components')->insertGetId([
-                'category_id' => $catCpu, 'brand_id' => $cpu['brand'], 'model' => $cpu['model'],
-                'price' => $cpu['price'], 'stock' => rand(5, 50),
-                'image' => 'images/components/cpu/' . Str::slug($cpu['model']) . '.jpg',
-                'created_at' => now(), 'updated_at' => now(),
-            ]);
-            DB::table('cpu_specs')->insert([
-                'component_id' => $id, 'socket_id' => $cpu['socket'],
-                'cores' => $cpu['cores'], 'threads' => $cpu['threads'],
-                'base_clock_mhz' => $cpu['base'], 'boost_clock_mhz' => $cpu['boost'],
-                'tdp_watts' => $cpu['tdp'], 'created_at' => now(), 'updated_at' => now(),
-            ]);
+
+        $cpuCount = 0;
+        foreach ($cpuModels as $group) {
+            foreach ($group['models'] as $cpu) {
+                if ($cpuCount >= 30) break;
+                $id = DB::table('components')->insertGetId([
+                    'category_id' => $catCpu, 'brand_id' => $group['brand'], 'model' => $cpu['model'],
+                    'price' => $cpu['price'], 'stock' => rand(5, 50),
+                    'image' => 'images/components/cpu/' . Str::slug($cpu['model']) . '.jpg',
+                    'created_at' => now(), 'updated_at' => now(),
+                ]);
+                DB::table('cpu_specs')->insert([
+                    'component_id' => $id, 'socket_id' => $group['socket'],
+                    'cores' => $cpu['cores'], 'threads' => $cpu['threads'],
+                    'base_clock_mhz' => $cpu['base'], 'boost_clock_mhz' => $cpu['boost'],
+                    'tdp_watts' => $cpu['tdp'], 'created_at' => now(), 'updated_at' => now(),
+                ]);
+                $cpuCount++;
+            }
         }
 
-        // 6.2 ВИДЕОКАРТЫ
+        // 6.2 ВИДЕОКАРТЫ (30 шт)
         DB::table('gpu_specs');
         DB::table('components')->where('category_id', $catGpu)->delete();
 
-        $gpus = [
+        $gpuModels = [
             ['brand' => $bNvidia, 'model' => 'GeForce RTX 4090', 'price' => 189990, 'vram' => 24, 'vram_type' => 'GDDR6X', 'bus' => 384, 'tdp' => 450],
+            ['brand' => $bNvidia, 'model' => 'GeForce RTX 4080 Super', 'price' => 129990, 'vram' => 16, 'vram_type' => 'GDDR6X', 'bus' => 256, 'tdp' => 320],
+            ['brand' => $bNvidia, 'model' => 'GeForce RTX 4070 Ti Super', 'price' => 89990, 'vram' => 16, 'vram_type' => 'GDDR6X', 'bus' => 256, 'tdp' => 285],
+            ['brand' => $bNvidia, 'model' => 'GeForce RTX 4070 Super', 'price' => 69990, 'vram' => 12, 'vram_type' => 'GDDR6X', 'bus' => 192, 'tdp' => 220],
+            ['brand' => $bNvidia, 'model' => 'GeForce RTX 4070', 'price' => 59990, 'vram' => 12, 'vram_type' => 'GDDR6X', 'bus' => 192, 'tdp' => 200],
+            ['brand' => $bNvidia, 'model' => 'GeForce RTX 4060 Ti 16GB', 'price' => 49990, 'vram' => 16, 'vram_type' => 'GDDR6', 'bus' => 128, 'tdp' => 165],
+            ['brand' => $bNvidia, 'model' => 'GeForce RTX 4060 Ti', 'price' => 42990, 'vram' => 8, 'vram_type' => 'GDDR6', 'bus' => 128, 'tdp' => 160],
             ['brand' => $bNvidia, 'model' => 'GeForce RTX 4060', 'price' => 35000, 'vram' => 8, 'vram_type' => 'GDDR6', 'bus' => 128, 'tdp' => 115],
+            ['brand' => $bAsus, 'model' => 'TUF RTX 4090', 'price' => 199990, 'vram' => 24, 'vram_type' => 'GDDR6X', 'bus' => 384, 'tdp' => 450],
+            ['brand' => $bAsus, 'model' => 'ROG Strix RTX 4080', 'price' => 139990, 'vram' => 16, 'vram_type' => 'GDDR6X', 'bus' => 256, 'tdp' => 320],
             ['brand' => $bAsus, 'model' => 'TUF RTX 4070', 'price' => 69990, 'vram' => 12, 'vram_type' => 'GDDR6X', 'bus' => 192, 'tdp' => 200],
+            ['brand' => $bAsus, 'model' => 'Dual RTX 4060', 'price' => 34990, 'vram' => 8, 'vram_type' => 'GDDR6', 'bus' => 128, 'tdp' => 115],
+            ['brand' => $bMsi, 'model' => 'RTX 4090 Gaming X Trio', 'price' => 194990, 'vram' => 24, 'vram_type' => 'GDDR6X', 'bus' => 384, 'tdp' => 450],
+            ['brand' => $bMsi, 'model' => 'RTX 4070 Ti Gaming X', 'price' => 84990, 'vram' => 12, 'vram_type' => 'GDDR6X', 'bus' => 192, 'tdp' => 285],
+            ['brand' => $bMsi, 'model' => 'RTX 4060 Ventus', 'price' => 33990, 'vram' => 8, 'vram_type' => 'GDDR6', 'bus' => 128, 'tdp' => 115],
+            ['brand' => $bGigabyte, 'model' => 'RTX 4090 Gaming OC', 'price' => 192990, 'vram' => 24, 'vram_type' => 'GDDR6X', 'bus' => 384, 'tdp' => 450],
+            ['brand' => $bGigabyte, 'model' => 'RTX 4070 Eagle', 'price' => 64990, 'vram' => 12, 'vram_type' => 'GDDR6X', 'bus' => 192, 'tdp' => 200],
+            ['brand' => $bGigabyte, 'model' => 'RTX 4060 OC', 'price' => 34490, 'vram' => 8, 'vram_type' => 'GDDR6', 'bus' => 128, 'tdp' => 115],
+            ['brand' => $bNvidia, 'model' => 'GeForce RTX 3060 12GB', 'price' => 28990, 'vram' => 12, 'vram_type' => 'GDDR6', 'bus' => 192, 'tdp' => 170],
+            ['brand' => $bNvidia, 'model' => 'GeForce RTX 3050', 'price' => 22990, 'vram' => 8, 'vram_type' => 'GDDR6', 'bus' => 128, 'tdp' => 130],
+            ['brand' => $bAsus, 'model' => 'TUF RTX 3060', 'price' => 29990, 'vram' => 12, 'vram_type' => 'GDDR6', 'bus' => 192, 'tdp' => 170],
+            ['brand' => $bMsi, 'model' => 'RTX 3060 Ventus', 'price' => 28490, 'vram' => 12, 'vram_type' => 'GDDR6', 'bus' => 192, 'tdp' => 170],
+            ['brand' => $bGigabyte, 'model' => 'RTX 3060 OC', 'price' => 29490, 'vram' => 12, 'vram_type' => 'GDDR6', 'bus' => 192, 'tdp' => 170],
+            ['brand' => $bAsus, 'model' => 'Dual RTX 3050', 'price' => 23990, 'vram' => 8, 'vram_type' => 'GDDR6', 'bus' => 128, 'tdp' => 130],
+            ['brand' => $bMsi, 'model' => 'RTX 3050 Ventus', 'price' => 22490, 'vram' => 8, 'vram_type' => 'GDDR6', 'bus' => 128, 'tdp' => 130],
+            ['brand' => $bGigabyte, 'model' => 'RTX 3050 OC', 'price' => 23490, 'vram' => 8, 'vram_type' => 'GDDR6', 'bus' => 128, 'tdp' => 130],
+            ['brand' => $bNvidia, 'model' => 'GeForce RTX 4070 Ti', 'price' => 79990, 'vram' => 12, 'vram_type' => 'GDDR6X', 'bus' => 192, 'tdp' => 285],
+            ['brand' => $bAsus, 'model' => 'ROG Strix RTX 4070', 'price' => 74990, 'vram' => 12, 'vram_type' => 'GDDR6X', 'bus' => 192, 'tdp' => 200],
+            ['brand' => $bMsi, 'model' => 'RTX 4080 Gaming X Trio', 'price' => 134990, 'vram' => 16, 'vram_type' => 'GDDR6X', 'bus' => 256, 'tdp' => 320],
+            ['brand' => $bGigabyte, 'model' => 'RTX 4080 Gaming OC', 'price' => 132990, 'vram' => 16, 'vram_type' => 'GDDR6X', 'bus' => 256, 'tdp' => 320],
         ];
-        foreach ($gpus as $gpu) {
+
+        foreach ($gpuModels as $gpu) {
             $id = DB::table('components')->insertGetId([
                 'category_id' => $catGpu, 'brand_id' => $gpu['brand'], 'model' => $gpu['model'],
                 'price' => $gpu['price'], 'stock' => rand(3, 30),
                 'image' => 'images/components/gpu/' . Str::slug($gpu['model']) . '.jpg',
                 'created_at' => now(), 'updated_at' => now(),
             ]);
-            // ✅ Используем ID из справочника vram_types
             $vramTypeId = $vramMap[$gpu['vram_type']] ?? $vGDDR6; 
             
             DB::table('gpu_specs')->insert([
                 'component_id' => $id,
                 'vram_gb' => $gpu['vram'],
-                'vram_type_id' => $vramTypeId, // FK
+                'vram_type_id' => $vramTypeId,
                 'memory_bus_bit' => $gpu['bus'], 'tdp_watts' => $gpu['tdp'],
                 'length_mm' => rand(240, 340), 'width_mm' => rand(110, 140),
                 'pcie_slots_required' => rand(2, 3), 'pcie_gen' => '4.0',
@@ -400,12 +472,12 @@ class FillDatabaseSeeder extends Seeder
             }
         }
 
-        // ========== 7. ГОТОВЫЕ СБОРКИ (без изменений) ==========
-        DB::table('prebuilt_pcs');
+        // ========== 7. ГОТОВЫЕ СБОРКИ (30 шт) ==========
+        DB::table('prebuilt_pcs')->truncate();
         DB::table('prebuilt_pc_component');
         DB::table('prebuilt_pc_tag');
         
-        $tagNames = ['Игровой', 'Для работы', 'Бюджетный', 'Топовый', 'RGB', 'Компактный', 'Мощный'];
+        $tagNames = ['Игровой', 'Для работы', 'Бюджетный', 'Топовый', 'RGB', 'Компактный', 'Мощный', 'Офисный', 'Стриминг'];
         foreach ($tagNames as $name) {
             DB::table('tags')->updateOrInsert(['name' => $name], ['slug' => Str::slug($name), 'created_at' => now(), 'updated_at' => now()]);
         }
@@ -422,20 +494,47 @@ class FillDatabaseSeeder extends Seeder
             'case' => DB::table('components')->where('category_id', $catCase)->pluck('id')->toArray(),
         ];
 
-        $bases = [
-            ['name' => 'Storm', 'price' => 65000, 'tags' => ['Бюджетный', 'Игровой']],
-            ['name' => 'Titan', 'price' => 105000, 'tags' => ['Игровой', 'Топовый']],
+        $pcConfigs = [
+            ['name' => 'Storm Basic', 'price' => 45000, 'tags' => ['Бюджетный', 'Офисный']],
+            ['name' => 'Storm Lite', 'price' => 55000, 'tags' => ['Бюджетный', 'Игровой']],
+            ['name' => 'Storm Pro', 'price' => 65000, 'tags' => ['Игровой', 'RGB']],
+            ['name' => 'Storm Ultra', 'price' => 75000, 'tags' => ['Игровой', 'Мощный']],
+            ['name' => 'Storm RGB', 'price' => 85000, 'tags' => ['RGB', 'Игровой']],
+            ['name' => 'Titan Entry', 'price' => 95000, 'tags' => ['Игровой', 'Топовый']],
+            ['name' => 'Titan Gaming', 'price' => 105000, 'tags' => ['Игровой', 'Мощный']],
+            ['name' => 'Titan Pro', 'price' => 125000, 'tags' => ['Топовый', 'RGB']],
+            ['name' => 'Titan Ultra', 'price' => 145000, 'tags' => ['Топовый', 'Мощный']],
+            ['name' => 'Titan Extreme', 'price' => 165000, 'tags' => ['Топовый', 'RGB', 'Мощный']],
+            ['name' => 'Work Station', 'price' => 85000, 'tags' => ['Для работы', 'Мощный']],
+            ['name' => 'Work Pro', 'price' => 115000, 'tags' => ['Для работы', 'Топовый']],
+            ['name' => 'Stream Master', 'price' => 135000, 'tags' => ['Стриминг', 'RGB']],
+            ['name' => 'Stream Pro', 'price' => 155000, 'tags' => ['Стриминг', 'Топовый']],
+            ['name' => 'Compact Mini', 'price' => 65000, 'tags' => ['Компактный', 'Игровой']],
+            ['name' => 'Compact Pro', 'price' => 95000, 'tags' => ['Компактный', 'Топовый']],
+            ['name' => 'RGB Gamer', 'price' => 75000, 'tags' => ['RGB', 'Игровой']],
+            ['name' => 'RGB Master', 'price' => 105000, 'tags' => ['RGB', 'Мощный']],
+            ['name' => 'Budget King', 'price' => 40000, 'tags' => ['Бюджетный']],
+            ['name' => 'Budget Plus', 'price' => 50000, 'tags' => ['Бюджетный', 'Офисный']],
+            ['name' => 'Office Basic', 'price' => 35000, 'tags' => ['Офисный', 'Бюджетный']],
+            ['name' => 'Office Pro', 'price' => 55000, 'tags' => ['Офисный', 'Для работы']],
+            ['name' => 'Power Beast', 'price' => 175000, 'tags' => ['Мощный', 'Топовый']],
+            ['name' => 'Power Ultimate', 'price' => 195000, 'tags' => ['Мощный', 'RGB', 'Топовый']],
+            ['name' => 'Top Tier', 'price' => 215000, 'tags' => ['Топовый', 'Мощный']],
+            ['name' => 'Top Elite', 'price' => 235000, 'tags' => ['Топовый', 'RGB']],
+            ['name' => 'Game Master', 'price' => 125000, 'tags' => ['Игровой', 'Топовый', 'RGB']],
+            ['name' => 'Game Legend', 'price' => 185000, 'tags' => ['Игровой', 'Мощный', 'RGB']],
+            ['name' => 'Creator PC', 'price' => 145000, 'tags' => ['Для работы', 'Мощный', 'RGB']],
+            ['name' => 'Creator Pro', 'price' => 175000, 'tags' => ['Для работы', 'Топовый', 'Мощный']],
         ];
         
-        for ($i = 1; $i <= 5; $i++) {
-            $base = $bases[($i - 1) % count($bases)];
-            $pcName = "{$base['name']} Build #{$i}";
+        foreach ($pcConfigs as $index => $config) {
+            $pcName = $config['name'];
             
             $pcId = DB::table('prebuilt_pcs')->insertGetId([
                 'name' => $pcName, 'slug' => Str::slug($pcName),
                 'description' => "Готовая сборка {$pcName}.",
-                'price' => $base['price'] + rand(-2000, 5000),
-                'image' => "pcs/pc_{$i}.jpg", 'is_active' => true,
+                'price' => $config['price'] + rand(-2000, 5000),
+                'image' => "pcs/pc_" . ($index + 1) . ".jpg", 'is_active' => true,
                 'created_at' => now(), 'updated_at' => now()
             ]);
 
@@ -448,7 +547,7 @@ class FillDatabaseSeeder extends Seeder
                 }
             }
 
-            foreach ($base['tags'] as $tName) {
+            foreach ($config['tags'] as $tName) {
                 if(isset($tagMap[$tName])) {
                     DB::table('prebuilt_pc_tag')->insert([
                         'prebuilt_pc_id' => $pcId, 'tag_id' => $tagMap[$tName],
@@ -458,6 +557,6 @@ class FillDatabaseSeeder extends Seeder
             }
         }
         
-        $this->command->info('✅ Готово! База успешно заполнена новыми справочниками и компонентами.');
+        $this->command->info('✅ Готово! База успешно заполнена: 30 пользователей, 240 компонентов, 30 готовых сборок.');
     }
 }
