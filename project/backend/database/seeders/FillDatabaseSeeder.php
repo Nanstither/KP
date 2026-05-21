@@ -12,7 +12,7 @@ class FillDatabaseSeeder extends Seeder
     public function run(): void
     {
         // ========== 0. ПОЛЬЗОВАТЕЛИ (30 шт) ==========
-        DB::table('users')->truncate();
+        DB::table('users');
         $users = [
             ['name' => 'Admin Test', 'email' => 'admin@test.com', 'role' => 'admin', 'password' => 'admin'],
             ['name' => 'Manager Test', 'email' => 'manager@test.com', 'password' => 'manager', 'role' => 'manager'],
@@ -473,7 +473,7 @@ class FillDatabaseSeeder extends Seeder
         }
 
         // ========== 7. ГОТОВЫЕ СБОРКИ (30 шт) ==========
-        DB::table('prebuilt_pcs')->truncate();
+        DB::table('prebuilt_pcs');
         DB::table('prebuilt_pc_component');
         DB::table('prebuilt_pc_tag');
         

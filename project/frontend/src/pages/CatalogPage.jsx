@@ -7,7 +7,7 @@ import { Search, Monitor, Cpu, Filter, ShoppingCart, Loader2, ChevronLeft, Chevr
 
 export default function CatalogPage() {
   const navigate = useNavigate();
-  const [view, setView] = useState("components");
+  const [view, setView] = useState("prebuilts");
   const [components, setComponents] = useState([]);
   const [prebuilts, setPrebuilts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -110,11 +110,11 @@ export default function CatalogPage() {
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 rounded-xl p-5 sticky top-24 shadow-sm dark:shadow-none">
             <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">Раздел</h3>
             <div className="space-y-2">
-              <button onClick={() => handleViewChange("components")} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${view === "components" ? "bg-purple-100 dark:bg-purple-600/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30" : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-700 dark:hover:text-gray-200 border border-transparent"}`}>
-                <Cpu className="w-4 h-4" /> Комплектующие
-              </button>
               <button onClick={() => handleViewChange("prebuilts")} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${view === "prebuilts" ? "bg-purple-100 dark:bg-purple-600/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30" : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-700 dark:hover:text-gray-200 border border-transparent"}`}>
                 <Monitor className="w-4 h-4" /> Готовые ПК
+              </button>
+              <button onClick={() => handleViewChange("components")} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${view === "components" ? "bg-purple-100 dark:bg-purple-600/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30" : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-700 dark:hover:text-gray-200 border border-transparent"}`}>
+                <Cpu className="w-4 h-4" /> Комплектующие
               </button>
             </div>
 
