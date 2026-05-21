@@ -172,7 +172,7 @@ export default function AdminOrderDetail() {
               {order.items.map((item) => (
                 <div key={item.id} className="p-6 hover:bg-gray-750 transition-colors">
                   <div className="flex justify-between items-start mb-4">
-                    <div>
+                    <div className='text-left'>
                       <h3 className="text-lg font-medium text-white mb-1">{item.name}</h3>
                       {item.prebuilt_pc_id ? (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">
