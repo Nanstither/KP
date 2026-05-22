@@ -105,6 +105,8 @@ class FillDatabaseSeeder extends Seeder
         $bAdata = DB::table('brands')->where('name', 'ADATA')->first()->id;
         $bSKHynix = DB::table('brands')->where('name', 'SK Hynix')->first()->id;
         $bSeagate = DB::table('brands')->where('name', 'Seagate')->first()->id;
+        $bEVGA = DB::table('brands')->where('name', 'EVGA')->first()->id;
+        $bSabrent = DB::table('brands')->where('name', 'Sabrent')->first()->id;
 
         // ========== 3. СОКЕТЫ ==========
         DB::table('sockets');
@@ -632,7 +634,7 @@ class FillDatabaseSeeder extends Seeder
                 DB::table('case_form_factor')->insert([
                     'component_id' => $id, 'form_factor_id' => $ffId,
                     'created_at' => now(), 'updated_at' => now(),
-                ]);\
+                ]);
             }
         }
 
