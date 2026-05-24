@@ -643,7 +643,7 @@ class FillDatabaseSeeder extends Seeder
         DB::table('prebuilt_pc_component');
         DB::table('prebuilt_pc_tag');
         
-        $tagNames = ['Игровой', 'Для работы', 'Бюджетный', 'Топовый', 'RGB', 'Компактный', 'Мощный', 'Офисный', 'Стриминг'];
+        $tagNames = ['Игровой', 'Для работы', 'Бюджетный', 'Топовый', 'RGB', 'Компактный', 'Мощный', 'Офисный', 'Стриминг', 'Эксклюзивный'];
         foreach ($tagNames as $name) {
             DB::table('tags')->updateOrInsert(['name' => $name], ['slug' => Str::slug($name), 'created_at' => now(), 'updated_at' => now()]);
         }
