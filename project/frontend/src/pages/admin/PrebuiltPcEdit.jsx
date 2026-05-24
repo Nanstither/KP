@@ -55,7 +55,9 @@ export default function PrebuiltPcEdit() {
           api.get('/components')
         ]);
         
-        const pc = pcRes.data;
+        const pc = pcRes.data.pc;
+        const refs = pcRes.data.refs || {};
+        
         setBase({
           name: pc.name || '',
           description: pc.description || '',
@@ -64,7 +66,7 @@ export default function PrebuiltPcEdit() {
           is_active: pc.is_active ?? true
         });
         
-        setRefs(refsRes.data.refs);
+        setRefs(refs);
         setComponents(componentsRes.data);
         
         // Инициализируем все роли с пустыми или загруженными компонентами

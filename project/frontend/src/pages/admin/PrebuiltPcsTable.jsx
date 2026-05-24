@@ -11,7 +11,8 @@ export default function PrebuiltPcsTable({
   search, setSearch,
   categoryFilter, setCategoryFilter,
   page, setPage,
-  perPage, setPerPage
+  perPage, setPerPage,
+  tags = []
 }) {
   const navigate = useNavigate();
   const [editingId, setEditingId] = useState(null);
@@ -90,10 +91,9 @@ export default function PrebuiltPcsTable({
           </div>
           <select value={categoryFilter} onChange={e => { setCategoryFilter(e.target.value); setPage(1); }} className="bg-gray-50 dark:bg-[#1b1b1d] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-gray-200 focus:outline-none">
             <option value="all">Все теги</option>
-            <option value="Игровой">Игровой</option>
-            <option value="Для офиса">Для офиса</option>
-            <option value="Бюджетный">Бюджетный</option>
-            <option value="Топовый">Топовый</option>
+            {tags.map(tag => (
+              <option key={tag.id} value={tag.name}>{tag.name}</option>
+            ))}
           </select>
         </div>
         <button onClick={() => navigate('/admin/prebuilt-pcs/create')} className="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">

@@ -24,6 +24,7 @@ export default function AdminPanel() {
   // Данные и состояние загрузки
   const [components, setComponents] = useState([]);
   const [prebuiltPcs, setPrebuiltPcs] = useState([]);
+  const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Фильтры для компонентов
@@ -59,7 +60,10 @@ export default function AdminPanel() {
   const fetchPrebuiltPcs = async () => {
     try {
       const res = await api.get('/admin/prebuilt-pcs');
-      setPrebuiltPcs(res.data.sort((a, b) => b.id - a.id));
+      setPrebuiltPcs(res.data.pcs.sort((a, b) => b.id - a.id));
+      if (res.data.refs?.tags) {
+        setTags(res.data.refs.tags);
+      }
     } catch (err) {
       console.error('Ошибка загрузки ПК:', err);
     }
