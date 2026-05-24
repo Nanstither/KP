@@ -66,6 +66,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('admin/components/{component}', [ComponentController::class, 'update']);
         Route::delete('admin/components/{component}', [ComponentController::class, 'destroy']);
 
+        // ✅ Экспорт компонентов в Excel
+        Route::get('admin/components/export', [ComponentController::class, 'export']);
+
         Route::get('admin/components/{component}/edit', [ComponentController::class, 'edit']);
         Route::put('admin/components/{component}', [ComponentController::class, 'updateFull']);
 

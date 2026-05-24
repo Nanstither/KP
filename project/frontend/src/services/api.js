@@ -22,6 +22,12 @@ api.interceptors.request.use((config) => {
     }
     config.headers['X-Session-ID'] = sessionId;
   }
+  
+  // Для запросов на скачивание файлов (Excel, PDF) устанавливаем blob responseType по умолчанию
+  if (config.url?.includes('/export')) {
+    config.responseType = 'blob';
+  }
+  
   return config;
 });
 
