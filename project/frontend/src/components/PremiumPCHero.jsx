@@ -1,6 +1,6 @@
-import React, { useRef, useMemo } from "react";
+import React, { useRef, useMemo, useState } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
-import { Monitor, Cpu, Zap, Sparkles } from "lucide-react";
+import { Monitor, Cpu, Zap, Sparkles, Computer } from "lucide-react";
 import { Link } from "react-router-dom";
 
 // ─── Декларативный фон частиц ───
@@ -38,6 +38,8 @@ const ParticlesBackground = () => {
 
 export default function PremiumPCHero({ exclusivePc }) {
   const containerRef = useRef(null);
+  const [pcImageLoaded, setPcImageLoaded] = useState(false);
+  const [pcImageError, setPcImageError] = useState(false);
 
   const { scrollYProgress } = useScroll({ 
     target: containerRef, 
@@ -191,7 +193,7 @@ export default function PremiumPCHero({ exclusivePc }) {
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-purple-500/20 rounded-full blur-3xl animate-pulse" />
               
               <div className="relative w-full h-full flex items-center justify-center">
-                <div className="relative w-4/5 h-4/5 bg-gradient-to-br from-slate-900/80 to-slate-800/80 rounded-lg border border-purple-400/30 backdrop-blur-xl shadow-2xl shadow-purple-500/20 overflow-hidden">
+                <div className="relative w-4/5 h-4/5 bg-white dark:bg-slate-900/80 rounded-lg border border-purple-400/30 backdrop-blur-xl shadow-2xl shadow-purple-500/20 overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-pink-500/5" />
                   
                   <div className="absolute top-4 left-4 right-4 flex gap-2">
@@ -201,13 +203,55 @@ export default function PremiumPCHero({ exclusivePc }) {
                   </div>
 
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="space-y-4 text-center">
-                      <Monitor className="w-16 h-16 text-purple-300 mx-auto animate-pulse" />
-                      <div className="space-y-2">
-                        <div className="h-2 w-32 bg-purple-400/30 rounded mx-auto" />
-                        <div className="h-2 w-24 bg-pink-400/30 rounded mx-auto" />
-                      </div>
-                    </div>
+                    {!exclusivePc?.image ? (
+                      // Нет изображения ПК - показываем изображение корпуса или placeholder
+                      exclusivePc?.components?.case?.image ? (
+                        <img
+                          src={exclusivePc.components.case.image}
+                          alt="PC Case"
+                          className={`w-full h-full object-contain transition-opacity duration-300 ${pcImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                          onLoad={() => setPcImageLoaded(true)}
+                          onError={() => {
+                            setPcImageError(true);
+                            setPcImageLoaded(true);
+                          }}
+                        />
+                      ) : (
+                        // Placeholder с монитором и полосами
+                        <div className="space-y-4 text-center">
+                          <Monitor className="w-16 h-16 text-purple-300 mx-auto animate-pulse" />
+                          <div className="space-y-2">
+                            <div className="h-2 w-32 bg-purple-400/30 rounded mx-auto" />
+                            <div className="h-2 w-24 bg-pink-400/30 rounded mx-auto" />
+                          </div>
+                        </div>
+                      )
+                    ) : (
+                      // Есть изображение ПК
+                      <>
+                        {!pcImageError && (
+                          <img
+                            src={exclusivePc.image}
+                            alt="Exclusive PC"
+                            className={`w-full h-full object-contain transition-opacity duration-300 ${pcImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                            onLoad={() => setPcImageLoaded(true)}
+                            onError={() => {
+                              setPcImageError(true);
+                              setPcImageLoaded(true);
+                            }}
+                          />
+                        )}
+                        {(pcImageError || !pcImageLoaded) && (
+                          <div className="space-y-4 text-center">
+                            <Computer className="w-16 h-16 text-purple-300 mx-auto animate-pulse" />
+                            <div className="space-y-2">
+                              <div className="h-2 w-32 bg-purple-400/30 rounded mx-auto" />
+                              <div className="h-2 w-24 bg-pink-400/30 rounded mx-auto" />
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
 
                   <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
