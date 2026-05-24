@@ -58,6 +58,14 @@ export default function PrebuiltPcCreate() {
         // Инициализируем все роли с пустыми компонентами
         const initializedRoles = roles.map(role => ({ component_id: '', role }));
         setSelectedComponents(initializedRoles);
+        
+        // Загружаем теги из отдельного эндпоинта или используем из refs если есть
+        try {
+          const tagsRes = await api.get('/tags');
+          setRefs(prev => ({ ...prev, tags: tagsRes.data }));
+        } catch (e) {
+          // Теги уже могут быть в refs
+        }
       } catch (err) {
         console.error('Ошибка загрузки:', err);
       } finally {

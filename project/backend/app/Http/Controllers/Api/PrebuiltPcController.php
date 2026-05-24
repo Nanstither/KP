@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\PrebuiltPc;
 use App\Models\Component;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -46,7 +47,12 @@ class PrebuiltPcController extends Controller
     public function adminIndex()
     {
         $pcs = PrebuiltPc::with(['tags', 'components'])->orderByDesc('id')->get();
-        return response()->json($pcs);
+        return response()->json([
+            'pcs' => $pcs,
+            'refs' => [
+                'tags' => Tag::select('id', 'name', 'slug')->get()
+            ]
+        ]);
     }
 
     // Создание нового ПК
@@ -76,7 +82,7 @@ class PrebuiltPcController extends Controller
 
         // Привязываем теги
         if (!empty($validated['tag_ids'])) {
-            $pc->tags()->attach($validated['tag_ids']);
+            $pc->tags()->sync($validated['tag_ids']);
         }
 
         return response()->json($pc->load(['tags', 'components']), 201);
@@ -86,7 +92,13 @@ class PrebuiltPcController extends Controller
     public function edit($id)
     {
         $pc = PrebuiltPc::with(['tags', 'components'])->findOrFail($id);
-        return response()->json($pc);
+        $refs = [
+            'tags' => Tag::select('id', 'name', 'slug')->get()
+        ];
+        return response()->json([
+            'pc' => $pc,
+            'refs' => $refs
+        ]);
     }
 
     // Обновление ПК
