@@ -25,6 +25,11 @@ Route::get('/components/{id}', [ComponentController::class, 'show']);
 Route::get('/prebuilt-pcs', [PrebuiltPcController::class, 'index']);
 Route::get('/prebuilt-pcs/{slug}', [PrebuiltPcController::class, 'show']);
 
+// Публичный роут для получения всех тегов
+Route::get('/tags', function() {
+    return response()->json(\App\Models\Tag::select('id', 'name', 'slug')->get());
+});
+
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\OrderController;
 
