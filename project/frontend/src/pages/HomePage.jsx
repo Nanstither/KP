@@ -9,6 +9,7 @@ const API_URL = "http://localhost:8000/api";
 
 function HomePage() {
   const [products, setProducts] = useState([]);
+  const [exclusivePc, setExclusivePc] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [cart, setCart] = useState([]);
 
@@ -37,6 +38,21 @@ function HomePage() {
         console.error("Ошибка загрузки ПК:", err);
         setIsLoading(false);
       });
+
+    // Загружаем эксклюзивный ПК для PremiumPCHero
+    fetch(`${API_URL}/prebuilt-pcs/exclusive`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Ошибка сети");
+        return res.json();
+      })
+      .then((data) => {
+        if (data) {
+          setExclusivePc(data);
+        }
+      })
+      .catch((err) => {
+        console.error("Ошибка загрузки эксклюзивного ПК:", err);
+      });
   }, []);
 
   const handleAddToCart = (productId) => {
@@ -49,7 +65,7 @@ function HomePage() {
 
   return (
     <div className="w-full min-h-screen bg-gray-50 dark:bg-[#101019]">
-      <PremiumPCHero />
+      <PremiumPCHero exclusivePc={exclusivePc} />
 
       {/* Блок УТП: Доставка и Windows */}
       <section className="relative py-16 bg-gray-50 dark:bg-[#13131f] border-y border-gray-200 dark:border-gray-800">
