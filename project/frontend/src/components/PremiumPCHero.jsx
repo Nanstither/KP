@@ -36,7 +36,7 @@ const ParticlesBackground = () => {
   );
 };
 
-export default function PremiumPCHero() {
+export default function PremiumPCHero({ exclusivePc }) {
   const containerRef = useRef(null);
 
   const { scrollYProgress } = useScroll({ 
@@ -51,14 +51,35 @@ export default function PremiumPCHero() {
   const smoothOpacity = useSpring(opacity, { stiffness: 100, damping: 30 });
   const smoothScale = useSpring(scale, { stiffness: 100, damping: 30 });
   const smoothY = useSpring(y, { stiffness: 100, damping: 30 });
-// ============================================================
-  const features = [
+  // Используем данные из пропса exclusivePc или дефолтные значения
+  const features = exclusivePc?.components ? [
+    { 
+      icon: Cpu, 
+      label: exclusivePc.components.gpu?.model || "RTX 4090", 
+      value: exclusivePc.components.gpu?.specs?.vram_gb ? `${exclusivePc.components.gpu.specs.vram_gb}GB VRAM` : "24GB VRAM" 
+    },
+    { 
+      icon: Monitor, 
+      label: "4K Ready", 
+      value: "165Hz" 
+    },
+    { 
+      icon: Zap, 
+      label: "Liquid Cooled", 
+      value: exclusivePc.components.cooler?.model || "AIO 360mm" 
+    },
+  ] : [
     { icon: Cpu, label: "RTX 4090", value: "24GB VRAM" },
     { icon: Monitor, label: "4K Ready", value: "165Hz" },
     { icon: Zap, label: "Liquid Cooled", value: "AIO 360mm" },
   ];
-
-  const specs = [
+  
+  const specs = exclusivePc?.components ? [
+    { label: "Процессор (CPU)", value: exclusivePc.components.cpu?.model || "Intel i9-14900K" },
+    { label: "ОЗУ (RAM)", value: exclusivePc.components.ram?.model || "64GB DDR5" },
+    { label: "Память (SSD)", value: exclusivePc.components.storage?.model || "2TB NVMe Gen5" },
+    { label: "Питание", value: exclusivePc.components.psu?.model || "1000W Platinum" },
+  ] : [
     { label: "Процессор (CPU)", value: "Intel i9-14900K" },
     { label: "ОЗУ (RAM)", value: "64GB DDR5" },
     { label: "Память (SSD)", value: "2TB NVMe Gen5" },

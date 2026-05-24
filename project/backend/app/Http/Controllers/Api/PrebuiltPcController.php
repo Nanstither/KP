@@ -31,6 +31,26 @@ class PrebuiltPcController extends Controller
         return response()->json($pcs->map(fn($pc) => $this->formatPc($pc)));
     }
 
+    // Получение ПК с тегом "Эксклюзивный" для PremiumPCHero
+    public function exclusive()
+    {
+        $pc = PrebuiltPc::query()
+            ->where('is_active', true)
+            ->whereHas('tags', fn($q) => $q->where('slug', 'ekskliuzivnyi'))
+            ->with(['tags:id,name,slug'])
+            ->with(['components' => function ($q) {
+                $q->with(['brand:id,name', 'category:id,name'])
+                  ->with(['cpuSpec', 'gpuSpec', 'ramSpec', 'motherboardSpec', 'psuSpec', 'storageSpec', 'coolerSpec', 'caseSpec']);
+            }])
+            ->first();
+
+        if (!$pc) {
+            return response()->json(null);
+        }
+
+        return response()->json($this->formatPc($pc));
+    }
+
     public function show($slug)
     {
         $pc = PrebuiltPc::where('slug', $slug)

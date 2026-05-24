@@ -691,6 +691,7 @@ class FillDatabaseSeeder extends Seeder
             ['name' => 'Game Legend', 'price' => 185000, 'tags' => ['Игровой', 'Мощный', 'RGB']],
             ['name' => 'Creator PC', 'price' => 145000, 'tags' => ['Для работы', 'Мощный', 'RGB']],
             ['name' => 'Creator Pro', 'price' => 175000, 'tags' => ['Для работы', 'Топовый', 'Мощный']],
+            ['name' => 'Exclusive Titan', 'price' => 350000, 'tags' => ['Эксклюзивный', 'Топовый', 'Мощный', 'RGB']],
         ];
         
         foreach ($pcConfigs as $index => $config) {
