@@ -10,6 +10,10 @@ class PrebuiltPc extends Model
         'name', 'slug', 'description', 'price', 'image', 'is_active'
     ];
 
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
     // Связь с тегами (Игровой, Для офиса...)
     public function tags(): BelongsToMany
     {
