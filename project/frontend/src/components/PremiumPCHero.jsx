@@ -41,6 +41,8 @@ export default function PremiumPCHero({ exclusivePc }) {
   const containerRef = useRef(null);
   const [pcImageLoaded, setPcImageLoaded] = useState(false);
   const [pcImageError, setPcImageError] = useState(false);
+  const [caseImageLoaded, setCaseImageLoaded] = useState(false);
+  const [caseImageError, setCaseImageError] = useState(false);
 
   // Формируем URL изображения ПК напрямую из поля image в БД (например: "images/prebuilt/pc_31.png")
   const pcImageUrl = exclusivePc?.image 
@@ -48,7 +50,9 @@ export default function PremiumPCHero({ exclusivePc }) {
     : null;
   
   // Используем image из компонента корпуса как запасной вариант
-  const caseImageUrl = exclusivePc?.components?.case?.image || null;
+  const caseImageUrl = exclusivePc?.components?.case?.image 
+    ? `${STORAGE_URL}/${exclusivePc.components.case.image}` 
+    : null;
 
   const { scrollYProgress } = useScroll({ 
     target: containerRef, 
@@ -213,20 +217,65 @@ export default function PremiumPCHero({ exclusivePc }) {
 
                   <div className="absolute inset-0 flex items-center justify-center">
                     {!pcImageUrl ? (
-                      // Нет изображения ПК - показываем изображение корпуса или placeholder
+                      // Нет изображения ПК - проверяем изображение корпуса
                       caseImageUrl ? (
-                        <img
-                          src={caseImageUrl}
-                          alt="PC Case"
-                          className={`w-full h-full object-contain transition-opacity duration-300 ${pcImageLoaded ? 'opacity-100' : 'opacity-0'}`}
-                          onLoad={() => setPcImageLoaded(true)}
-                          onError={() => {
-                            setPcImageError(true);
-                            setPcImageLoaded(true);
-                          }}
-                        />
+                        caseImageError ? (
+                          // Ошибка загрузки корпуса - показываем placeholder
+                          <div className="space-y-4 text-center">
+                            <Monitor className="w-16 h-16 text-purple-300 mx-auto animate-pulse" />
+                            <div className="space-y-2">
+                              <div className="h-2 w-32 bg-purple-400/30 rounded mx-auto" />
+                              <div className="h-2 w-24 bg-pink-400/30 rounded mx-auto" />
+                            </div>
+                          </div>
+                        ) : (
+                          <img
+                            src={caseImageUrl}
+                            alt="PC Case"
+                            className={`w-full h-full object-contain transition-opacity duration-300 ${caseImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                            onLoad={() => setCaseImageLoaded(true)}
+                            onError={() => {
+                              setCaseImageError(true);
+                              setCaseImageLoaded(true);
+                            }}
+                          />
+                        )
                       ) : (
-                        // Placeholder с монитором и полосами
+                        // Нет изображения корпуса - показываем placeholder
+                        <div className="space-y-4 text-center">
+                          <Monitor className="w-16 h-16 text-purple-300 mx-auto animate-pulse" />
+                          <div className="space-y-2">
+                            <div className="h-2 w-32 bg-purple-400/30 rounded mx-auto" />
+                            <div className="h-2 w-24 bg-pink-400/30 rounded mx-auto" />
+                          </div>
+                        </div>
+                      )
+                    ) : pcImageError ? (
+                      // Ошибка загрузки изображения ПК - пробуем корпус
+                      caseImageUrl ? (
+                        caseImageError ? (
+                          // Ошибка загрузки корпуса - показываем placeholder
+                          <div className="space-y-4 text-center">
+                            <Monitor className="w-16 h-16 text-purple-300 mx-auto animate-pulse" />
+                            <div className="space-y-2">
+                              <div className="h-2 w-32 bg-purple-400/30 rounded mx-auto" />
+                              <div className="h-2 w-24 bg-pink-400/30 rounded mx-auto" />
+                            </div>
+                          </div>
+                        ) : (
+                          <img
+                            src={caseImageUrl}
+                            alt="PC Case"
+                            className={`w-full h-full object-contain transition-opacity duration-300 ${caseImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                            onLoad={() => setCaseImageLoaded(true)}
+                            onError={() => {
+                              setCaseImageError(true);
+                              setCaseImageLoaded(true);
+                            }}
+                          />
+                        )
+                      ) : (
+                        // Нет изображения корпуса - показываем placeholder
                         <div className="space-y-4 text-center">
                           <Monitor className="w-16 h-16 text-purple-300 mx-auto animate-pulse" />
                           <div className="space-y-2">
@@ -236,7 +285,7 @@ export default function PremiumPCHero({ exclusivePc }) {
                         </div>
                       )
                     ) : (
-                      // Есть изображение ПК
+                      // Есть изображение ПК и нет ошибки
                       <img
                         src={pcImageUrl}
                         alt="Exclusive PC"
@@ -248,8 +297,9 @@ export default function PremiumPCHero({ exclusivePc }) {
                         }}
                       />
                     )}
+                    
                     {/* Показываем placeholder пока изображение не загрузилось */}
-                    {!pcImageLoaded && !pcImageError && (
+                    {(!pcImageLoaded && !pcImageError && pcImageUrl) || (!caseImageLoaded && !caseImageError && caseImageUrl && !pcImageUrl && !pcImageError) ? (
                       <div className="absolute inset-0 flex items-center justify-center space-y-4 text-center pointer-events-none">
                         <div className="space-y-4 text-center">
                           <Computer className="w-16 h-16 text-purple-300 mx-auto animate-pulse" />
@@ -259,7 +309,7 @@ export default function PremiumPCHero({ exclusivePc }) {
                           </div>
                         </div>
                       </div>
-                    )}
+                    ) : null}
                   </div>
 
                   <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
