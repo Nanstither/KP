@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ComponentsExport;
 
 class ComponentController extends Controller
 {
@@ -353,5 +355,13 @@ class ComponentController extends Controller
         
         $models[$type]::findOrFail($id)->delete();
         return response()->json(['message' => 'Deleted']);
+    }
+
+    /**
+     * Экспорт компонентов в Excel
+     */
+    public function export()
+    {
+        return Excel::download(new ComponentsExport, 'komponenty-' . date('Y-m-d') . '.xlsx');
     }
 }

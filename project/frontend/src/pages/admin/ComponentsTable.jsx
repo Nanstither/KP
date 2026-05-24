@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import api from '@/services/api';
-import { Search, Plus, Edit, Trash2, Check, X, Loader2 } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Check, X, Loader2, Download } from 'lucide-react';
 
 export default function ComponentsTable({
   components,
@@ -50,6 +50,23 @@ export default function ComponentsTable({
       setComponents(prev => prev.filter(c => c.id !== id));
     } catch (err) {
       console.error('Ошибка удаления:', err);
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const response = await api.get('/admin/components/export');
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `komponenty-${new Date().toISOString().split('T')[0]}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Ошибка экспорта:', err);
+      alert('Не удалось скачать файл.');
     }
   };
 
@@ -107,9 +124,14 @@ export default function ComponentsTable({
             <option value="out">Нет в наличии</option>
           </select>
         </div>
-        <button onClick={() => navigate('/admin/components/create')} className="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-          <Plus className="w-4 h-4" /> Добавить
-        </button>
+        <div className="flex gap-2">
+          <button onClick={handleExport} className="flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+            <Download className="w-4 h-4" /> Excel
+          </button>
+          <button onClick={() => navigate('/admin/components/create')} className="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+            <Plus className="w-4 h-4" /> Добавить
+          </button>
+        </div>
       </div>
 
       {/* Таблица */}
