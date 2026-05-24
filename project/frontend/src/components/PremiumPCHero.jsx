@@ -2,6 +2,7 @@ import React, { useRef, useMemo, useState } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { Monitor, Cpu, Zap, Sparkles, Computer } from "lucide-react";
 import { Link } from "react-router-dom";
+import { STORAGE_URL } from "@/lib/config";
 
 // ─── Декларативный фон частиц ───
 const ParticlesBackground = () => {
@@ -40,6 +41,16 @@ export default function PremiumPCHero({ exclusivePc }) {
   const containerRef = useRef(null);
   const [pcImageLoaded, setPcImageLoaded] = useState(false);
   const [pcImageError, setPcImageError] = useState(false);
+
+  // Формируем URL изображения ПК из storage
+  const pcImageUrl = exclusivePc?.slug 
+    ? `${STORAGE_URL}/prebuilt/${exclusivePc.slug}.jpg` 
+    : null;
+  
+  // Формируем URL изображения корпуса из storage (если есть данные о корпусе)
+  const caseImageUrl = exclusivePc?.components?.case?.slug
+    ? `${STORAGE_URL}/cases/${exclusivePc.components.case.slug}.jpg`
+    : exclusivePc?.components?.case?.image; // fallback на прямой URL если есть
 
   const { scrollYProgress } = useScroll({ 
     target: containerRef, 
@@ -203,11 +214,11 @@ export default function PremiumPCHero({ exclusivePc }) {
                   </div>
 
                   <div className="absolute inset-0 flex items-center justify-center">
-                    {!exclusivePc?.image ? (
+                    {!pcImageUrl ? (
                       // Нет изображения ПК - показываем изображение корпуса или placeholder
-                      exclusivePc?.components?.case?.image ? (
+                      caseImageUrl ? (
                         <img
-                          src={exclusivePc.components.case.image}
+                          src={caseImageUrl}
                           alt="PC Case"
                           className={`w-full h-full object-contain transition-opacity duration-300 ${pcImageLoaded ? 'opacity-100' : 'opacity-0'}`}
                           onLoad={() => setPcImageLoaded(true)}
@@ -228,29 +239,28 @@ export default function PremiumPCHero({ exclusivePc }) {
                       )
                     ) : (
                       // Есть изображение ПК
-                      <>
-                        {!pcImageError && (
-                          <img
-                            src={exclusivePc.image}
-                            alt="Exclusive PC"
-                            className={`w-full h-full object-contain transition-opacity duration-300 ${pcImageLoaded ? 'opacity-100' : 'opacity-0'}`}
-                            onLoad={() => setPcImageLoaded(true)}
-                            onError={() => {
-                              setPcImageError(true);
-                              setPcImageLoaded(true);
-                            }}
-                          />
-                        )}
-                        {(pcImageError || !pcImageLoaded) && (
-                          <div className="space-y-4 text-center">
-                            <Computer className="w-16 h-16 text-purple-300 mx-auto animate-pulse" />
-                            <div className="space-y-2">
-                              <div className="h-2 w-32 bg-purple-400/30 rounded mx-auto" />
-                              <div className="h-2 w-24 bg-pink-400/30 rounded mx-auto" />
-                            </div>
+                      <img
+                        src={pcImageUrl}
+                        alt="Exclusive PC"
+                        className={`w-full h-full object-contain transition-opacity duration-300 ${pcImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                        onLoad={() => setPcImageLoaded(true)}
+                        onError={() => {
+                          setPcImageError(true);
+                          setPcImageLoaded(true);
+                        }}
+                      />
+                    )}
+                    {/* Показываем placeholder пока изображение не загрузилось */}
+                    {!pcImageLoaded && !pcImageError && (
+                      <div className="absolute inset-0 flex items-center justify-center space-y-4 text-center pointer-events-none">
+                        <div className="space-y-4 text-center">
+                          <Computer className="w-16 h-16 text-purple-300 mx-auto animate-pulse" />
+                          <div className="space-y-2">
+                            <div className="h-2 w-32 bg-purple-400/30 rounded mx-auto" />
+                            <div className="h-2 w-24 bg-pink-400/30 rounded mx-auto" />
                           </div>
-                        )}
-                      </>
+                        </div>
+                      </div>
                     )}
                   </div>
 
