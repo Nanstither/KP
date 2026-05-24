@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '@/services/api';
-import { ArrowLeft, Save, X, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, X, Loader2, Sun, Moon } from 'lucide-react';
 
-const Field = ({ label, type = 'text', val, set, error, placeholder }) => (
+const Field = ({ label, type = 'text', val, set, error, placeholder, isDark }) => (
   <div className="space-y-1">
-    <label className="text-xs text-gray-500 uppercase">{label}</label>
+    <label className={`text-xs uppercase ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{label}</label>
     <input 
       type={type} 
       value={val ?? ''} 
@@ -14,9 +14,11 @@ const Field = ({ label, type = 'text', val, set, error, placeholder }) => (
         set(v);
       }}
       placeholder={placeholder || ''} 
-      className={`w-full bg-white border rounded-lg px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none transition-colors ${
-        error ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-purple-500'
-      }`} 
+      className={`w-full border rounded-lg px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none transition-colors ${
+        isDark 
+          ? 'bg-[#1a1a1c] border-white/10 text-gray-100 focus:border-purple-500' 
+          : 'bg-white border-gray-300 text-gray-900 focus:border-purple-500'
+      } ${error ? 'border-red-500 focus:border-red-500' : ''}`} 
     />
     {error && <p className="text-xs text-red-500">{error}</p>}
   </div>
@@ -25,6 +27,25 @@ const Field = ({ label, type = 'text', val, set, error, placeholder }) => (
 export default function PrebuiltPcEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
+  
+  // Состояние темы
+  const [isDark, setIsDark] = useState(() => {
+    const saved = localStorage.getItem('theme');
+    return saved !== 'light';
+  });
+
+  useEffect(() => {
+    const html = document.documentElement;
+    if (isDark) {
+      html.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      html.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDark]);
+
+  const toggleTheme = () => setIsDark(!isDark);
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -39,7 +60,7 @@ export default function PrebuiltPcEdit() {
     is_active: true 
   });
   
-  const [selectedComponents, setSelectedComponents] = useState([]); // [{ component_id, role }]
+  const [selectedComponents, setSelectedComponents] = useState([]);
   const [selectedTagIds, setSelectedTagIds] = useState([]);
   
   const [errors, setErrors] = useState({});
@@ -148,49 +169,85 @@ export default function PrebuiltPcEdit() {
     );
   };
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-purple-600">Загрузка...</div>;
+  if (loading) return <div className={`min-h-screen flex items-center justify-center ${isDark ? 'text-purple-400' : 'text-purple-600'}`}>Загрузка...</div>;
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 p-6 pt-30">
+    <div className={`min-h-screen p-6 pt-30 transition-colors duration-300 ${
+      isDark 
+        ? 'bg-[#0f0f10] text-gray-100' 
+        : 'bg-white text-gray-900'
+    }`}>
+      {/* Кнопка переключения темы */}
+      <div className="max-w-5xl mx-auto mb-4 flex justify-end">
+        <button
+          onClick={toggleTheme}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+            isDark
+              ? 'bg-[#1a1a1c] border-white/10 text-gray-300 hover:bg-[#252528]'
+              : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+          }`}
+        >
+          {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          {isDark ? 'Светлая' : 'Тёмная'}
+        </button>
+      </div>
+
       <div className="max-w-5xl mx-auto space-y-6">
         
         {/* Заголовок */}
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/admin/prebuilt-pcs')} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+          <button 
+            onClick={() => navigate('/admin/prebuilt-pcs')} 
+            className={`p-2 rounded-lg transition-colors ${
+              isDark ? 'hover:bg-white/5' : 'hover:bg-gray-100'
+            }`}
+          >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-2xl font-bold text-gray-900">Редактирование готового ПК</h1>
+          <h1 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Редактирование готового ПК</h1>
         </div>
 
         {/* Основная форма */}
-        <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-6 shadow-sm">
+        <div className={`border rounded-xl p-6 space-y-6 shadow-sm ${
+          isDark 
+            ? 'bg-[#141416] border-white/10' 
+            : 'bg-white border-gray-200'
+        }`}>
           
           {/* Название и цена */}
           <div className="grid md:grid-cols-2 gap-4">
-            <Field label="Название *" val={base.name} set={v => setBase({...base, name: v})} error={errors.name} placeholder="Например: Gaming Pro X1" />
-            <Field label="Цена *" type="number" val={base.price} set={v => setBase({...base, price: v})} error={errors.price} placeholder="99990" />
+            <Field label="Название *" val={base.name} set={v => setBase({...base, name: v})} error={errors.name} placeholder="Например: Gaming Pro X1" isDark={isDark} />
+            <Field label="Цена *" type="number" val={base.price} set={v => setBase({...base, price: v})} error={errors.price} placeholder="99990" isDark={isDark} />
           </div>
 
           {/* Описание */}
           <div className="space-y-1">
-            <label className="text-xs text-gray-500 uppercase">Описание</label>
+            <label className={`text-xs uppercase ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Описание</label>
             <textarea 
               value={base.description ?? ''} 
               onChange={e => setBase({...base, description: e.target.value})}
               placeholder="Описание компьютера..."
               rows={4}
-              className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-purple-500 transition-colors resize-none"
+              className={`w-full border rounded-lg px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none transition-colors resize-none ${
+                isDark
+                  ? 'bg-[#1a1a1c] border-white/10 text-gray-100 focus:border-purple-500'
+                  : 'bg-white border-gray-300 text-gray-900 focus:border-purple-500'
+              }`}
             />
           </div>
 
           {/* Статус */}
           <div className="flex items-center gap-3">
-            <label className="text-sm text-gray-600">Статус:</label>
+            <label className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Статус:</label>
             <button 
               onClick={() => allComponentsFilled && setBase({...base, is_active: !base.is_active})}
               disabled={!allComponentsFilled}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                base.is_active && allComponentsFilled ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
+                base.is_active && allComponentsFilled 
+                  ? 'bg-green-100 text-green-700 border border-green-300' 
+                  : isDark 
+                    ? 'bg-white/5 text-gray-500 border border-white/10 cursor-not-allowed'
+                    : 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
               }`}
             >
               {base.is_active && allComponentsFilled ? 'Активен' : 'Скрыт'}
@@ -200,7 +257,7 @@ export default function PrebuiltPcEdit() {
 
           {/* Теги */}
           <div className="space-y-2">
-            <label className="text-xs text-gray-500 uppercase">Теги</label>
+            <label className={`text-xs uppercase ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Теги</label>
             <div className="flex flex-wrap gap-2">
               {refs.tags?.map(tag => (
                 <button
@@ -209,7 +266,9 @@ export default function PrebuiltPcEdit() {
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                     selectedTagIds.includes(tag.id)
                       ? 'bg-purple-100 text-purple-700 border border-purple-300'
-                      : 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200'
+                      : isDark
+                        ? 'bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10'
+                        : 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200'
                   }`}
                 >
                   {tag.name}
@@ -221,18 +280,30 @@ export default function PrebuiltPcEdit() {
         </div>
 
         {/* Компоненты */}
-        <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900">Компоненты</h2>
+        <div className={`border rounded-xl p-6 space-y-4 shadow-sm ${
+          isDark 
+            ? 'bg-[#141416] border-white/10' 
+            : 'bg-white border-gray-200'
+        }`}>
+          <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Компоненты</h2>
 
           {/* Список выбранных компонентов */}
           <div className="space-y-3">
             {selectedComponents.map((item, index) => (
-              <div key={index} className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg p-3">
-                <span className="text-xs text-gray-500 uppercase w-20">{item.role}</span>
+              <div key={index} className={`flex items-center gap-3 border rounded-lg p-3 ${
+                isDark
+                  ? 'bg-[#1a1a1c] border-white/10'
+                  : 'bg-gray-50 border-gray-200'
+              }`}>
+                <span className={`text-xs uppercase w-20 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{item.role}</span>
                 <select 
                   value={item.component_id || ''}
                   onChange={e => updateComponent(index, 'component_id', Number(e.target.value))}
-                  className="flex-1 bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-purple-500"
+                  className={`flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-500 ${
+                    isDark
+                      ? 'bg-[#1a1a1c] border-white/10 text-gray-100'
+                      : 'bg-white border-gray-300 text-gray-900'
+                  }`}
                 >
                   <option value="">Выберите компонент...</option>
                   {components
@@ -259,7 +330,11 @@ export default function PrebuiltPcEdit() {
           </button>
           <button 
             onClick={() => navigate('/admin/prebuilt-pcs')}
-            className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium transition-colors"
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors ${
+              isDark
+                ? 'bg-white/10 text-gray-300 hover:bg-white/20'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
           >
             <X className="w-5 h-5" />
             Отмена
