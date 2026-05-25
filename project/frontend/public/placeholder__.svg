@@ -1,0 +1,14 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Фон (опционально, можно убрать fill, если нужен прозрачный) -->
+  <rect width="200" height="200" fill="#F9FAFB"/>
+  
+  <!-- Иконка изображения (горы и солнце) -->
+  <path d="M100 60C111.046 60 120 68.9543 120 80C120 91.0457 111.046 100 100 100C88.9543 100 80 91.0457 80 80C80 68.9543 88.9543 60 100 60Z" fill="#E5E7EB"/>
+  <path d="M40 160L80 110L110 145L140 100L180 160H40Z" fill="#E5E7EB"/>
+  
+  <!-- Рамка (пунктирная или сплошная) -->
+  <rect x="20" y="20" width="160" height="160" rx="12" stroke="#D1D5DB" stroke-width="2" stroke-dasharray="8 8"/>
+  
+  <!-- Текст -->
+  <text x="50%" y="50%" text-anchor="middle" dy=".3em" font-family="Arial, sans-serif" font-size="14" fill="#9CA3AF">No Image</text>
+</svg>
