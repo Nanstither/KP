@@ -65,47 +65,46 @@ const ProfilePage = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-none dark:bg-[#0f0f10] flex items-center justify-center pt-24">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-purple-500 mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-purple-200/70">Загрузка...</p>
+          <Loader2 className="w-12 h-12 animate-spin text-purple-600 mx-auto mb-4" />
+          <p className="text-gray-600 dark:text-gray-400">Загрузка...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-12">
-      <div className="container mx-auto px-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-none dark:bg-[#0f0f10] text-gray-800 dark:text-gray-200 pt-24 pb-12 px-4 md:px-6">
+      <div className="max-w-2xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="max-w-2xl mx-auto"
         >
           {/* Заголовок */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
               Профиль пользователя
             </h1>
-            <p className="text-gray-600 dark:text-purple-200/50">
+            <p className="text-gray-600 dark:text-gray-400">
               Управление личной информацией
             </p>
           </div>
 
           {/* Карточка профиля */}
-          <div className="bg-white/50 dark:bg-[#0f0f10]/50 backdrop-blur-xl border border-purple-200/30 dark:border-purple-400/10 rounded-2xl p-8 shadow-xl">
+          <div className="bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 rounded-2xl p-8 shadow-sm dark:shadow-none">
             {/* Аватар и основная информация */}
             <div className="flex flex-col items-center mb-8">
-              <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mb-4">
+              <div className="w-24 h-24 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center mb-4">
                 <User className="w-12 h-12 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-purple-100">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                 {user.name}
               </h2>
               <div className="flex items-center gap-2 mt-2">
-                <Shield className="w-4 h-4 text-purple-400" />
-                <span className="text-sm text-gray-600 dark:text-purple-200/70 capitalize">
+                <Shield className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                <span className="text-sm text-gray-600 dark:text-gray-400 capitalize">
                   {user.role === 'admin' ? 'Администратор' : 
                    user.role === 'manager' ? 'Менеджер' : 'Пользователь'}
                 </span>
@@ -116,19 +115,19 @@ const ProfilePage = () => {
             {isEditing ? (
               <form onSubmit={handleSubmit} className="space-y-6">
                 {error && (
-                  <div className="bg-red-500/10 border border-red-500/30 text-red-500 px-4 py-3 rounded-lg text-sm">
+                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
                     {error}
                   </div>
                 )}
                 
                 {success && (
-                  <div className="bg-green-500/10 border border-green-500/30 text-green-500 px-4 py-3 rounded-lg text-sm">
+                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-500/30 text-green-600 dark:text-green-400 px-4 py-3 rounded-lg text-sm">
                     {success}
                   </div>
                 )}
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-purple-200/70 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Имя
                   </label>
                   <div className="relative">
@@ -138,14 +137,14 @@ const ProfilePage = () => {
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      className="w-full pl-10 pr-4 py-3 bg-white/50 dark:bg-[#0f0f10]/50 border border-purple-200/30 dark:border-purple-400/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-800 dark:text-purple-100"
+                      className="w-full pl-10 pr-4 py-3 bg-white dark:bg-[#0f0f10] border border-gray-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-800 dark:text-gray-200 placeholder:text-gray-400"
                       required
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-purple-200/70 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Email
                   </label>
                   <div className="relative">
@@ -155,7 +154,7 @@ const ProfilePage = () => {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="w-full pl-10 pr-4 py-3 bg-white/50 dark:bg-[#0f0f10]/50 border border-purple-200/30 dark:border-purple-400/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-800 dark:text-purple-100"
+                      className="w-full pl-10 pr-4 py-3 bg-white dark:bg-[#0f0f10] border border-gray-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-800 dark:text-gray-200 placeholder:text-gray-400"
                       required
                     />
                   </div>
@@ -165,7 +164,7 @@ const ProfilePage = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     {loading ? (
                       <>
@@ -182,7 +181,7 @@ const ProfilePage = () => {
                   <button
                     type="button"
                     onClick={handleCancel}
-                    className="flex-1 bg-gray-200/50 dark:bg-white/5 hover:bg-gray-300/50 dark:hover:bg-white/10 text-gray-700 dark:text-purple-200/70 font-medium py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
+                    className="flex-1 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 font-medium py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 border border-gray-200 dark:border-white/10"
                   >
                     <X className="w-5 h-5" />
                     Отмена
@@ -192,31 +191,31 @@ const ProfilePage = () => {
             ) : (
               <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-purple-200/50 mb-1">
+                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-500 mb-1">
                     Имя
                   </label>
-                  <div className="flex items-center gap-3 text-gray-800 dark:text-purple-100">
-                    <User className="w-5 h-5 text-purple-400" />
+                  <div className="flex items-center gap-3 text-gray-800 dark:text-gray-200">
+                    <User className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                     <span>{user.name}</span>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-purple-200/50 mb-1">
+                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-500 mb-1">
                     Email
                   </label>
-                  <div className="flex items-center gap-3 text-gray-800 dark:text-purple-100">
-                    <Mail className="w-5 h-5 text-purple-400" />
+                  <div className="flex items-center gap-3 text-gray-800 dark:text-gray-200">
+                    <Mail className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                     <span>{user.email}</span>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-purple-200/50 mb-1">
+                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-500 mb-1">
                     Роль
                   </label>
-                  <div className="flex items-center gap-3 text-gray-800 dark:text-purple-100">
-                    <Shield className="w-5 h-5 text-purple-400" />
+                  <div className="flex items-center gap-3 text-gray-800 dark:text-gray-200">
+                    <Shield className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                     <span className="capitalize">
                       {user.role === 'admin' ? 'Администратор' : 
                        user.role === 'manager' ? 'Менеджер' : 'Пользователь'}
@@ -226,7 +225,7 @@ const ProfilePage = () => {
 
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 mt-6"
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 mt-6"
                 >
                   <Edit2 className="w-5 h-5" />
                   Редактировать профиль
