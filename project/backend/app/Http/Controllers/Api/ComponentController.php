@@ -229,12 +229,13 @@ class ComponentController extends Controller
             'price'       => 'required|numeric|min:0',
             'stock'       => 'required|integer|min:0',
             'image'       => 'nullable|file|mimes:jpg,jpeg,png,webp,svg|max:2048',
+            'image_url'   => 'nullable|string',
             'specs'       => 'nullable|string',
         ]);
 
         DB::transaction(function () use ($validated, $request) {
             // 1. Создаём базовый компонент
-            $baseData = array_filter($validated, fn($k) => !in_array($k, ['image', 'specs']), ARRAY_FILTER_USE_KEY);
+            $baseData = array_filter($validated, fn($k) => !in_array($k, ['image', 'image_url', 'specs']), ARRAY_FILTER_USE_KEY);
             $component = Component::create($baseData);
 
             // 2. Обработка изображения
@@ -251,6 +252,8 @@ class ComponentController extends Controller
                 }
                 Storage::disk('public')->putFileAs($directory, $file, $filename);
                 $component->update(['image' => "{$directory}/{$filename}"]);
+            } elseif (!empty($validated['image_url'])) {
+                $component->update(['image' => $validated['image_url']]);
             }
 
             // 3. Сохранение спецификаций
@@ -262,14 +265,22 @@ class ComponentController extends Controller
             if (!empty($cleanSpec)) {
                 $modelClass = "App\\Models\\" . ucfirst($slug) . "Spec";
                 if (class_exists($modelClass)) {
+                    $syncData = [];
+                    if ($slug === 'cooler' && isset($cleanSpec['compatible_sockets'])) {
+                        $syncData['compatible_sockets'] = $cleanSpec['compatible_sockets'];
+                        unset($cleanSpec['compatible_sockets']);
+                    }
+                    if ($slug === 'case' && isset($cleanSpec['supported_form_factors'])) {
+                        $syncData['supported_form_factors'] = $cleanSpec['supported_form_factors'];
+                        unset($cleanSpec['supported_form_factors']);
+                    }
                     $modelClass::create($cleanSpec);
-                }
-                // Many-to-Many
-                if ($slug === 'cooler' && isset($cleanSpec['compatible_sockets'])) {
-                    $component->compatibleSockets()->sync($cleanSpec['compatible_sockets']);
-                }
-                if ($slug === 'case' && isset($cleanSpec['supported_form_factors'])) {
-                    $component->supportedFormFactors()->sync($cleanSpec['supported_form_factors']);
+                    if ($slug === 'cooler' && isset($syncData['compatible_sockets'])) {
+                        $component->compatibleSockets()->sync($syncData['compatible_sockets']);
+                    }
+                    if ($slug === 'case' && isset($syncData['supported_form_factors'])) {
+                        $component->supportedFormFactors()->sync($syncData['supported_form_factors']);
+                    }
                 }
             }
         });

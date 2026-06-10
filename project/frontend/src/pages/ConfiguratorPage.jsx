@@ -105,6 +105,19 @@ const formatSpecs = (item, categoryId) => {
   return specs.join(' / ');
 };
 
+const getCaseFormFactorsLabel = (caseItem) => {
+  const factors = caseItem?.supported_form_factors;
+  if (Array.isArray(factors) && factors.length > 0) {
+    return factors.map(f => f.name).join(', ');
+  }
+  return '—';
+};
+
+const getCaseMaxGpuLabel = (caseItem) => {
+  const maxLength = caseItem?.case_spec?.max_length_gpu;
+  return maxLength ? `${maxLength} мм` : '—';
+};
+
 export default function ConfiguratorPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -331,8 +344,20 @@ export default function ConfiguratorPage() {
 
   const selectComponent = (catId, item) => {
     const compat = checkCompatibility(catId, item);
-    if (compat.status === 'error') return; // Блокируем выбор
+    if (compat.status === 'error') return;
+    setIsCaseSelectorOpen(false);
     setBuild(prev => ({ ...prev, [catId]: { item, quantity: 1 } }));
+  };
+
+  const openCategory = (catId) => {
+    setIsCaseSelectorOpen(false);
+    setSelectedCategory(prev => {
+      const isSelected = prev === catId;
+      if (!isSelected && catId === 'storage') {
+        setActiveStorageType(build.nvme?.item ? 'nvme' : 'sata');
+      }
+      return isSelected ? null : catId;
+    });
   };
 
   const updateQuantity = (catId, delta) => {
@@ -518,6 +543,7 @@ export default function ConfiguratorPage() {
   if (loading) return <div className="h-screen flex items-center justify-center bg-[#0f0f10] text-gray-400">Загрузка...</div>;
 
   const allCases = products.case || [];
+  const rightPanelWidth = selectedCategory ? 660 : 320;
 
   return (
     <div className="flex w-full h-screen bg-gray-50 dark:bg-[#0f0f10] text-gray-800 dark:text-gray-200 overflow-hidden select-none">
@@ -697,9 +723,9 @@ export default function ConfiguratorPage() {
             <motion.button whileTap={{ scale: 0.95 }} onClick={() => { setIsCaseSelectorOpen(!isCaseSelectorOpen); setSelectedCategory(null); }} className="cursor-pointer flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-[#141416] text-gray-900 dark:text-white border border-gray-200 dark:border-white/10 hover:border-purple-500/50 rounded-full shadow-lg backdrop-blur-md transition-colors text-sm font-medium">
               <LayoutGrid className="w-4 h-4 text-purple-600 dark:text-purple-400" /> Сменить&nbsp;корпус
             </motion.button>
-            <div className="cursor-pointer flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-full shadow-lg shadow-purple-500/60 dark:shadow-purple-500/20 transition-colors duration-300 text-sm font-bold text-white">
+            {/* <div className="cursor-pointer flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-full shadow-lg shadow-purple-500/60 dark:shadow-purple-500/20 transition-colors duration-300 text-sm font-bold text-white">
               <ShoppingBag className="w-4 h-4" /> Конфигурация
-            </div>
+            </div> */}
             <motion.button 
               onClick={toggleTheme} 
               className="cursor-pointer px-3 flex items-center justify-center rounded-full border border-gray-200 dark:border-white/10 bg-white dark:bg-[#141416] hover:border-purple-400 shadow-lg backdrop-blur-md transition-colors"
@@ -724,26 +750,64 @@ export default function ConfiguratorPage() {
           </div>
         </main>
 
-        {/* Модалка выбора корпусов */}
+        {/* Панель выбора корпусов — одна строка, горизонтальный скролл */}
         <AnimatePresence>
           {isCaseSelectorOpen && (
-            <motion.div initial={{ y: 420, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 420, opacity: 0 }} transition={{ type: "spring", damping: 25 }} className="absolute bottom-0 left-0 right-0 bg-white dark:bg-[#141416] border-t border-gray-200 dark:border-white/10 z-40 min-h-[420px] shadow-[0_-10px_40px_rgba(0,0,0,0.2)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
-              <div className="p-6 h-full overflow-y-auto custom-scrollbar">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-400 uppercase tracking-wider">Выберите корпус</h3>
-                  <button onClick={() => setIsCaseSelectorOpen(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-full"><X className="w-5 h-5 text-gray-600 dark:text-gray-400" /></button>
+            <motion.div
+              initial={{ y: 280, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 280, opacity: 0 }}
+              transition={{ type: "spring", damping: 28, stiffness: 320 }}
+              style={{ right: rightPanelWidth }}
+              className="absolute bottom-0 left-0 z-30 bg-white dark:bg-[#141416] border-t border-gray-200 dark:border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.15)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.45)] transition-[right] duration-300"
+            >
+              <div className="h-full flex flex-col px-4 py-3">
+                <div className="flex justify-between items-center mb-3 flex-shrink-0">
+                  <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-400 uppercase tracking-wider">Выберите корпус</h3>
+                  <button onClick={() => setIsCaseSelectorOpen(false)} className="p-1.5 hover:bg-gray-100 dark:hover:bg-white/10 rounded-full">
+                    <X className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                  </button>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                  {allCases.map(c => (
-                    <button key={c.id} onClick={() => { setSelectedCase(c); setIsCaseSelectorOpen(false); }} className={`relative flex flex-col p-4 rounded-xl border transition-all text-left group ${selectedCase?.id === c.id ? "bg-purple-600/10 border-purple-500 ring-1 ring-purple-500/50" : "bg-gray-50 dark:bg-[#0a0a0c] border-gray-200 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/20 hover:bg-gray-100 dark:hover:bg-[#111114]"}`}>
-                      <div className="bg-gray-200 dark:bg-[#050505] rounded-lg mb-3 flex items-center justify-center overflow-hidden flex-shrink-0 aspect-video">
-                        <img src={`${STORAGE_URL}/${c.image}` || "/placeholder.svg"} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" onError={(e) => { e.target.src = "/placeholder.svg"; }} />
-                      </div>
-                      <p className="font-medium text-gray-900 dark:text-white text-sm leading-tight line-clamp-2">{c.model}</p>
-                      <p className="text-purple-600 dark:text-purple-300 text-xs font-mono mt-1">{Number(c.price).toLocaleString('ru-RU')} ₽</p>
-                      {selectedCase?.id === c.id && <div className="absolute top-3 right-3 bg-purple-500 rounded-full p-1.5 shadow-lg"><Check className="w-3 h-3 text-white" /></div>}
-                    </button>
-                  ))}
+                <div className="flex-1 min-h-0 overflow-x-auto overflow-y-hidden custom-scrollbar">
+                  <div className="flex gap-4 h-full items-stretch pb-1">
+                    {allCases.map(c => (
+                      <button
+                        key={c.id}
+                        onClick={() => { setSelectedCase(c); setIsCaseSelectorOpen(false); }}
+                        className={`relative flex-shrink-0 w-56 h-full flex flex-col p-3 rounded-xl border transition-all text-left group ${
+                          selectedCase?.id === c.id
+                            ? "bg-purple-600/10 border-purple-500 ring-1 ring-purple-500/50"
+                            : "bg-gray-50 dark:bg-[#0a0a0c] border-gray-200 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/20 hover:bg-gray-100 dark:hover:bg-[#111114]"
+                        }`}
+                      >
+                        <div className="aspect-square bg-gray-200 dark:bg-[#050505] rounded-lg mb-3 flex items-center justify-center overflow-hidden flex-shrink-0">
+                          <img
+                            src={`${STORAGE_URL}/${c.image}` || "/placeholder.svg"}
+                            alt={c.model}
+                            className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                            onError={(e) => { e.target.src = "/placeholder.svg"; }}
+                          />
+                        </div>
+                        <p className="font-semibold text-gray-900 dark:text-white text-sm leading-snug line-clamp-2">{c.model}</p>
+                        <div className="mt-2 space-y-1 flex-1">
+                          <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-snug">
+                            <span className="text-gray-400 dark:text-gray-500">Форм-фактор: </span>
+                            <span className="text-gray-700 dark:text-gray-300">{getCaseFormFactorsLabel(c)}</span>
+                          </p>
+                          <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                            <span className="text-gray-400 dark:text-gray-500">Макс. GPU: </span>
+                            <span className="text-gray-700 dark:text-gray-300 font-mono">{getCaseMaxGpuLabel(c)}</span>
+                          </p>
+                        </div>
+                        <p className="text-purple-600 dark:text-purple-300 text-xs font-mono font-semibold mt-2">{Number(c.price).toLocaleString('ru-RU')} ₽</p>
+                        {selectedCase?.id === c.id && (
+                          <div className="absolute top-2.5 right-2.5 bg-purple-500 rounded-full p-1.5 shadow-lg">
+                            <Check className="w-3 h-3 text-white" />
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -768,10 +832,7 @@ export default function ConfiguratorPage() {
                 return (
                   <button 
                     key={cat.id} 
-                    onClick={() => {
-                       setSelectedCategory(isSelected ? null : cat.id);
-                       if (cat.id === 'storage') setActiveStorageType(build.nvme?.item ? 'nvme' : 'sata');
-                    }} 
+                    onClick={() => openCategory(cat.id)} 
                     className={`w-full flex flex-col items-start p-3 rounded-xl border transition-all group cursor-pointer ${
                       isSelected ? "bg-purple-600/10 border-purple-500/40" : 
                       isPicked ? "bg-gray-100 dark:bg-white/10 border-gray-200 dark:border-white/10" : 
@@ -816,10 +877,10 @@ export default function ConfiguratorPage() {
                 <div className="w-[340px] h-full flex flex-col">
                   <div className="p-4 h-16 border-b border-gray-200 dark:border-white/10 flex items-center justify-between bg-white dark:bg-[#141416]">
                     <div className="flex items-center gap-2">
-                      <button onClick={() => setSelectedCategory(null)} className="p-1 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"><ArrowLeft className="w-4 h-4" /></button>
+                      <button onClick={() => { setIsCaseSelectorOpen(false); setSelectedCategory(null); }} className="p-1 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"><ArrowLeft className="w-4 h-4" /></button>
                       <span className="font-semibold text-gray-900 dark:text-white text-sm">{categories.find(c => c.id === selectedCategory)?.name}</span>
                     </div>
-                    <button onClick={() => setSelectedCategory(null)} className="p-1 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg text-gray-600 dark:text-gray-400"><X className="w-4 h-4" /></button>
+                    <button onClick={() => { setIsCaseSelectorOpen(false); setSelectedCategory(null); }} className="p-1 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg text-gray-600 dark:text-gray-400"><X className="w-4 h-4" /></button>
                   </div>
 
                   <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2 dark:bg-transparent bg-gray-100 dark:bg-gray-700/80">
@@ -879,13 +940,13 @@ export default function ConfiguratorPage() {
 
                         return (
                           <>
-                            <button onClick={() => setActiveStorageType('nvme')} className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-bold transition-all ${isNvmeActive ? 'bg-purple-600/20 text-purple-600 dark:text-purple-300 border border-purple-500/30' : 'bg-gray-100 dark:bg-[#0a0a0c] text-gray-600 dark:text-gray-500 hover:text-gray-800 dark:hover:text-gray-300 border border-transparent'}`}>
+                            <button onClick={() => { setIsCaseSelectorOpen(false); setActiveStorageType('nvme'); }} className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-bold transition-all ${isNvmeActive ? 'bg-purple-600/20 text-purple-600 dark:text-purple-300 border border-purple-500/30' : 'bg-gray-100 dark:bg-[#0a0a0c] text-gray-600 dark:text-gray-500 hover:text-gray-800 dark:hover:text-gray-300 border border-transparent'}`}>
                               <span>NVMe SSD (M.2)</span>
                               <span className="text-xs font-mono opacity-70">{build.nvme?.quantity || 0} / {limits.nvme}</span>
                             </button>
                             {isNvmeActive && nvmeItems.length > 0 && <div className="space-y-2 mt-2 mb-4 pl-2 border-l-2 border-purple-500/30">{nvmeItems.map(item => renderDiskCard(item, 'nvme'))}</div>}
 
-                            <button onClick={() => setActiveStorageType('sata')} className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-bold transition-all ${isSataActive ? 'bg-purple-600/20 text-purple-600 dark:text-purple-300 border border-purple-500/30' : 'bg-gray-100 dark:bg-[#0a0a0c] text-gray-600 dark:text-gray-500 hover:text-gray-800 dark:hover:text-gray-300 border border-transparent'}`}>
+                            <button onClick={() => { setIsCaseSelectorOpen(false); setActiveStorageType('sata'); }} className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-bold transition-all ${isSataActive ? 'bg-purple-600/20 text-purple-600 dark:text-purple-300 border border-purple-500/30' : 'bg-gray-100 dark:bg-[#0a0a0c] text-gray-600 dark:text-gray-500 hover:text-gray-800 dark:hover:text-gray-300 border border-transparent'}`}>
                               <span>SATA SSD / HDD</span>
                               <span className="text-xs font-mono opacity-70">{build.sata?.quantity || 0} / {limits.sata}</span>
                             </button>

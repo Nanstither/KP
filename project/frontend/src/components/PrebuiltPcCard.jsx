@@ -74,7 +74,7 @@ const formatSpecs = (specs, role) => {
 };
 
 // Блок компонента в модалке (аккордеон)
-const ComponentBlock = ({ role, data, isExpanded, onToggle }) => {
+const ComponentBlock = ({ role, data, isExpanded, onToggle, onCloseModal }) => {
   const { icon: Icon, label } = ROLE_CONFIG[role] || { icon: Info, label: role };
   const specs = formatSpecs(data.specs, role);
 
@@ -97,8 +97,8 @@ const ComponentBlock = ({ role, data, isExpanded, onToggle }) => {
         <Link
           to={`/components/${data.id}`}
           onClick={(e) => {
-            e.stopPropagation(); // Чтобы не срабатывал аккордеон при клике на ссылку
-            setIsModalOpen(false); // Закрыть модалку при переходе
+            e.stopPropagation();
+            onCloseModal?.();
           }}
           className="ml-auto mr-2 px-2.5 py-1 text-[11px] font-medium text-purple-600 dark:text-purple-300 
                     rounded-md hover:bg-purple-100 dark:hover:bg-purple-500/10 
@@ -208,8 +208,7 @@ export default function PrebuiltPcCard({ pc, onAddToCart }) {
           {pc.tags?.length > 0 && (
             <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
               {pc.tags.slice(0, 2).map(tag => (
-                <span key={tag.slug} className="px-2 py-0.5 text-[10px] font-medium rounded-md 
-                                               bg-white/60 dark:bg-black/40 backdrop-blur-md text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10">
+                <span key={tag.slug || tag.name} className="px-2 py-0.5 text-[10px] font-medium rounded-md bg-white/60 dark:bg-black/40 backdrop-blur-md text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10">
                   {tag.name}
                 </span>
               ))}
@@ -315,6 +314,7 @@ export default function PrebuiltPcCard({ pc, onAddToCart }) {
                       data={data}
                       isExpanded={expandedRole === role}
                       onToggle={() => toggleExpand(role)}
+                      onCloseModal={() => setIsModalOpen(false)}
                     />
                   );
                 })}
