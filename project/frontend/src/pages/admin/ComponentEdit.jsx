@@ -1,27 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '@/services/api';
-import { ArrowLeft, Edit, Save, X, Loader2, Upload, Image as ImageIcon, ChevronDown } from 'lucide-react';
+import { useToast } from '@/context/ToastContext';
+import { parseApiError } from '@/lib/parseApiError';
+import { ALLOWED_IMAGE_EXTENSIONS, validateImageFile } from '@/lib/imageUpload';
+import { ArrowLeft, Edit, Save, X, Loader2, Upload } from 'lucide-react';
 import { STORAGE_URL } from "@/lib/config";
-
-const imageTemplates = {
-  cpu: [{ label: 'Intel Core i3', path: `${STORAGE_URL}/images/components/cpu/Intel_Core_i3.svg` },
-        { label: 'Intel Core i5', path: `${STORAGE_URL}/images/components/cpu/Intel_Core_i5.svg` },
-        { label: 'Intel Core i7', path: `${STORAGE_URL}/images/components/cpu/Intel_Core_i7.svg` },
-        { label: 'Intel Core i9', path: `${STORAGE_URL}/images/components/cpu/Intel_Core_i9.svg` },
-        { label: 'AMD Ryzen 3', path: `${STORAGE_URL}/images/components/cpu/Ryzen_3.jpg` },
-        { label: 'AMD Ryzen 5', path: `${STORAGE_URL}/images/components/cpu/Ryzen_5.jpg` },
-        { label: 'AMD Ryzen 7', path: `${STORAGE_URL}/images/components/cpu/Ryzen_7.jpg` },
-        { label: 'AMD Ryzen 9', path: `${STORAGE_URL}/images/components/cpu/Ryzen_9.jpg` },
-  ],
-  gpu: [{ label: 'NVIDIA RTX 4060', path: 'images/components/gpu/RTX_4060.jpg' }],
-  ram: [{ label: 'DDR4 Kit', path: 'images/components/ram/DDR4_Kit.jpg' }],
-  motherboard: [{ label: 'ATX Board', path: 'images/components/motherboard/ATX_Board.jpg' }],
-  psu: [{ label: 'Standard PSU', path: 'images/components/psu/Standard_PSU.jpg' }],
-  storage: [{ label: 'NVMe SSD', path: 'images/components/storage/NVMe_SSD.jpg' }],
-  cooler: [{ label: 'Tower Cooler', path: 'images/components/cooler/Tower_Cooler.jpg' }],
-  case: [{ label: 'Mid-Tower', path: 'images/components/case/Mid_Tower.jpg' }],
-};
 
 const inputClass = () =>
   'w-full rounded-lg px-3 py-2 text-sm placeholder:text-gray-400 dark:placeholder:text-gray-600 focus:outline-none transition-colors bg-white dark:bg-[#0a0a0c] text-gray-900 dark:text-white border border-gray-300 dark:border-white/10 focus:border-purple-500 disabled:opacity-70';
@@ -55,6 +39,7 @@ const Field = ({ label, type = 'text', val, set, dis, children, placeholder, ste
 export default function ComponentEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const toast = useToast();
   const fileInputRef = useRef(null);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -63,7 +48,6 @@ export default function ComponentEdit() {
   const [base, setBase] = useState({});
   const [spec, setSpec] = useState({});
   const [imageFile, setImageFile] = useState(null);
-  const [showTemplates, setShowTemplates] = useState(false);
 
   useEffect(() => {
     api.get(`/admin/components/${id}/edit`).then(res => {
@@ -82,6 +66,18 @@ export default function ComponentEdit() {
 
   const handleCancel = () => { setIsEditing(false); setImageFile(null); window.location.reload(); };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const err = validateImageFile(file);
+    if (err) {
+      toast.warning(err);
+      e.target.value = '';
+      return;
+    }
+    setImageFile(file);
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -93,24 +89,16 @@ export default function ComponentEdit() {
       Object.entries(base).forEach(([k, v]) => { if (k !== 'image' && v !== '' && v !== null && v !== undefined) formData.append(k, v); });
       if (imageFile instanceof File) {
         formData.append('image', imageFile);
-      } else if (base.image && !base.image.startsWith('http')) {
-        formData.append('image_url', base.image);
       }
       formData.append('specs', JSON.stringify({ [slug]: specPayload }));
 
       await api.put(`/admin/components/${id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
       setImageFile(null);
       setIsEditing(false);
-      alert('✅ Компонент успешно обновлён');
+      toast.success('Компонент успешно обновлён');
     } catch (err) {
-      alert('Ошибка: ' + (err.response?.data?.message || err.message));
+      toast.error(parseApiError(err));
     } finally { setSaving(false); }
-  };
-
-  const selectTemplate = (path) => {
-    setBase(prev => ({ ...prev, image: path }));
-    setImageFile(null);
-    setShowTemplates(false);
   };
 
   if (loading) {
@@ -124,7 +112,6 @@ export default function ComponentEdit() {
   const slug = data.component.category.slug;
   const categoryName = data.component.category.name;
   const refs = data.refs;
-  const templates = imageTemplates[slug] || [];
   const DEFAULT_IMG = "/placeholder.svg";
 
   const previewSrc = imageFile
@@ -186,41 +173,12 @@ export default function ComponentEdit() {
                     <Upload className="w-6 h-6 text-white drop-shadow-md" />
                   </div>
                 )}
-                <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={e => setImageFile(e.target.files[0])} />
+                <input type="file" ref={fileInputRef} className="hidden" accept={ALLOWED_IMAGE_EXTENSIONS} onChange={handleImageChange} />
               </div>
               <div className="bg-gray-50 dark:bg-[#0a0a0c] border border-gray-200 dark:border-white/10 rounded-lg p-3 text-center">
                 <p className="text-xs text-gray-500 dark:text-gray-500 mb-1">Файл будет сохранён автоматически по пути:</p>
                 <p className="text-xs font-mono text-gray-600 dark:text-gray-300 truncate" title={autoPath}>{autoPath}</p>
               </div>
-              {isEditing && (
-                <div className="relative">
-                  <button
-                    onClick={() => setShowTemplates(!showTemplates)}
-                    className="w-full flex items-center justify-center gap-2 text-xs text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-300 transition-colors py-2"
-                  >
-                    <ImageIcon className="w-3 h-3" /> Выбрать из шаблона
-                    <ChevronDown className={`w-3 h-3 transition-transform ${showTemplates ? 'rotate-180' : ''}`} />
-                  </button>
-                  {showTemplates && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-[#1a1a1c] border border-gray-200 dark:border-white/10 rounded-lg shadow-xl z-10 p-2 max-h-48 overflow-y-auto">
-                      {templates.length > 0 ? templates.map(t => (
-                        <button
-                          key={t.path}
-                          onClick={() => selectTemplate(t.path)}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-600/20 hover:text-purple-700 dark:hover:text-purple-300 rounded-md transition-colors text-left"
-                        >
-                          <div className="w-8 h-8 bg-gray-100 dark:bg-[#0a0a0c] rounded border border-gray-200 dark:border-white/10 overflow-hidden flex-shrink-0">
-                            <img src={t.path} className="w-full h-full object-cover" alt="" />
-                          </div>
-                          {t.label}
-                        </button>
-                      )) : (
-                        <p className="px-3 py-2 text-xs text-gray-500">Нет шаблонов</p>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
 
             <div className="flex-1 space-y-4">

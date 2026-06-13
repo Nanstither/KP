@@ -1,18 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import api from '@/services/api';
-import { ArrowLeft, Save, X, Loader2, Upload, Image as ImageIcon, ChevronDown } from 'lucide-react';
-
-const imageTemplates = {
-  cpu: [{ label: 'Intel Core i3', path: 'images/components/cpu/Intel_Core_i3.svg' }, { label: 'AMD Ryzen 7', path: 'images/components/cpu/AMD_Ryzen_7.svg' }],
-  gpu: [{ label: 'NVIDIA RTX 4060', path: 'images/components/gpu/RTX_4060.jpg' }],
-  ram: [{ label: 'DDR4 Kit', path: 'images/components/ram/DDR4_Kit.jpg' }],
-  motherboard: [{ label: 'ATX Board', path: 'images/components/motherboard/ATX_Board.jpg' }],
-  psu: [{ label: 'Standard PSU', path: 'images/components/psu/Standard_PSU.jpg' }],
-  storage: [{ label: 'NVMe SSD', path: 'images/components/storage/NVMe_SSD.jpg' }],
-  cooler: [{ label: 'Tower Cooler', path: 'images/components/cooler/Tower_Cooler.jpg' }],
-  case: [{ label: 'Mid-Tower', path: 'images/components/case/Mid_Tower.jpg' }],
-};
+import { useToast } from '@/context/ToastContext';
+import { parseApiError } from '@/lib/parseApiError';
+import { ALLOWED_IMAGE_EXTENSIONS, validateImageFile } from '@/lib/imageUpload';
+import { ArrowLeft, Save, X, Loader2, Upload, Image as ImageIcon } from 'lucide-react';
 
 const inputClass = (error) =>
   `w-full rounded-lg px-3 py-2 text-sm placeholder:text-gray-400 dark:placeholder:text-gray-600 focus:outline-none transition-colors bg-white dark:bg-[#0a0a0c] text-gray-900 dark:text-white border ${
@@ -51,16 +43,16 @@ const Field = ({ label, type = 'text', val, set, error, children, placeholder, o
 
 export default function ComponentCreate() {
   const navigate = useNavigate();
+  const toast = useToast();
   const [searchParams] = useSearchParams();
   const fileInputRef = useRef(null);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [refs, setRefs] = useState({});
-  const [base, setBase] = useState({ category_id: '', brand_id: '', model: '', price: '', stock: '', image: '' });
+  const [base, setBase] = useState({ category_id: '', brand_id: '', model: '', price: '', stock: '' });
   const [spec, setSpec] = useState({});
   const [imageFile, setImageFile] = useState(null);
-  const [showTemplates, setShowTemplates] = useState(false);
   const [errors, setErrors] = useState({});
   const [specErrors, setSpecErrors] = useState({});
 
@@ -155,21 +147,18 @@ export default function ComponentCreate() {
 
       const formData = new FormData();
       Object.entries(base).forEach(([k, v]) => {
-        if (k === 'image') return;
         if (v !== '' && v != null) formData.append(k, v);
       });
       if (imageFile) {
         formData.append('image', imageFile);
-      } else if (base.image && !base.image.startsWith('http')) {
-        formData.append('image_url', base.image);
       }
       formData.append('specs', JSON.stringify({ [slug]: specPayload }));
 
       await api.post('/admin/components', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-      alert('✅ Компонент успешно создан');
+      toast.success('Компонент успешно создан');
       navigate('/admin/components');
     } catch (err) {
-      alert('Ошибка: ' + (err.response?.data?.message || err.message));
+      toast.error(parseApiError(err));
     } finally {
       setSaving(false);
     }
@@ -183,10 +172,16 @@ export default function ComponentCreate() {
     setErrors(prev => ({ ...prev, category_id: '' }));
   };
 
-  const selectTemplate = (path) => {
-    setImageFile(null);
-    setBase(prev => ({ ...prev, image: path }));
-    setShowTemplates(false);
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const err = validateImageFile(file);
+    if (err) {
+      toast.warning(err);
+      e.target.value = '';
+      return;
+    }
+    setImageFile(file);
   };
 
   if (loading) {
@@ -199,7 +194,6 @@ export default function ComponentCreate() {
 
   const slug = refs.categories.find(c => c.id == base.category_id)?.slug || '<категория>';
   const categoryName = refs.categories.find(c => c.slug === slug)?.name;
-  const templates = imageTemplates[slug] || [];
   const previewSrc = imageFile ? URL.createObjectURL(imageFile) : '';
   const autoPath = base.model
     ? `images/components/${slug}/${base.model.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '_')}.jpg`
@@ -262,7 +256,7 @@ export default function ComponentCreate() {
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <Upload className="w-6 h-6 text-white drop-shadow-md" />
                 </div>
-                <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={e => setImageFile(e.target.files[0])} />
+                <input type="file" ref={fileInputRef} className="hidden" accept={ALLOWED_IMAGE_EXTENSIONS} onChange={handleImageChange} />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -272,30 +266,6 @@ export default function ComponentCreate() {
                 <div className="bg-gray-50 dark:bg-[#0a0a0c] border border-gray-200 dark:border-white/10 rounded-lg p-3 text-center">
                   <p className="text-xs font-mono text-gray-600 dark:text-gray-300 truncate">{autoPath}</p>
                 </div>
-                {slug && (
-                  <div className="relative mt-2">
-                    <button
-                      onClick={() => setShowTemplates(!showTemplates)}
-                      className="w-full flex items-center justify-between bg-gray-50 dark:bg-[#0a0a0c] border border-gray-200 dark:border-white/10 hover:border-purple-400 dark:hover:border-purple-500/30 rounded-lg px-3 py-2 text-xs text-gray-700 dark:text-gray-300 transition-colors"
-                    >
-                      <span>Выбрать из шаблона</span>
-                      <ChevronDown className={`w-4 h-4 transition-transform ${showTemplates ? 'rotate-180' : ''}`} />
-                    </button>
-                    {showTemplates && (
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-[#1a1a1c] border border-gray-200 dark:border-white/10 rounded-lg shadow-xl z-10 p-2 max-h-48 overflow-y-auto">
-                        {templates.map((t, i) => (
-                          <button
-                            key={i}
-                            onClick={() => selectTemplate(t.path)}
-                            className="w-full px-3 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-600/20 rounded-md text-left transition-colors"
-                          >
-                            {t.label}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
             </div>
 

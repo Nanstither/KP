@@ -124,18 +124,15 @@ class ComponentController extends Controller
             'price'       => 'sometimes|numeric|min:0',
             'stock'       => 'sometimes|integer|min:0',
             'image'       => 'nullable|file|mimes:jpg,jpeg,png,webp,svg|max:2048',
-            'image_url'   => 'nullable|string',
             'specs'       => 'nullable|string', // FormData шлёт JSON как строку
         ]);
 
         DB::transaction(function () use ($component, $validated, $request) {
-            // 1. Запоминаем старые данные ДО обновления
-            $oldModel = $component->model;
             $oldImagePath = $component->image;
             $categorySlug = $component->category->slug;
 
             // Обновляем базовые поля (модель изменится здесь)
-            $baseData = array_filter($validated, fn($k) => !in_array($k, ['image', 'image_url', 'specs']), ARRAY_FILTER_USE_KEY);
+            $baseData = array_filter($validated, fn($k) => !in_array($k, ['image', 'specs']), ARRAY_FILTER_USE_KEY);
             if (!empty($baseData)) {
                 $component->update($baseData);
             }
@@ -150,28 +147,15 @@ class ComponentController extends Controller
                 $ext = $file->getClientOriginalExtension();
                 $newFilename = $safeModelName . '.' . $ext;
 
-                // 🔒 БЕЗОПАСНОЕ УДАЛЕНИЕ СТАРОГО ФАЙЛА
                 if ($oldImagePath && Storage::disk('public')->exists($oldImagePath)) {
-                    $oldFilename = basename($oldImagePath);
-                    $oldNameWithoutExt = pathinfo($oldFilename, PATHINFO_FILENAME);
-                    
-                    // Удаляем ТОЛЬКО если имя файла совпадает со слагованным названием старой модели
-                    // (это означает, что файл был загружен пользователем, а не является шаблоном)
-                    if ($oldNameWithoutExt === Str::slug($oldModel)) {
-                        Storage::disk('public')->delete($oldImagePath);
-                    }
-                    // Иначе файл считается шаблоном/общим ассетом -> оставляем как есть
+                    Storage::disk('public')->delete($oldImagePath);
                 }
 
                 // Сохраняем новый файл
                 Storage::disk('public')->putFileAs($directory, $file, $newFilename);
                 $component->update(['image' => "{$directory}/{$newFilename}"]);
-
-            } elseif (!empty($validated['image_url'])) {
-                // Если передан внешний URL или ручной путь
-                $component->update(['image' => $validated['image_url']]);
             }
-            // Если ни файл, ни image_url не переданы -> старое изображение остаётся нетронутым
+            // Если файл не передан -> старое изображение остаётся нетронутым
 
             // 3. Спецификации
             $rawSpecs = json_decode($validated['specs'] ?? '{}', true);
@@ -229,13 +213,12 @@ class ComponentController extends Controller
             'price'       => 'required|numeric|min:0',
             'stock'       => 'required|integer|min:0',
             'image'       => 'nullable|file|mimes:jpg,jpeg,png,webp,svg|max:2048',
-            'image_url'   => 'nullable|string',
             'specs'       => 'nullable|string',
         ]);
 
         DB::transaction(function () use ($validated, $request) {
             // 1. Создаём базовый компонент
-            $baseData = array_filter($validated, fn($k) => !in_array($k, ['image', 'image_url', 'specs']), ARRAY_FILTER_USE_KEY);
+            $baseData = array_filter($validated, fn($k) => !in_array($k, ['image', 'specs']), ARRAY_FILTER_USE_KEY);
             $component = Component::create($baseData);
 
             // 2. Обработка изображения
@@ -252,8 +235,6 @@ class ComponentController extends Controller
                 }
                 Storage::disk('public')->putFileAs($directory, $file, $filename);
                 $component->update(['image' => "{$directory}/{$filename}"]);
-            } elseif (!empty($validated['image_url'])) {
-                $component->update(['image' => $validated['image_url']]);
             }
 
             // 3. Сохранение спецификаций
