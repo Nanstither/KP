@@ -10,6 +10,8 @@ use Illuminate\Support\Str;
 
 class PrebuiltPcController extends Controller
 {
+    private const EXCLUSIVE_TAG_SLUG = 'ekskliuzivnyi';
+
     // Публичные методы (уже существуют)
     public function index(Request $request)
     {
@@ -36,7 +38,7 @@ class PrebuiltPcController extends Controller
     {
         $pc = PrebuiltPc::query()
             ->where('is_active', true)
-            ->whereHas('tags', fn($q) => $q->where('slug', 'ekskliuzivnyi'))
+            ->whereHas('tags', fn($q) => $q->where('slug', self::EXCLUSIVE_TAG_SLUG))
             ->with(['tags:id,name,slug'])
             ->with(['components' => function ($q) {
                 $q->with(['brand:id,name', 'category:id,name'])
@@ -101,8 +103,9 @@ class PrebuiltPcController extends Controller
         }
 
         // Привязываем теги
-        if (!empty($validated['tag_ids'])) {
-            $pc->tags()->sync($validated['tag_ids']);
+        $tagIds = $this->resolveTagIds($request);
+        if ($tagIds !== null) {
+            $pc->tags()->sync($tagIds);
         }
 
         return response()->json($pc->load(['tags', 'components']), 201);
@@ -150,8 +153,9 @@ class PrebuiltPcController extends Controller
         }
 
         // Синхронизация тегов
-        if (isset($validated['tag_ids'])) {
-            $pc->tags()->sync($validated['tag_ids']);
+        $tagIds = $this->resolveTagIds($request, $pc);
+        if ($tagIds !== null) {
+            $pc->tags()->sync($tagIds);
         }
 
         return response()->json($pc->load(['tags', 'components']));
@@ -166,6 +170,36 @@ class PrebuiltPcController extends Controller
         $pc->delete();
 
         return response()->json(['message' => 'Готовый ПК удалён']);
+    }
+
+    private function resolveTagIds(Request $request, ?PrebuiltPc $pc = null): ?array
+    {
+        if (!$request->has('tag_ids')) {
+            return null;
+        }
+
+        $tagIds = $request->input('tag_ids', []);
+
+        if ($request->user()->isAdmin()) {
+            return $tagIds;
+        }
+
+        $exclusiveTagId = Tag::where('slug', self::EXCLUSIVE_TAG_SLUG)->value('id');
+        if (!$exclusiveTagId) {
+            return $tagIds;
+        }
+
+        $tagIds = array_values(array_filter(
+            $tagIds,
+            fn($id) => (int) $id !== (int) $exclusiveTagId
+        ));
+
+        if ($pc && $pc->tags()->where('tags.id', $exclusiveTagId)->exists()) {
+            $tagIds[] = $exclusiveTagId;
+            $tagIds = array_values(array_unique($tagIds));
+        }
+
+        return $tagIds;
     }
 
     // Вспомогательные методы

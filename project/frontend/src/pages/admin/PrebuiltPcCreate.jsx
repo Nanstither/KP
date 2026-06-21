@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '@/services/api';
 import { useToast } from '@/context/ToastContext';
+import { useAuth } from '@/context/AuthContext';
 import { parseApiError } from '@/lib/parseApiError';
 import { ArrowLeft, Save, Loader2, X } from 'lucide-react';
+
+const EXCLUSIVE_TAG_SLUG = 'ekskliuzivnyi';
 
 const inputClass = (error) =>
   `w-full rounded-lg px-3 py-2 text-sm placeholder:text-gray-400 dark:placeholder:text-gray-600 focus:outline-none transition-colors bg-white dark:bg-[#0a0a0c] text-gray-900 dark:text-white border ${
@@ -39,6 +42,8 @@ const Field = ({ label, type = 'text', val, set, error, placeholder }) => (
 export default function PrebuiltPcCreate() {
   const navigate = useNavigate();
   const toast = useToast();
+  const { isAdmin } = useAuth();
+  const canManageExclusive = isAdmin();
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -133,7 +138,8 @@ export default function PrebuiltPcCreate() {
     ));
   };
 
-  const toggleTag = (tagId) => {
+  const toggleTag = (tagId, tagSlug) => {
+    if (tagSlug === EXCLUSIVE_TAG_SLUG && !canManageExclusive) return;
     setSelectedTagIds(prev => 
       prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]
     );
@@ -204,15 +210,21 @@ export default function PrebuiltPcCreate() {
           <div className="space-y-2">
             <label className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Теги</label>
             <div className="flex flex-wrap gap-2">
-              {refs.tags?.map(tag => (
-                <button
-                  key={tag.id}
-                  onClick={() => toggleTag(tag.id)}
-                  className={chipClass(selectedTagIds.includes(tag.id))}
-                >
-                  {tag.name}
-                </button>
-              ))}
+              {refs.tags?.map(tag => {
+                const isExclusiveLocked = tag.slug === EXCLUSIVE_TAG_SLUG && !canManageExclusive;
+                return (
+                  <button
+                    key={tag.id}
+                    type="button"
+                    onClick={() => toggleTag(tag.id, tag.slug)}
+                    disabled={isExclusiveLocked}
+                    title={isExclusiveLocked ? 'Только администратор' : undefined}
+                    className={`${chipClass(selectedTagIds.includes(tag.id))}${isExclusiveLocked ? ' opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {tag.name}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
