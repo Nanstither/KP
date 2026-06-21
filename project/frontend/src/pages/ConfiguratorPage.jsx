@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence, aspectRatio } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "@/services/api";
+import { useToast } from '@/context/ToastContext';
+import { parseApiError } from '@/lib/parseApiError';
 import { STORAGE_URL } from "@/lib/config";
 import {
   Monitor, Cpu, HardDrive, Fan, Battery,
@@ -120,6 +122,7 @@ const getCaseMaxGpuLabel = (caseItem) => {
 
 export default function ConfiguratorPage() {
   const navigate = useNavigate();
+  const toast = useToast();
   const [searchParams] = useSearchParams();
   const [isCaseSelectorOpen, setIsCaseSelectorOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -446,7 +449,7 @@ export default function ConfiguratorPage() {
       });
       
       if (componentIds.length === 0) {
-        alert('Сборка пуста');
+        toast.warning('Сборка пуста');
         setIsAddingToCart(false);
         return;
       }
@@ -479,7 +482,7 @@ export default function ConfiguratorPage() {
         };
         
         await api.put(`/cart/${editCartItemId}`, payload);
-        alert('Сборка успешно обновлена!');
+        toast.success('Сборка успешно обновлена');
         navigate('/cart');
       } else {
         // Создаем новую сборку в корзине
@@ -508,13 +511,13 @@ export default function ConfiguratorPage() {
         // Session-ID добавляется автоматически через interceptor в api.js
         const response = await api.post('/cart', payload);
         
-        alert('Сборка успешно добавлена в корзину!');
+        toast.success('Сборка успешно добавлена в корзину');
         navigate('/cart');
       }
       
     } catch (error) {
       console.error('Ошибка при добавлении в корзину:', error);
-      alert(error.response?.data?.message || 'Не удалось добавить сборку в корзину');
+      toast.error(parseApiError(error));
     } finally {
       setIsAddingToCart(false);
     }

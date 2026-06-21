@@ -21,6 +21,8 @@ import PrebuiltPcEdit from './pages/admin/PrebuiltPcEdit';
 import CheckoutPage from './pages/CheckoutPage';
 import OrdersPage from './pages/OrdersPage';
 import AdminOrderDetail from './pages/admin/AdminOrderDetail';
+import PrivacyPage from './pages/PrivacyPage';
+import TermsPage from './pages/TermsPage';
 import '@/App.css';
 
 // Компонент для защиты роутов
@@ -57,6 +59,8 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/catalog" element={<CatalogPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/knowledge" element={<KnowledgeBase />} />
           <Route path="/cart" element={<CartPage />} />

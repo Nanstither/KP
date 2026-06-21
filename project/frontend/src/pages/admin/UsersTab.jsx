@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Users as UsersIcon, Search, Filter, Trash2, Edit2, Save, X } from 'lucide-react';
 import api from '@/services/api';
+import { useToast } from '@/context/ToastContext';
+import { parseApiError } from '@/lib/parseApiError';
 
 export default function UsersTab() {
+  const toast = useToast();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -65,7 +68,7 @@ export default function UsersTab() {
       cancelEditing();
     } catch (err) {
       console.error('Ошибка при обновлении роли:', err);
-      alert(err.response?.data?.message || 'Не удалось обновить роль.');
+      toast.error(parseApiError(err));
     }
   };
 
@@ -77,7 +80,7 @@ export default function UsersTab() {
       fetchUsers();
     } catch (err) {
       console.error('Ошибка при удалении пользователя:', err);
-      alert(err.response?.data?.message || 'Не удалось удалить пользователя.');
+      toast.error(parseApiError(err));
     }
   };
 

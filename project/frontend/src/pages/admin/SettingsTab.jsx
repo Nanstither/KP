@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '@/services/api';
+import { useToast } from '@/context/ToastContext';
+import { parseApiError } from '@/lib/parseApiError';
 import { Plus, Edit2, Trash2, X, Save, Loader2 } from 'lucide-react';
 
 export default function SettingsTab() {
+  const toast = useToast();
   // Состояние для списков справочников
   const [refs, setRefs] = useState({ sockets: [], ram_types: [], form_factors: [], materials: [] });
   const [loading, setLoading] = useState(true);
@@ -56,8 +59,9 @@ export default function SettingsTab() {
       const res = await api.get(`/admin/refs/${modal.type}`);
       setRefs(prev => ({ ...prev, [modal.type]: res.data }));
       setModal({ ...modal, isOpen: false, name: '' });
+      toast.success(modal.editId ? 'Запись обновлена' : 'Запись добавлена');
     } catch (err) {
-      alert('Ошибка: ' + (err.response?.data?.message || 'Не удалось сохранить'));
+      toast.error(parseApiError(err));
     } finally {
       setSaving(false);
     }
@@ -69,8 +73,9 @@ export default function SettingsTab() {
     try {
       await api.delete(`/admin/refs/${type}/${id}`);
       setRefs(prev => ({ ...prev, [type]: prev[type].filter(i => i.id !== id) }));
+      toast.success('Запись удалена');
     } catch (err) {
-      alert('Ошибка удаления: ' + (err.response?.data?.message || 'Возможно, запись используется'));
+      toast.error(parseApiError(err));
     }
   };
 

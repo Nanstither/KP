@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import api from "@/services/api";
 import { STORAGE_URL } from "@/lib/config";
@@ -49,6 +49,7 @@ function hasActivePrebuiltFilters(filters) {
 }
 
 export default function CatalogPage() {
+  const [searchParams] = useSearchParams();
   const [view, setView] = useState("prebuilts");
   const [components, setComponents] = useState([]);
   const [prebuilts, setPrebuilts] = useState([]);
@@ -59,6 +60,22 @@ export default function CatalogPage() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
+
+  useEffect(() => {
+    const viewParam = searchParams.get("view");
+    const categoryParam = searchParams.get("category");
+
+    if (viewParam === "components" || viewParam === "prebuilts") {
+      setView(viewParam);
+    }
+
+    if (categoryParam && (viewParam === "components" || !viewParam)) {
+      setSelectedFilter(categoryParam);
+      if (!viewParam) {
+        setView("components");
+      }
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -215,8 +232,11 @@ export default function CatalogPage() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-pink-50 via-white to-blue-100 dark:bg-none dark:bg-[#0f0f10] text-gray-800 dark:text-gray-200 pt-24 pb-12 px-4 md:px-6">
+      <div className="max-w-7xl mx-auto my-8 flex items-center justify-between">
+        <h1 className="text-4xl! my-0! font-bold text-gray-900 dark:text-white">{view === "prebuilts" ? "Готовые сборки" : "Каталог комплектующих"}</h1>
+        <span className="text-sm items-center text-gray-500 dark:text-gray-500">Найдено: {filteredData.length}</span>
+      </div>
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-6">
-
         <aside className={`${view === "prebuilts" ? "lg:w-72" : "lg:w-64"} flex-shrink-0`}>
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 rounded-xl p-5 sticky top-24 shadow-sm dark:shadow-none max-h-[calc(100vh-7rem)] overflow-y-auto custom-scrollbar">
             <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">Раздел</h3>
@@ -352,11 +372,6 @@ export default function CatalogPage() {
         </aside>
 
         <main className="flex-1 space-y-6 min-w-0">
-
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{view === "prebuilts" ? "Готовые сборки" : "Каталог комплектующих"}</h1>
-            <span className="text-sm text-gray-500 dark:text-gray-500">Найдено: {filteredData.length}</span>
-          </div>
 
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />

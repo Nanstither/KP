@@ -27,6 +27,30 @@ const MESSAGE_MAP = [
     test: (msg) => /stock field is required/i.test(msg),
     ru: 'Укажите наличие.',
   },
+  {
+    test: (msg) => /name field is required/i.test(msg),
+    ru: 'Укажите имя.',
+  },
+  {
+    test: (msg) => /email field is required/i.test(msg),
+    ru: 'Укажите email.',
+  },
+  {
+    test: (msg) => /email field must be a valid email/i.test(msg),
+    ru: 'Укажите корректный email.',
+  },
+  {
+    test: (msg) => /message field is required/i.test(msg),
+    ru: 'Напишите сообщение.',
+  },
+  {
+    test: (msg) => /message field must be at least/i.test(msg),
+    ru: 'Сообщение должно содержать не менее 10 символов.',
+  },
+  {
+    test: (msg) => /too many attempts/i.test(msg),
+    ru: 'Слишком много попыток. Подождите минуту и попробуйте снова.',
+  },
 ];
 
 function translateMessage(message) {

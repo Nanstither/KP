@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ComponentController;
 use App\Http\Controllers\Api\PrebuiltPcController;
 use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\Api\ContactController;
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -18,6 +19,9 @@ use App\Http\Controllers\Api\CartController;
 // Публичные роуты
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
+Route::post('/contact', [ContactController::class, 'store'])
+    ->middleware('throttle:5,1');
 
 Route::get('/components', [ComponentController::class, 'index']);
 Route::get('/components/{id}', [ComponentController::class, 'show']);

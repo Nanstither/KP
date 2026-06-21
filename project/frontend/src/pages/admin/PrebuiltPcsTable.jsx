@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import api from '@/services/api';
+import { useToast } from '@/context/ToastContext';
+import { parseApiError } from '@/lib/parseApiError';
 import { Search, Plus, Edit, Trash2, Check, X, Loader2, Monitor } from 'lucide-react';
 
 export default function PrebuiltPcsTable({
@@ -15,6 +17,7 @@ export default function PrebuiltPcsTable({
   tags = []
 }) {
   const navigate = useNavigate();
+  const toast = useToast();
   const [editingId, setEditingId] = useState(null);
   const [editValues, setEditValues] = useState({ price: 0, is_active: false });
   const [saving, setSaving] = useState(false);
@@ -63,7 +66,7 @@ export default function PrebuiltPcsTable({
       setEditingId(null);
     } catch (err) {
       console.error('Ошибка сохранения:', err);
-      alert('Не удалось сохранить изменения.');
+      toast.error(parseApiError(err));
     } finally {
       setSaving(false);
     }

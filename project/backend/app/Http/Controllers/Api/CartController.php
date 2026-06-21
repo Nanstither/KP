@@ -133,7 +133,7 @@ class CartController extends Controller
                 // Если это плоский массив ID (старый формат)
                 if (count($componentsData) > 0 && !isset($componentsData[0]['id'])) {
                     $uniqueIds = array_unique($componentsData);
-                    $components = Component::whereIn('id', $uniqueIds)->get();
+                    $components = Component::with('category')->whereIn('id', $uniqueIds)->get();
                     
                     // Считаем количество каждого ID
                     $quantityMap = array_count_values($componentsData);
@@ -146,7 +146,7 @@ class CartController extends Controller
                 } else {
                     // Новый формат с объектами {id, quantity}
                     $componentIds = array_column($componentsData, 'id');
-                    $components = Component::whereIn('id', $componentIds)->get();
+                    $components = Component::with('category')->whereIn('id', $componentIds)->get();
                     
                     foreach ($componentsData as $item) {
                         $comp = $components->firstWhere('id', $item['id']);

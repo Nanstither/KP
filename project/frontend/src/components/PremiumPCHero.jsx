@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { Monitor, Cpu, Zap, Sparkles, Computer } from "lucide-react";
 import { Link } from "react-router-dom";
 import { STORAGE_URL } from "@/lib/config";
+import PrebuiltPcSpecsModal from "@/components/PrebuiltPcSpecsModal";
 
 // ─── Декларативный фон частиц ───
 const ParticlesBackground = () => {
@@ -43,6 +44,7 @@ export default function PremiumPCHero({ exclusivePc }) {
   const [pcImageError, setPcImageError] = useState(false);
   const [caseImageLoaded, setCaseImageLoaded] = useState(false);
   const [caseImageError, setCaseImageError] = useState(false);
+  const [isSpecsModalOpen, setIsSpecsModalOpen] = useState(false);
 
   // Формируем URL изображения ПК напрямую из поля image в БД (например: "images/prebuilt/pc_31.png")
   const pcImageUrl = exclusivePc?.image 
@@ -189,7 +191,12 @@ export default function PremiumPCHero({ exclusivePc }) {
                   Создать сборку
                 </button>
               </Link>
-              <button className="px-6 py-2.5 rounded-lg font-medium transition-all cursor-pointer border border-purple-400 dark:border-purple-400/30 text-purple-600 dark:text-purple-300 hover:bg-purple-500/10 active:scale-95">
+              <button
+                type="button"
+                onClick={() => exclusivePc?.components && setIsSpecsModalOpen(true)}
+                disabled={!exclusivePc?.components}
+                className="px-6 py-2.5 rounded-lg font-medium transition-all cursor-pointer border border-purple-400 dark:border-purple-400/30 text-purple-600 dark:text-purple-300 hover:bg-purple-500/10 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 Характеристики
               </button>
             </motion.div>
@@ -351,6 +358,12 @@ export default function PremiumPCHero({ exclusivePc }) {
           </div>
         </motion.div>
       </div>
+
+      <PrebuiltPcSpecsModal
+        pc={exclusivePc}
+        isOpen={isSpecsModalOpen}
+        onClose={() => setIsSpecsModalOpen(false)}
+      />
     </div>
   );
 }

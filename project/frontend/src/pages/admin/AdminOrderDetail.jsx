@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
+import { parseApiError } from '@/lib/parseApiError';
 import { 
   ArrowLeft, 
   Package, 
@@ -23,6 +25,7 @@ export default function AdminOrderDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const toast = useToast();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -38,7 +41,33 @@ export default function AdminOrderDetail() {
     case: 'Корпус',
     cooler: 'Охлаждение',
     fan: 'Вентилятор',
-    default: 'Компонент'
+    default: 'Компонент',
+  };
+
+  const numericRoleNames = {
+    0: 'Процессор',
+    1: 'Материнская плата',
+    2: 'Видеокарта',
+    3: 'Оперативная память',
+    4: 'Накопитель',
+    5: 'Блок питания',
+    6: 'Корпус',
+    7: 'Охлаждение',
+  };
+
+  const resolveRoleName = (comp) => {
+    const role = comp?.role;
+    if (role !== null && role !== undefined && roleNames[role]) {
+      return roleNames[role];
+    }
+    if (role !== null && role !== undefined && numericRoleNames[role] !== undefined) {
+      return numericRoleNames[role];
+    }
+    const categorySlug = comp?.component?.category?.slug;
+    if (categorySlug && roleNames[categorySlug]) {
+      return roleNames[categorySlug];
+    }
+    return roleNames.default;
   };
 
   // Цвета статусов для светлой и темной темы
@@ -87,9 +116,14 @@ export default function AdminOrderDetail() {
     try {
       await api.patch(`/admin/orders/${id}/status`, { status: newStatus });
       fetchOrder();
+      if (newStatus === 'delivered' || newStatus === 'cancelled') {
+        toast.success('Заказ завершён и перемещён в архив');
+      } else {
+        toast.success('Статус заказа обновлён');
+      }
     } catch (error) {
       console.error('Error updating order status:', error);
-      alert('Ошибка при обновлении статуса заказа');
+      toast.error(parseApiError(error));
     } finally {
       setUpdating(false);
     }
@@ -120,7 +154,7 @@ export default function AdminOrderDetail() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0f0f10] text-gray-900 dark:text-gray-100 p-6">
       {/* Header */}
-      <div className="max-w-7xl mx-auto mb-8">
+      <div className="max-w-7xl mx-auto mb-8 mt-24">
         <button
           onClick={() => navigate('/admin/orders')}
           className="flex items-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors mb-6 group"
@@ -201,8 +235,7 @@ export default function AdminOrderDetail() {
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {item.components.map((comp) => {
-                          // Определяем имя роли
-                          const roleName = roleNames[comp.role] || roleNames.default;
+                          const roleName = resolveRoleName(comp);
                           
                           return (
                             <div key={comp.id} className="bg-gray-100 dark:bg-white/[0.02] rounded-lg p-3 border border-gray-200 dark:border-white/5 flex flex-col justify-between">

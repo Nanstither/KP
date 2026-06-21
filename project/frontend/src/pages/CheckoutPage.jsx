@@ -3,9 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { MapPin, Search, Check, CreditCard, Truck, Package, ArrowLeft, Building2, Phone, User, Clock } from "lucide-react";
 import api from "@/services/api";
+import { useToast } from '@/context/ToastContext';
+import { parseApiError } from '@/lib/parseApiError';
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
+  const toast = useToast();
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [step, setStep] = useState(1); // 1 - доставка, 2 - оплата, 3 - подтверждение
@@ -79,11 +82,11 @@ export default function CheckoutPage() {
 
   const handleSubmitOrder = async () => {
     if (!selectedPickpoint) {
-      alert("Выберите пункт выдачи");
+      toast.warning("Выберите пункт выдачи");
       return;
     }
     if (!formData.name || !formData.phone) {
-      alert("Заполните обязательные поля");
+      toast.warning("Заполните обязательные поля");
       return;
     }
 
@@ -140,6 +143,7 @@ export default function CheckoutPage() {
 
       setOrderData(order);
       setStep(3);
+      toast.success('Заказ успешно оформлен');
 
       // Очищаем корзину на бэкенде
       if (cart?.items) {
@@ -153,8 +157,7 @@ export default function CheckoutPage() {
       }
     } catch (err) {
       console.error("Ошибка оформления заказа:", err);
-      const errorMsg = err.response?.data?.message || err.response?.data?.error || "Произошла ошибка при оформлении заказа";
-      alert(errorMsg);
+      toast.error(parseApiError(err));
     } finally {
       setProcessing(false);
     }

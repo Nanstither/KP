@@ -10,16 +10,18 @@ export default function OrdersPage() {
   const { user } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [listScope, setListScope] = useState('active');
 
   useEffect(() => {
-    loadOrders();
-  }, []);
+    loadOrders(listScope);
+  }, [listScope]);
 
-  const loadOrders = async () => {
+  const loadOrders = async (scope) => {
+    setLoading(true);
     try {
-      // Загружаем из API
-      const response = await api.get('/orders');
-      setOrders(response.data.reverse()); // Новые заказы сверху
+      const response = await api.get('/orders', { params: { scope } });
+      const data = Array.isArray(response.data) ? response.data : [];
+      setOrders(data);
     } catch (err) {
       console.error("Ошибка загрузки истории:", err);
     } finally {
@@ -84,9 +86,37 @@ export default function OrdersPage() {
           </button>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
             <Package className="w-8 h-8 text-purple-400" />
-            История покупок
+            Мои заказы
           </h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-2">
+            {listScope === 'active' ? 'Текущие заказы в обработке и доставке' : 'Завершённые и отменённые заказы'}
+          </p>
         </motion.div>
+
+        <div className="flex gap-2 mb-6 border-b border-gray-200 dark:border-white/10">
+          <button
+            type="button"
+            onClick={() => setListScope('active')}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors -mb-px ${
+              listScope === 'active'
+                ? 'border-purple-600 text-purple-600 dark:text-purple-400'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+            }`}
+          >
+            Активные
+          </button>
+          <button
+            type="button"
+            onClick={() => setListScope('archive')}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors -mb-px ${
+              listScope === 'archive'
+                ? 'border-purple-600 text-purple-600 dark:text-purple-400'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+            }`}
+          >
+            Завершённые
+          </button>
+        </div>
 
         {orders.length === 0 ? (
           <motion.div
@@ -95,14 +125,23 @@ export default function OrdersPage() {
             className="text-center py-20 bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 rounded-xl"
           >
             <Package className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">История пуста</h2>
-            <p className="text-gray-500 dark:text-gray-500 mb-6">У вас пока нет оформленных заказов</p>
-            <button
-              onClick={() => navigate('/catalog')}
-              className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-lg transition-colors"
-            >
-              Перейти в каталог
-            </button>
+            <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              {listScope === 'active' ? 'Нет активных заказов' : 'Нет завершённых заказов'}
+            </h2>
+            <p className="text-gray-500 dark:text-gray-500 mb-6">
+              {listScope === 'active'
+                ? 'Оформите заказ в каталоге — он появится здесь'
+                : 'Здесь будут доставленные и отменённые заказы'}
+            </p>
+            {listScope === 'active' && (
+              <button
+                type="button"
+                onClick={() => navigate('/catalog')}
+                className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-lg transition-colors"
+              >
+                Перейти в каталог
+              </button>
+            )}
           </motion.div>
         ) : (
           <div className="space-y-4">

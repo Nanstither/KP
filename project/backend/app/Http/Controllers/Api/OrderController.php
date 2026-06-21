@@ -14,6 +14,17 @@ use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
+    private const ARCHIVE_STATUSES = ['delivered', 'cancelled'];
+
+    private function applyOrderScope($query, ?string $scope): void
+    {
+        if ($scope === 'active') {
+            $query->whereNotIn('status', self::ARCHIVE_STATUSES);
+        } elseif ($scope === 'archive') {
+            $query->whereIn('status', self::ARCHIVE_STATUSES);
+        }
+    }
+
     /**
      * Get role name by ID
      */
@@ -62,6 +73,8 @@ class OrderController extends Controller
         } else {
             $query->where('session_id', $request->session_id);
         }
+
+        $this->applyOrderScope($query, $request->query('scope'));
         
         $orders = $query->orderBy('created_at', 'desc')->get();
         
@@ -151,7 +164,7 @@ class OrderController extends Controller
                     if ($cartItemComponents->isNotEmpty()) {
                         $components = [];
                         foreach ($cartItemComponents as $cic) {
-                            $role = $cic->role ?? ($cic->component?->category?->slug ?? null);
+                            $role = $cic->component?->category?->slug ?? $cic->role;
                             $components[] = [
                                 'component_id' => $cic->component_id,
                                 'price_snapshot' => $cic->price_snapshot,
@@ -193,16 +206,11 @@ class OrderController extends Controller
                             $componentId = $compData['component_id'];
                             $price = $compData['price'] ?? $compData['price_snapshot'] ?? 0;
                             $quantity = $compData['quantity'] ?? 1;
-                            $role = $compData['role'] ?? null;
-                            
-                            // Загружаем компонент из БД с категорией
+
                             $component = \App\Models\Component::with('category')->find($componentId);
                             if ($component) {
-                                // Если роль не передана, определяем её по категории компонента
-                                if (!$role && $component->category?->slug) {
-                                    $role = $component->category->slug; // Используем slug напрямую (cpu, motherboard, gpu...)
-                                }
-                                
+                                $role = $component->category?->slug;
+
                                 $componentsForDb[] = [
                                     'component_id' => $componentId,
                                     'price_snapshot' => $price,
@@ -215,22 +223,18 @@ class OrderController extends Controller
                         elseif (isset($compData['component'])) {
                             $componentId = $compData['component']['id'];
                             $price = $compData['price_snapshot'] ?? $compData['component']['price'] ?? 0;
-                            $role = $compData['role'] ?? null;
-                            
-                            // Если роль не передана, загружаем компонент и определяем по категории
-                            if (!$role) {
-                                $component = \App\Models\Component::with('category')->find($componentId);
-                                if ($component && $component->category?->slug) {
-                                    $role = $component->category->slug; // Используем slug напрямую
-                                }
+
+                            $component = \App\Models\Component::with('category')->find($componentId);
+                            if ($component) {
+                                $role = $component->category?->slug;
+
+                                $componentsForDb[] = [
+                                    'component_id' => $componentId,
+                                    'price_snapshot' => $price,
+                                    'quantity' => 1,
+                                    'role' => $role,
+                                ];
                             }
-                            
-                            $componentsForDb[] = [
-                                'component_id' => $componentId,
-                                'price_snapshot' => $price,
-                                'quantity' => 1,
-                                'role' => $role,
-                            ];
                         }
                     }
                 }
@@ -444,6 +448,8 @@ class OrderController extends Controller
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
+
+        $this->applyOrderScope($query, $request->query('scope'));
         
         if ($request->filled('search')) {
             $query->where(function($q) use ($request) {
@@ -492,7 +498,7 @@ class OrderController extends Controller
      */
     public function adminShow($id)
     {
-        $order = Order::with('items.components.component', 'items.prebuiltPc.components', 'user')->findOrFail($id);
+        $order = Order::with('items.components.component.category', 'items.prebuiltPc.components', 'user')->findOrFail($id);
         
         // Добавляем components_data вручную
         $order->items->transform(function($item) {
@@ -508,17 +514,21 @@ class OrderController extends Controller
                     'component_id' => $oc->component_id,
                     'price_snapshot' => $oc->price_snapshot,
                     'quantity' => $oc->quantity,
+                    'role' => $oc->role,
                     'component' => $oc->component ? [
                         'id' => $oc->component->id,
-                        
                         'model' => $oc->component->model,
                         'price' => $oc->component->price,
+                        'category' => $oc->component->category ? [
+                            'slug' => $oc->component->category->slug,
+                            'name' => $oc->component->category->name,
+                        ] : null,
                     ] : null,
                 ];
             });
             return $item;
         });
         
-        return response()->json($order);
+        return response()->json(['order' => $order]);
     }
 }
