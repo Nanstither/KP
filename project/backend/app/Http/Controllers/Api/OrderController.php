@@ -59,6 +59,38 @@ class OrderController extends Controller
         return $roles[$role] ?? 'Компонент';
     }
 
+    private function mapOrderItemComponents($components)
+    {
+        if (!$components || !is_object($components) || !method_exists($components, 'map')) {
+            return [];
+        }
+
+        return $components->map(function ($oc) {
+            return [
+                'id' => $oc->id,
+                'component_id' => $oc->component_id,
+                'price_snapshot' => $oc->price_snapshot,
+                'quantity' => $oc->quantity,
+                'role' => $oc->role,
+                'component' => $oc->component ? [
+                    'id' => $oc->component->id,
+                    'model' => $oc->component->model,
+                    'price' => $oc->component->price,
+                    'category' => $oc->component->category ? [
+                        'slug' => $oc->component->category->slug,
+                        'name' => $oc->component->category->name,
+                    ] : null,
+                ] : null,
+            ];
+        });
+    }
+
+    private function attachComponentsDataToItem($item): void
+    {
+        $components = $item->getRelation('components');
+        $item->components_data = $this->mapOrderItemComponents($components);
+    }
+
     /**
      * Display a listing of user's orders.
      */
@@ -66,7 +98,10 @@ class OrderController extends Controller
     {
         $user = Auth::user();
         
-        $query = Order::with('items.prebuiltPc.components', 'items.components.component');
+        $query = Order::with([
+            'items.prebuiltPc',
+            'items.components.component.category',
+        ]);
         
         if ($user) {
             $query->where('user_id', $user->id);
@@ -81,26 +116,7 @@ class OrderController extends Controller
         // Добавляем components_data вручную
         $orders->transform(function($order) {
             $order->items->transform(function($item) {
-                $components = $item->getRelation('components');
-                if (!$components || !is_object($components) || !method_exists($components, 'map')) {
-                    $item->components_data = [];
-                    return $item;
-                }
-                
-                $item->components_data = $components->map(function($oc) {
-                    return [
-                        'id' => $oc->id,
-                        'component_id' => $oc->component_id,
-                        'price_snapshot' => $oc->price_snapshot,
-                        'quantity' => $oc->quantity,
-                        'component' => $oc->component ? [
-                            'id' => $oc->component->id,
-                            
-                            'model' => $oc->component->model,
-                            'price' => $oc->component->price,
-                        ] : null,
-                    ];
-                });
+                $this->attachComponentsDataToItem($item);
                 return $item;
             });
             return $order;

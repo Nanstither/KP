@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Loader2, MessageCircle } from "lucide-react";
 import api from "@/services/api";
 import { useToast } from "@/context/ToastContext";
+import { useAuth } from "@/context/AuthContext";
 import { parseApiError } from "@/lib/parseApiError";
 
 const inputClass =
@@ -10,6 +11,7 @@ const inputClass =
 
 export default function ContactModal({ isOpen, onClose }) {
   const toast = useToast();
+  const { user } = useAuth();
   const [sending, setSending] = useState(false);
   const [form, setForm] = useState({
     name: "",
@@ -17,6 +19,15 @@ export default function ContactModal({ isOpen, onClose }) {
     subject: "",
     message: "",
   });
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setForm((prev) => ({
+      ...prev,
+      name: user?.name || prev.name,
+      email: user?.email || prev.email,
+    }));
+  }, [isOpen, user?.name, user?.email]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

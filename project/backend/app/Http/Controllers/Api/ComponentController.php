@@ -50,9 +50,14 @@ class ComponentController extends Controller
     {
         $component = Component::with([
             'brand', 'category',
-            'cpuSpec.socket', 'gpuSpec', 'ramSpec.ramType', 'motherboardSpec.socket', 'motherboardSpec.formFactor', 'motherboardSpec.ramType', 'psuSpec', 'storageSpec', 'coolerSpec', 'caseSpec',
+            'cpuSpec.socket',
+            'gpuSpec.vramType',
+            'ramSpec.ramType',
+            'motherboardSpec.socket', 'motherboardSpec.formFactor', 'motherboardSpec.ramType',
+            'psuSpec', 'storageSpec', 'coolerSpec',
+            'caseSpec.caseType', 'caseSpec.material',
             'compatibleSockets:id,name',
-            'supportedFormFactors:id,name'
+            'supportedFormFactors:id,name',
         ])->findOrFail($id);
         return response()->json($component);
     }

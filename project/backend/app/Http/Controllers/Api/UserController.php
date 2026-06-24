@@ -29,9 +29,11 @@ class UserController extends Controller
             $query->where('role', $request->role);
         }
 
-        $users = $query->select('id', 'name', 'email', 'role')->paginate(15);
+        $paginator = $query->select('id', 'name', 'email', 'role')->paginate(15);
 
-        return response()->json($users);
+        return response()->json(array_merge($paginator->toArray(), [
+            'admin_count' => User::where('role', User::ROLE_ADMIN)->count(),
+        ]));
     }
 
     /**
@@ -62,6 +64,10 @@ class UserController extends Controller
         // Защита главного админа (ID 1)
         if ($user->id === 1) {
             return response()->json(['message' => 'Нельзя удалить главного администратора'], 403);
+        }
+
+        if ($user->isAdmin() && User::where('role', User::ROLE_ADMIN)->count() <= 1) {
+            return response()->json(['message' => 'Нельзя удалить последнего администратора'], 403);
         }
 
         $user->delete();

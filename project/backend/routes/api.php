@@ -56,8 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/users/{user}', [UserController::class, 'destroy']);
         
         // Route::get('/admin/dashboard', fn() => response()->json(['msg' => 'Admin panel']));
-        // Здесь будут CRUD для компонентов, категорий и т.д.
-        // Простой CRUD для справочников
+        // CRUD для справочников
         Route::get('/admin/refs/{type}', [ComponentController::class, 'getRefs']);
         Route::post('/admin/refs/{type}', [ComponentController::class, 'storeRef']);
         Route::put('/admin/refs/{type}/{id}', [ComponentController::class, 'updateRef']);
@@ -72,11 +71,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/admin/orders/{orderId}/status', [OrderController::class, 'updateStatus']);
         Route::patch('/admin/orders/{orderId}/items/{itemId}/status', [OrderController::class, 'updateItemStatus']);
         
-        // ✅ Обновление и удаление компонентов
+        // Обновление и удаление компонентов
         Route::patch('admin/components/{component}', [ComponentController::class, 'update']);
         Route::delete('admin/components/{component}', [ComponentController::class, 'destroy']);
 
-        // ✅ Экспорт компонентов в Excel
+        // Экспорт компонентов в Excel
         Route::get('admin/components/export', [ComponentController::class, 'export']);
 
         Route::get('admin/components/{component}/edit', [ComponentController::class, 'edit']);
@@ -85,7 +84,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('admin/components/create', [ComponentController::class, 'createRefs']);
         Route::post('admin/components', [ComponentController::class, 'storeFull']);
 
-        // ✅ CRUD для готовых ПК
+        // CRUD для готовых ПК
         Route::get('admin/prebuilt-pcs', [PrebuiltPcController::class, 'adminIndex']);
         Route::post('admin/prebuilt-pcs', [PrebuiltPcController::class, 'store']);
         Route::get('admin/prebuilt-pcs/{id}/edit', [PrebuiltPcController::class, 'edit']);
@@ -94,8 +93,9 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
-// Публичные роуты корзины (доступны всем)
+// Публичные роуты корзины 
 Route::get('/cart', [CartController::class, 'index']);
+Route::get('/cart/{id}', [CartController::class, 'show']);
 Route::post('/cart', [CartController::class, 'store']);
 Route::put('/cart/{id}', [CartController::class, 'update']); // Редактирование сборки
 Route::delete('/cart/{id}', [CartController::class, 'destroy']);

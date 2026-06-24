@@ -14,6 +14,7 @@ export default function UsersTab() {
   const [editingUserId, setEditingUserId] = useState(null);
   const [newRole, setNewRole] = useState('');
   const [currentPageData, setCurrentPageData] = useState({});
+  const [adminCount, setAdminCount] = useState(0);
 
   // Загрузка списка пользователей
   const fetchUsers = async (page = 1) => {
@@ -28,6 +29,7 @@ export default function UsersTab() {
       const response = await api.get(`/users?${params.toString()}`);
       setUsers(response.data.data);
       setCurrentPageData(response.data);
+      setAdminCount(response.data.admin_count ?? 0);
     } catch (err) {
       console.error('Ошибка при загрузке пользователей:', err);
       setError(err.response?.data?.message || 'Не удалось загрузить пользователей.');
@@ -217,6 +219,10 @@ export default function UsersTab() {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                       {user.id === 1 ? (
                         <span className="text-gray-300 dark:text-gray-600 text-xs" title="Нельзя удалить главного админа">
+                          —
+                        </span>
+                      ) : user.role === 'admin' && adminCount <= 1 ? (
+                        <span className="text-gray-300 dark:text-gray-600 text-xs" title="Нельзя удалить последнего администратора">
                           —
                         </span>
                       ) : (

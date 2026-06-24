@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Check, X } from "lucide-react";
 import { STORAGE_URL, API_URL } from "@/lib/config";
+import { formatComponentSpecs } from "@/lib/formatComponentSpecs";
 
 // const API_URL = "http://localhost:8000/api";
 
@@ -38,33 +39,7 @@ export default function ComponentDetailPage() {
   };
 
   const { label, specs } = getType();
-
-  // Форматирование характеристик в пары label:value
-  const formatSpecs = () => Object.entries(specs || {})
-    .filter(([_, v]) => v !== null && v !== undefined)
-    .filter(([k, _]) => !['created_at', 'updated_at', 'createdAt', 'updatedAt'].includes(k))
-    .map(([k, v]) => {
-      // Превращаем объекты в строку (берем name или id), чтобы React не упал
-      let displayValue = v;
-      if (typeof v === 'object' && v !== null) {
-        displayValue = v.name || v.id || JSON.stringify(v);
-      }
-      
-      const labels = {
-        socket: "Сокет", cores: "Ядра", threads: "Потоки", base_clock_mhz: "Баз. частота (МГц)", boost_clock_mhz: "Буст. частота (МГц)", tdp_watts: "TDP (Вт)",
-        vram_gb: "VRAM (GB)", vram_type: "Тип памяти", memory_bus_bit: "Шина (бит)", length_mm: "Длина (мм)", width_mm: "Ширина (мм)", pcie_slots_required: "Слоты PCIe",
-        total_capacity_gb: "Объём (GB)", speed_mhz: "Частота (МГц)", type: "Тип", latency_cl: "Тайминги (CL)", modules_count: "Модулей",
-        chipset: "Чипсет", ram_slots: "Слоты ОЗУ", ram_type: "Тип ОЗУ", m2_slots: "Слоты M.2", pcie_gen: "Версия PCIe", form_factor: "Форм-фактор",
-        wattage: "Мощность (Вт)", efficiency: "Сертификат", modularity: "Модульность", pcie_cables_count: "Кабелей PCIe",
-        capacity_gb: "Объём (GB)", read_speed_mbps: "Чтение (МБ/с)", write_speed_mbps: "Запись (МБ/с)",
-        tdp_rating_watts: "Рассеивание (Вт)", fan_count: "Вентиляторов",
-        case_type: "Тип корпуса", top_fan_slots: "Слоты сверху", fans_included: "В комплекте", drive_bays_3_5: "Отсеки 3.5\"", drive_bays_2_5: "Отсеки 2.5\"",
-        front_usb_a: "USB-A", front_usb_c: "USB-C", front_audio_jack: "Аудио", material: "Материал"
-      };
-      return { label: labels[k] || k, value: typeof displayValue === 'boolean' ? (displayValue ? "Да" : "Нет") : displayValue };
-    });
-
-  const formattedSpecs = formatSpecs();
+  const formattedSpecs = formatComponentSpecs(specs, data.id);
 
   return (
     <div className="min-h-screen pt-20 bg-gray-50 dark:bg-[#101019] text-gray-900 dark:text-gray-200 transition-colors duration-300">

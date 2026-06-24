@@ -28,7 +28,6 @@ htmlcov/
 .coverage
 
 # Environment
-.env
 .env.local
 .env.*
 

@@ -4,11 +4,14 @@ import { motion } from "framer-motion";
 import { MapPin, Search, Check, CreditCard, Truck, Package, ArrowLeft, Building2, Phone, User, Clock } from "lucide-react";
 import api from "@/services/api";
 import { useToast } from '@/context/ToastContext';
+import { useAuth } from '@/context/AuthContext';
 import { parseApiError } from '@/lib/parseApiError';
+import { formatPhoneInput, formatCardNumberInput, formatCardExpiryInput, isPhoneComplete } from '@/lib/formatInput';
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const toast = useToast();
+  const { user } = useAuth();
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [step, setStep] = useState(1); // 1 - доставка, 2 - оплата, 3 - подтверждение
@@ -39,6 +42,15 @@ export default function CheckoutPage() {
     loadCart();
     loadCdekPickpoints();
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    setFormData((prev) => ({
+      ...prev,
+      name: prev.name || user.name || '',
+      email: user.email || prev.email,
+    }));
+  }, [user]);
 
   const loadCart = async () => {
     try {
@@ -71,7 +83,19 @@ export default function CheckoutPage() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    if (name === 'phone') {
+      setFormData(prev => ({ ...prev, phone: formatPhoneInput(value) }));
+      return;
+    }
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleCardNumberChange = (e) => {
+    setCardData(prev => ({ ...prev, number: formatCardNumberInput(e.target.value) }));
+  };
+
+  const handleCardExpiryChange = (e) => {
+    setCardData(prev => ({ ...prev, expiry: formatCardExpiryInput(e.target.value) }));
   };
 
   const selectPickpoint = (pickpoint) => {
@@ -85,7 +109,7 @@ export default function CheckoutPage() {
       toast.warning("Выберите пункт выдачи");
       return;
     }
-    if (!formData.name || !formData.phone) {
+    if (!formData.name || !isPhoneComplete(formData.phone)) {
       toast.warning("Заполните обязательные поля");
       return;
     }
@@ -334,12 +358,14 @@ export default function CheckoutPage() {
                       value={formData.phone}
                       onChange={handleInputChange}
                       placeholder="+7 (999) 000-00-00"
+                      autoComplete="tel"
+                      inputMode="tel"
                       className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#0a0a0c] border border-gray-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 dark:text-white"
                     />
                   </div>
                 </div>
                 
-                <div className="md:col-span-2">
+                <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Email
                   </label>
@@ -349,6 +375,7 @@ export default function CheckoutPage() {
                     value={formData.email}
                     onChange={handleInputChange}
                     placeholder="example@mail.ru"
+                    autoComplete="email"
                     className="w-full px-4 py-3 bg-gray-50 dark:bg-[#0a0a0c] border border-gray-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 dark:text-white"
                   />
                 </div>
@@ -371,7 +398,7 @@ export default function CheckoutPage() {
 
             <button
               onClick={() => setStep(2)}
-              disabled={!selectedPickpoint || !formData.name || !formData.phone}
+              disabled={!selectedPickpoint || !formData.name || !isPhoneComplete(formData.phone)}
               className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-4 rounded-xl transition-all flex items-center justify-center gap-2"
             >
               Продолжить →
@@ -402,11 +429,13 @@ export default function CheckoutPage() {
                     </label>
                     <input
                       type="text"
+                      inputMode="numeric"
+                      autoComplete="cc-number"
                       value={cardData.number}
-                      onChange={(e) => setCardData(prev => ({ ...prev, number: e.target.value.replace(/\D/g, '').slice(0, 16) }))}
+                      onChange={handleCardNumberChange}
                       placeholder="0000 0000 0000 0000"
                       maxLength={19}
-                      className="w-full px-4 py-3 bg-gray-50 dark:bg-[#0a0a0c] border border-gray-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 dark:text-white"
+                      className="w-full px-4 py-3 bg-gray-50 dark:bg-[#0a0a0c] border border-gray-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 dark:text-white font-mono tracking-wider"
                     />
                   </div>
                   
@@ -417,17 +446,13 @@ export default function CheckoutPage() {
                       </label>
                       <input
                         type="text"
+                        inputMode="numeric"
+                        autoComplete="cc-exp"
                         value={cardData.expiry}
-                        onChange={(e) => {
-                          let value = e.target.value.replace(/\D/g, '');
-                          if (value.length >= 2) {
-                            value = value.slice(0, 2) + '/' + value.slice(2, 4);
-                          }
-                          setCardData(prev => ({ ...prev, expiry: value }));
-                        }}
+                        onChange={handleCardExpiryChange}
                         placeholder="MM/YY"
                         maxLength={5}
-                        className="w-full px-4 py-3 bg-gray-50 dark:bg-[#0a0a0c] border border-gray-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 dark:text-white"
+                        className="w-full px-4 py-3 bg-gray-50 dark:bg-[#0a0a0c] border border-gray-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 dark:text-white font-mono"
                       />
                     </div>
                     
@@ -473,7 +498,7 @@ export default function CheckoutPage() {
               </button>
               <button
                 onClick={handleSubmitOrder}
-                disabled={processing || !cardData.number || !cardData.expiry || !cardData.cvc}
+                disabled={processing || cardData.number.replace(/\D/g, '').length !== 16 || !cardData.expiry || !cardData.cvc}
                 className="flex-[2] bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-4 rounded-xl transition-all flex items-center justify-center gap-2"
               >
                 {processing ? (

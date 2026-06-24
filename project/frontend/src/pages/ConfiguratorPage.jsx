@@ -9,7 +9,7 @@ import {
   Monitor, Cpu, HardDrive, Fan, Battery,
   MemoryStick, ChevronRight, Check, ArrowLeft, X,
   ShoppingBag, LayoutGrid, Plus, Minus, AlertCircle, AlertTriangle,
-  Sun, Moon
+  Sun, Moon, Loader2
 } from "lucide-react";
 
 // 🔹 Порядок сортировки категорий (Мат. плата всегда первая)
@@ -120,6 +120,59 @@ const getCaseMaxGpuLabel = (caseItem) => {
   return maxLength ? `${maxLength} мм` : '—';
 };
 
+const findComponentInGrouped = (grouped, componentId) => {
+  for (const list of Object.values(grouped)) {
+    const found = list.find((c) => c.id === componentId);
+    if (found) return found;
+  }
+  return null;
+};
+
+/** Восстанавливает состояние конфигуратора из элемента корзины */
+const applyCartItemToBuild = (cartItem, grouped) => {
+  const newBuild = {};
+  let caseItem = null;
+  let limitsFromMb = null;
+
+  for (const cic of cartItem.components || []) {
+    const compId = cic.component_id ?? cic.component?.id;
+    const qty = cic.quantity || 1;
+    const slug = cic.role || cic.component?.category?.slug;
+    if (!compId || !slug) continue;
+
+    const fullComp = findComponentInGrouped(grouped, compId);
+    if (!fullComp) continue;
+
+    if (slug === 'case') {
+      caseItem = fullComp;
+      continue;
+    }
+
+    if (slug === 'storage') {
+      const storageType = fullComp.storage_spec?.type;
+      const key = storageType === 'sata' ? 'sata' : 'nvme';
+      if (!newBuild[key]) {
+        newBuild[key] = { item: fullComp, quantity: qty };
+      }
+      continue;
+    }
+
+    const catKey = slug === 'motherboard' ? 'motherboard' : slug;
+    newBuild[catKey] = { item: fullComp, quantity: qty };
+
+    if (slug === 'motherboard') {
+      const spec = fullComp.motherboard_spec || {};
+      limitsFromMb = {
+        ram: spec.ram_slots || 2,
+        nvme: spec.m2_slots || 1,
+        sata: spec.sata_ports || 4,
+      };
+    }
+  }
+
+  return { caseItem, build: newBuild, limits: limitsFromMb };
+};
+
 export default function ConfiguratorPage() {
   const navigate = useNavigate();
   const toast = useToast();
@@ -138,63 +191,11 @@ export default function ConfiguratorPage() {
   const [products, setProducts] = useState({});
   const [loading, setLoading] = useState(true);
 
-  // Загрузка сборки из корзины для редактирования (если есть ?edit=cartItemId)
-  useEffect(() => {
-    const editCartItemId = searchParams.get('edit');
-    
-    if (editCartItemId) {
-      loadCartForEdit(editCartItemId);
-    }
-  }, [searchParams]);
-
-  const loadCartForEdit = async (cartItemId) => {
-    try {
-      const res = await api.get(`/cart/${cartItemId}`);
-      const cartItem = res.data;
-      
-      if (cartItem.type !== 'custom') return;
-      
-      // Восстанавливаем корпус (первый компонент в списке или ищем по категории case)
-      const components = cartItem.components || [];
-      
-      for (const cic of components) {
-        const comp = cic.component;
-        if (!comp) continue;
-        
-        const categorySlug = comp.category?.slug;
-        if (!categorySlug) continue;
-        
-        // Если это корпус
-        if (categorySlug === 'case') {
-          setSelectedCase(comp);
-        } else {
-          // Остальные компоненты
-          const catKey = categorySlug === 'motherboard' ? 'motherboard' : categorySlug;
-          setBuild(prev => ({
-            ...prev,
-            [catKey]: { item: comp, quantity: cic.quantity || 1 }
-          }));
-          
-          // Обновляем лимиты если это материнская плата
-          if (categorySlug === 'motherboard') {
-            const spec = comp.motherboard_spec || {};
-            setLimits({
-              ram: spec.ram_slots || 2,
-              nvme: spec.m2_slots || 1,
-              sata: spec.sata_ports || 4
-            });
-          }
-        }
-      }
-    } catch (err) {
-      console.error('Ошибка загрузки сборки для редактирования:', err);
-    }
-  };
-
-  // 1. Загрузка данных и Авто-выбор компонентов
+  // 1. Загрузка данных и восстановление сборки из корзины (?edit=)
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const editCartItemId = searchParams.get('edit');
         const res = await api.get("/components");
         const allComponents = res.data || [];
         const grouped = {};
@@ -219,7 +220,37 @@ export default function ConfiguratorPage() {
         setCategories(catsList);
         setProducts(grouped);
 
-        // 🔹 Выбираем корпус
+        if (editCartItemId) {
+          try {
+            let cartItem;
+            try {
+              const cartRes = await api.get(`/cart/${editCartItemId}`);
+              cartItem = cartRes.data;
+            } catch {
+              const cartRes = await api.get('/cart');
+              cartItem = cartRes.data?.items?.find(
+                (i) => String(i.id) === String(editCartItemId)
+              );
+            }
+
+            if (cartItem?.type === 'custom') {
+              const { caseItem, build: restoredBuild, limits: restoredLimits } =
+                applyCartItemToBuild(cartItem, grouped);
+
+              if (caseItem) setSelectedCase(caseItem);
+              if (Object.keys(restoredBuild).length > 0) setBuild(restoredBuild);
+              if (restoredLimits) setLimits(restoredLimits);
+              if (restoredBuild.nvme?.item) setActiveStorageType('nvme');
+              else if (restoredBuild.sata?.item) setActiveStorageType('sata');
+              return;
+            }
+          } catch (err) {
+            console.error('Ошибка загрузки сборки для редактирования:', err);
+            toast.error('Не удалось загрузить сборку для редактирования');
+          }
+        }
+
+        // 🔹 Выбираем корпус по умолчанию
         const initialCase = grouped.case?.[0];
         if (initialCase) setSelectedCase(initialCase);
 
@@ -230,7 +261,6 @@ export default function ConfiguratorPage() {
 
         for (const mb of mbs) {
           const mbFormFactor = mb.motherboard_spec?.form_factor_id;
-          // Если ограничений нет или форм-фактор совпадает
           if (caseFormFactors.length === 0 || caseFormFactors.includes(mbFormFactor)) {
             compatibleMb = mb;
             break;
@@ -238,10 +268,7 @@ export default function ConfiguratorPage() {
         }
 
         if (compatibleMb) {
-          setBuild(prev => ({
-            ...prev,
-            motherboard: { item: compatibleMb, quantity: 1 }
-          }));
+          setBuild({ motherboard: { item: compatibleMb, quantity: 1 } });
           const spec = compatibleMb.motherboard_spec || {};
           setLimits({
             ram: spec.ram_slots || 2,
@@ -256,7 +283,7 @@ export default function ConfiguratorPage() {
       }
     };
     fetchData();
-  }, []);
+  }, [searchParams]);
 
   // Авто-коррекция ОЗУ при изменении лимитов
   useEffect(() => {
@@ -285,6 +312,13 @@ export default function ConfiguratorPage() {
       const supportedIds = selectedCase.supported_form_factors.map(f => f.id);
       if (!supportedIds.includes(mbForm)) {
         return { status: 'error', message: 'Несовместимый форм-фактор с корпусом' };
+      }
+    }
+
+    // CPU ↔ MB (Socket) — при проверке материнской платы
+    if (catId === 'motherboard' && cpu) {
+      if (item.motherboard_spec?.socket_id !== cpuSpec.socket_id) {
+        return { status: 'error', message: 'Несовместимый сокет с процессором' };
       }
     }
 
@@ -343,6 +377,20 @@ export default function ConfiguratorPage() {
     }
 
     return { status: 'ok', message: 'Совместимо' };
+  };
+
+  const getBuildCompatibilityIssues = () => {
+    const issues = [];
+    categories.forEach((cat) => {
+      if (cat.id === 'storage') return;
+      const selectedItem = build[cat.id]?.item;
+      if (!selectedItem) return;
+      const { status, message } = checkCompatibility(cat.id, selectedItem);
+      if (status === 'warn' || status === 'error') {
+        issues.push({ category: cat.name, status, message, model: selectedItem.model });
+      }
+    });
+    return issues;
   };
 
   const selectComponent = (catId, item) => {
@@ -404,6 +452,8 @@ export default function ConfiguratorPage() {
   // 1. Объяви состояние (сразу после других useState)
   const [isDark, setIsDark] = useState(getInitialTheme); // true = тёмная тема по умолчанию
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [showCompatWarning, setShowCompatWarning] = useState(false);
+  const [compatIssues, setCompatIssues] = useState([]);
   const [user, setUser] = useState(null); // Состояние пользователя
 
   // Проверка авторизации при загрузке
@@ -425,7 +475,15 @@ export default function ConfiguratorPage() {
   };
 
   // Функция добавления сборки в корзину
-  const handleAddToCart = async () => {
+  const handleAddToCart = async (options = {}) => {
+    const skipCompatWarning = options.skipCompatWarning === true;
+    const issues = getBuildCompatibilityIssues();
+    if (!skipCompatWarning && issues.length > 0) {
+      setCompatIssues(issues);
+      setShowCompatWarning(true);
+      return;
+    }
+
     setIsAddingToCart(true);
     try {
       // Проверяем, редактируем ли мы существующую сборку
@@ -523,6 +581,11 @@ export default function ConfiguratorPage() {
     }
   };
 
+  const confirmAddDespiteWarnings = () => {
+    setShowCompatWarning(false);
+    handleAddToCart({ skipCompatWarning: true });
+  };
+
   // Определяем, находимся ли мы в режиме редактирования
   const isEditingMode = !!searchParams.get('edit');
 
@@ -588,21 +651,21 @@ export default function ConfiguratorPage() {
               return (
                 <div key={cat.id} className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-gray-300 uppercase tracking-wide">{cat.name}</span>
-                    <div className="h-px flex-1 bg-white/10 ml-3"></div>
+                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">{cat.name}</span>
+                    <div className="h-px flex-1 bg-gray-200 dark:bg-white/10 ml-3"></div>
                   </div>
 
                   {/* Строка NVMe */}
                   {nvmeItem && (
-                    <div className="pl-2 border-l-2 border-green-500/50 bg-green-500/5 rounded-r-lg p-2">
+                    <div className="pl-2 border-l-2 border-green-500/50 bg-green-50 dark:bg-green-500/5 rounded-r-lg p-2">
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] text-gray-500 uppercase font-mono flex-shrink-0">NVMe</span>
-                          <span className="text-xs font-medium truncate max-w-[160px] text-green-300">{nvmeItem.model}</span>
+                          <span className="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-mono flex-shrink-0">NVMe</span>
+                          <span className="text-xs font-medium truncate max-w-[160px] text-green-700 dark:text-green-300">{nvmeItem.model}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          {nvmeQty > 1 && <span className="text-xs font-mono text-purple-400 bg-purple-500/10 px-1.5 rounded">x{nvmeQty}</span>}
-                          <Check className="w-3 h-3 text-green-400" />
+                          {nvmeQty > 1 && <span className="text-xs font-mono text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-500/10 px-1.5 rounded">x{nvmeQty}</span>}
+                          <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
                         </div>
                       </div>
                     </div>
@@ -610,23 +673,23 @@ export default function ConfiguratorPage() {
 
                   {/* Строка SATA */}
                   {sataItem && (
-                    <div className="pl-2 border-l-2 border-green-500/50 bg-green-500/5 rounded-r-lg p-2">
+                    <div className="pl-2 border-l-2 border-green-500/50 bg-green-50 dark:bg-green-500/5 rounded-r-lg p-2">
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] text-gray-500 uppercase font-mono flex-shrink-0">SATA</span>
-                          <span className="text-xs font-medium truncate max-w-[160px] text-green-300">{sataItem.model}</span>
+                          <span className="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-mono flex-shrink-0">SATA</span>
+                          <span className="text-xs font-medium truncate max-w-[160px] text-green-700 dark:text-green-300">{sataItem.model}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          {sataQty > 1 && <span className="text-xs font-mono text-purple-400 bg-purple-500/10 px-1.5 rounded">x{sataQty}</span>}
-                          <Check className="w-3 h-3 text-green-400" />
+                          {sataQty > 1 && <span className="text-xs font-mono text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-500/10 px-1.5 rounded">x{sataQty}</span>}
+                          <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
                         </div>
                       </div>
                     </div>
                   )}
 
                   {!isPicked && (
-                     <div className="pl-2 border-l-2 border-gray-600/30 bg-gray-800/20 rounded-r-lg p-2">
-                       <span className="text-xs text-gray-500">Ожидание выбора</span>
+                     <div className="pl-2 border-l-2 border-gray-300 dark:border-gray-600/30 bg-gray-100 dark:bg-gray-800/20 rounded-r-lg p-2">
+                       <span className="text-xs text-gray-400 dark:text-gray-500">Ожидание выбора</span>
                      </div>
                   )}
                 </div>
@@ -644,37 +707,37 @@ export default function ConfiguratorPage() {
             return (
               <div key={cat.id} className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-gray-300 uppercase tracking-wide">{cat.name}</span>
-                  <div className="h-px flex-1 bg-white/10 ml-3"></div>
+                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">{cat.name}</span>
+                  <div className="h-px flex-1 bg-gray-200 dark:bg-white/10 ml-3"></div>
                 </div>
                 
                 <div className={`pl-2 border-l-2 transition-colors ${
-                  isError ? 'border-red-500/50 bg-red-500/5' : 
-                  isWarn ? 'border-orange-500/50 bg-orange-500/5' : 
-                  isEmpty ? 'border-gray-600/30 bg-gray-800/20' : 
-                  'border-green-500/50 bg-green-500/5'
+                  isError ? 'border-red-500/50 bg-red-50 dark:bg-red-500/5' : 
+                  isWarn ? 'border-orange-500/50 bg-orange-50 dark:bg-orange-500/5' : 
+                  isEmpty ? 'border-gray-300 dark:border-gray-600/30 bg-gray-100 dark:bg-gray-800/20' : 
+                  'border-green-500/50 bg-green-50 dark:bg-green-500/5'
                 } rounded-r-lg p-2`}>
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                       <span className={`text-xs font-medium truncate ${
-                        isError ? 'text-red-400' : isWarn ? 'text-orange-300' : isEmpty ? 'text-gray-500' : 'text-green-300'
+                        isError ? 'text-red-600 dark:text-red-400' : isWarn ? 'text-orange-600 dark:text-orange-300' : isEmpty ? 'text-gray-400 dark:text-gray-500' : 'text-green-700 dark:text-green-300'
                       }`}>
                         {selectedItem ? selectedItem.model : '—'}
                       </span>
                       {qty > 1 && (
-                        <span className="text-xs font-mono text-purple-400 bg-purple-500/10 px-1.5 rounded flex-shrink-0">
+                        <span className="text-xs font-mono text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-500/10 px-1.5 rounded flex-shrink-0">
                           x{qty}
                         </span>
                       )}
                     </div>
 
-                    {status === 'ok' && <Check className="w-4 h-4 text-green-400 flex-shrink-0" />}
-                    {isWarn && <AlertTriangle className="w-4 h-4 text-orange-400 flex-shrink-0" />}
-                    {isError && <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />}
-                    {isEmpty && <span className="text-gray-600 text-xs flex-shrink-0">Ожидание</span>}
+                    {status === 'ok' && <Check className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />}
+                    {isWarn && <AlertTriangle className="w-4 h-4 text-orange-500 dark:text-orange-400 flex-shrink-0" />}
+                    {isError && <AlertCircle className="w-4 h-4 text-red-500 dark:text-red-400 flex-shrink-0" />}
+                    {isEmpty && <span className="text-gray-400 dark:text-gray-600 text-xs flex-shrink-0">Ожидание</span>}
                   </div>
                   {(isWarn || isError) && (
-                    <p className={`text-[10px] mt-1 ${isError ? 'text-red-400/80' : 'text-orange-300/80'}`}>
+                    <p className={`text-[10px] mt-1 ${isError ? 'text-red-600/80 dark:text-red-400/80' : 'text-orange-600/80 dark:text-orange-300/80'}`}>
                       {message}
                     </p>
                   )}
@@ -690,13 +753,13 @@ export default function ConfiguratorPage() {
             <span className="text-2xl font-bold text-gray-900 dark:text-white font-mono">{Number(totalPrice).toLocaleString('ru-RU')} ₽</span>
           </div>
           <button
-            onClick={handleAddToCart}
+            onClick={() => handleAddToCart()}
             disabled={isAddingToCart}
             className={`w-full py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:opacity-90 shadow-lg shadow-purple-500/20 ${isAddingToCart ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {isAddingToCart ? (
               <>
-                <span className="animate-spin">⏳</span> {isEditingMode ? 'Обновление...' : 'Добавление...'}
+                <Loader2 className="w-5 h-5 animate-spin" /> {isEditingMode ? 'Обновление...' : 'Добавление...'}
               </>
             ) : (
               <>
@@ -1049,6 +1112,78 @@ export default function ConfiguratorPage() {
           </AnimatePresence>
         </motion.aside>
       </div>
+
+      <AnimatePresence>
+        {showCompatWarning && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+            onClick={() => setShowCompatWarning(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 12 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 12 }}
+              className="bg-white dark:bg-[#141416] border border-gray-200 dark:border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start gap-3 mb-4">
+                <div className="w-11 h-11 rounded-full bg-orange-100 dark:bg-orange-500/10 flex items-center justify-center flex-shrink-0">
+                  <AlertTriangle className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">Есть проблемы совместимости</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    В сборке обнаружены предупреждения или ошибки. Вы уверены, что хотите {isEditingMode ? 'обновить' : 'добавить'} её в корзину?
+                  </p>
+                </div>
+              </div>
+
+              <ul className="space-y-2 mb-6 max-h-48 overflow-y-auto custom-scrollbar">
+                {compatIssues.map((issue, i) => (
+                  <li
+                    key={i}
+                    className={`flex items-start gap-2 p-3 rounded-lg text-sm border ${
+                      issue.status === 'error'
+                        ? 'bg-red-50 dark:bg-red-500/5 border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-300'
+                        : 'bg-orange-50 dark:bg-orange-500/5 border-orange-200 dark:border-orange-500/20 text-orange-700 dark:text-orange-300'
+                    }`}
+                  >
+                    {issue.status === 'error' ? (
+                      <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    ) : (
+                      <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    )}
+                    <div>
+                      <p className="font-medium">{issue.category}: {issue.model}</p>
+                      <p className="text-xs opacity-80 mt-0.5">{issue.message}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowCompatWarning(false)}
+                  className="flex-1 py-3 rounded-xl border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors font-medium"
+                >
+                  Отмена
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmAddDespiteWarnings}
+                  className="flex-1 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 text-white font-medium transition-opacity"
+                >
+                  {isEditingMode ? 'Всё равно обновить' : 'Всё равно добавить'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

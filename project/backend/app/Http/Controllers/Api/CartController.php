@@ -49,6 +49,38 @@ class CartController extends Controller
     }
 
     /**
+     * Получить один элемент корзины (для редактирования сборки в конфигураторе)
+     */
+    public function show($id, Request $request)
+    {
+        $user = auth()->user();
+        $sessionId = $request->header('X-Session-ID');
+
+        $query = CartItem::where('id', $id);
+
+        if ($user) {
+            $query->whereHas('cart', fn($q) => $q->where('user_id', $user->id));
+        } else {
+            if (!$sessionId) {
+                return response()->json(['message' => 'Session ID required'], 400);
+            }
+            $query->whereHas('cart', fn($q) => $q->where('session_id', $sessionId));
+        }
+
+        $cartItem = $query->with([
+            'components' => function ($q) {
+                $q->with([
+                    'component' => function ($cq) {
+                        $cq->with('category');
+                    }
+                ]);
+            }
+        ])->firstOrFail();
+
+        return response()->json($cartItem);
+    }
+
+    /**
      * Добавить товар в корзину
      * Поддерживает: Одиночный компонент, Готовый ПК, Сборку из конфигуратора
      */
@@ -212,39 +244,62 @@ class CartController extends Controller
         ]);
 
         return DB::transaction(function () use ($request, $cartItem) {
-            $newComponentIds = $request->input('components');
-            
-            // Получаем новые компоненты и считаем цену
-            $components = Component::with('category')->whereIn('id', $newComponentIds)->get();
-            $newTotalPrice = 0;
+            $componentsData = $request->input('components', []);
 
-            foreach ($components as $comp) {
-                $newTotalPrice += $comp->price;
+            $totalPrice = 0;
+            $componentsToSave = [];
+
+            if (count($componentsData) > 0 && !isset($componentsData[0]['id'])) {
+                $uniqueIds = array_unique($componentsData);
+                $components = Component::with('category')->whereIn('id', $uniqueIds)->get();
+                $quantityMap = array_count_values($componentsData);
+
+                foreach ($components as $c) {
+                    $qty = $quantityMap[$c->id] ?? 1;
+                    $totalPrice += $c->price * $qty;
+                    $componentsToSave[] = ['component' => $c, 'quantity' => $qty];
+                }
+            } else {
+                $componentIds = array_column($componentsData, 'id');
+                $components = Component::with('category')->whereIn('id', $componentIds)->get()->keyBy('id');
+
+                foreach ($componentsData as $item) {
+                    $comp = $components->get($item['id']);
+                    if ($comp) {
+                        $qty = $item['quantity'] ?? 1;
+                        $totalPrice += $comp->price * $qty;
+                        $componentsToSave[] = ['component' => $comp, 'quantity' => $qty];
+                    }
+                }
             }
 
-            // Удаляем старые связи (компоненты сборки)
             $cartItem->components()->delete();
 
-            // Создаем новые связи с правильным role
-            foreach ($components as $comp) {
-                // Определяем роль компонента по его категории (slug)
-                $role = $comp->category?->slug;
-                
+            foreach ($componentsToSave as $item) {
+                $role = $item['component']->category?->slug;
+
                 $cartItem->components()->create([
-                    'component_id'   => $comp->id,
-                    'price_snapshot' => $comp->price,
-                    'quantity'       => 1,
+                    'component_id'   => $item['component']->id,
+                    'price_snapshot' => $item['component']->price,
+                    'quantity'       => $item['quantity'],
                     'role'           => $role,
                 ]);
             }
 
-            // Обновляем общую цену и имя (если нужно)
             $cartItem->update([
-                'total_price' => $newTotalPrice,
+                'total_price' => $totalPrice,
                 'name'        => $request->input('name', $cartItem->name)
             ]);
 
-            return response()->json($cartItem);
+            return response()->json($cartItem->load([
+                'components' => function ($q) {
+                    $q->with([
+                        'component' => function ($cq) {
+                            $cq->with('category');
+                        }
+                    ]);
+                }
+            ]));
         });
     }
 

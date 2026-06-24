@@ -5,8 +5,11 @@ import {
   Code, Eye, MessageCircle, Clock
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import ContactModal from "@/components/ContactModal";
 
 export default function AboutPage() {
+  const [contactOpen, setContactOpen] = useState(false);
   // Статистика
   const stats = [
     { number: "500+", label: "Собранных ПК", icon: Cpu },
@@ -228,7 +231,11 @@ export default function AboutPage() {
             Свяжитесь с нами для бесплатной консультации. Мы поможем подобрать идеальную конфигурацию под ваши задачи.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <button className="px-8 py-3 rounded-lg font-medium transition-all cursor-pointer bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg hover:shadow-purple-500/25 active:scale-95">
+            <button
+              type="button"
+              onClick={() => setContactOpen(true)}
+              className="px-8 py-3 rounded-lg font-medium transition-all cursor-pointer bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg hover:shadow-purple-500/25 active:scale-95"
+            >
               Связаться с нами
             </button>
             <Link to="/catalog">
@@ -240,6 +247,7 @@ export default function AboutPage() {
         </motion.div>
 
       </div>
+      <ContactModal isOpen={contactOpen} onClose={() => setContactOpen(false)} />
     </div>
   );
 }

@@ -543,7 +543,7 @@ function ComponentCatalogCard({ item, index }) {
   const navigate = useNavigate();
   const imgSrc = item.image
     ? (item.image.startsWith("http") ? item.image : `${STORAGE_URL}/${item.image}`)
-    : "/placeholder.svg";
+    : "/placeholder-pc.png";
 
   return (
     <motion.article
@@ -556,7 +556,7 @@ function ComponentCatalogCard({ item, index }) {
         <img
           src={imgSrc}
           alt={item.model}
-          onError={e => { e.target.onerror = null; e.target.src = "/placeholder.svg"; }}
+          onError={e => { e.target.onerror = null; e.target.src = "/placeholder-pc.png"; }}
           className="mx-auto scale-90 h-full object-center object-cover opacity-90 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500"
           loading="lazy"
         />
