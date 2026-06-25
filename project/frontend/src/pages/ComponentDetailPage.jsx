@@ -55,7 +55,7 @@ export default function ComponentDetailPage() {
             <div className="grid md:grid-cols-2 gap-6">
               {/* Левая колонка: Фото */}
               <div className="aspect-square rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0a0a0c]">
-                <img src={`${STORAGE_URL}/${data.image}`} alt={data.model} onError={(e) => {e.target.onerror = null; e.target.src = '/placeholder-pc.png';}} className="w-full h-full object-cover" />
+                <img src={data.image ? `${STORAGE_URL}/${data.image}` : '/placeholder-pc.png'} alt={data.model} onError={(e) => {e.target.onerror = null; e.target.src = '/placeholder-pc.png';}} className="w-full h-full object-cover" />
               </div>
 
               {/* Правая колонка: Название, бренд, категория, цена, наличие */}

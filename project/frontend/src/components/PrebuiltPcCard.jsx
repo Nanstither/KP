@@ -62,7 +62,7 @@ export default function PrebuiltPcCard({ pc }) {
       <article className="group relative bg-white dark:bg-[#0f0f10] border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden hover:border-purple-500/30 hover:shadow-[0_0_40px_rgba(168,85,247,0.08)] transition-all duration-300">
         <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-[#0a0a0c]">
           <img
-            src={`${STORAGE_URL}/${pc.image}`}
+            src={pc.image ? `${STORAGE_URL}/${pc.image}` : "/placeholder-pc.png"}
             alt={pc.name}
             onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder-pc.png'; }}
             className="mx-auto scale-90 h-full object-center object-cover opacity-90 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500"

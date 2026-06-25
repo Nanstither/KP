@@ -22,11 +22,13 @@ class Order extends Model
         'total_amount',
         'payment_info',
         'paid_at',
+        'stock_deducted_at',
     ];
 
     protected $casts = [
         'payment_info' => 'array',
         'paid_at' => 'datetime',
+        'stock_deducted_at' => 'datetime',
         'total_amount' => 'decimal:2',
     ];
 

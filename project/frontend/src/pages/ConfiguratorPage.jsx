@@ -806,7 +806,7 @@ export default function ConfiguratorPage() {
           <div className="relative w-full max-w-3xl aspect-video flex items-center justify-center">
             <motion.img 
               key={selectedCase?.id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-              src={`${STORAGE_URL}/${selectedCase?.image}` || "/placeholder.svg"} alt={selectedCase?.model}
+              src={selectedCase?.image ? `${STORAGE_URL}/${selectedCase.image}` : "/placeholder.svg"} alt={selectedCase?.model}
               onError={(e) => { e.target.src = "/placeholder.svg"; }}
               className="h-[600px] aspect-[1/1] object-cover drop-shadow-2xl rounded-2xl"
             />
@@ -848,7 +848,7 @@ export default function ConfiguratorPage() {
                       >
                         <div className="aspect-square bg-gray-200 dark:bg-[#050505] rounded-lg mb-3 flex items-center justify-center overflow-hidden flex-shrink-0">
                           <img
-                            src={`${STORAGE_URL}/${c.image}` || "/placeholder.svg"}
+                            src={c.image ? `${STORAGE_URL}/${c.image}` : "/placeholder.svg"}
                             alt={c.model}
                             className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
                             onError={(e) => { e.target.src = "/placeholder.svg"; }}

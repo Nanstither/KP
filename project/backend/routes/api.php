@@ -67,6 +67,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:manager')->group(function () {
         // Заказы (админка)
         Route::get('/admin/orders', [OrderController::class, 'adminIndex']);
+        Route::get('/admin/orders/export', [OrderController::class, 'exportArchive']);
         Route::get('/admin/orders/{id}', [OrderController::class, 'adminShow']);
         Route::patch('/admin/orders/{orderId}/status', [OrderController::class, 'updateStatus']);
         Route::patch('/admin/orders/{orderId}/items/{itemId}/status', [OrderController::class, 'updateItemStatus']);

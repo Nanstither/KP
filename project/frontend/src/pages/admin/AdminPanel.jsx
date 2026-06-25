@@ -69,13 +69,24 @@ export default function AdminPanel() {
     }
   };
 
-  // Переход к фильтру "Мало на складе"
   const navigateToLowStock = () => {
     setActiveTab('components');
     setStockFilter('low');
     setCategoryFilter('all');
     setSearch('');
     setPage(1);
+  };
+
+  const navigateToOutOfStock = () => {
+    setActiveTab('components');
+    setStockFilter('out');
+    setCategoryFilter('all');
+    setSearch('');
+    setPage(1);
+  };
+
+  const navigateToOrders = () => {
+    setActiveTab('orders');
   };
 
   // Смена вкладки
@@ -159,11 +170,12 @@ export default function AdminPanel() {
             <AnimatePresence mode="wait">
               
               {activeTab === 'dashboard' && (
-                <Dashboard 
-                  key="dash" 
-                  components={components} 
+                <Dashboard
+                  key="dash"
+                  components={components}
                   onNavigateToLowStock={navigateToLowStock}
-                  onGoToComponents={() => handleTabChange('components')}
+                  onNavigateToOutOfStock={navigateToOutOfStock}
+                  onNavigateToOrders={navigateToOrders}
                 />
               )}
 

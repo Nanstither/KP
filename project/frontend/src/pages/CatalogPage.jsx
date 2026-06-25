@@ -541,9 +541,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
 
 function ComponentCatalogCard({ item, index }) {
   const navigate = useNavigate();
-  const imgSrc = item.image
-    ? (item.image.startsWith("http") ? item.image : `${STORAGE_URL}/${item.image}`)
-    : "/placeholder-pc.png";
+  const imgSrc = item.image ? `${STORAGE_URL}/${item.image}` : "/placeholder-pc.png";
 
   return (
     <motion.article

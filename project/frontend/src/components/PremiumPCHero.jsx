@@ -47,13 +47,12 @@ export default function PremiumPCHero({ exclusivePc }) {
   const [isSpecsModalOpen, setIsSpecsModalOpen] = useState(false);
 
   // Формируем URL изображения ПК напрямую из поля image в БД (например: "images/prebuilt/pc_31.png")
-  const pcImageUrl = exclusivePc?.image 
-    ? `${STORAGE_URL}/${exclusivePc.image}` 
+  const pcImageUrl = exclusivePc?.image
+    ? `${STORAGE_URL}/${exclusivePc.image}`
     : null;
-  
-  // Используем image из компонента корпуса как запасной вариант
-  const caseImageUrl = exclusivePc?.components?.case?.image 
-    ? `${STORAGE_URL}/${exclusivePc.components.case.image}` 
+
+  const caseImageUrl = exclusivePc?.components?.case?.image
+    ? `${STORAGE_URL}/${exclusivePc.components.case.image}`
     : null;
 
   const { scrollYProgress } = useScroll({ 

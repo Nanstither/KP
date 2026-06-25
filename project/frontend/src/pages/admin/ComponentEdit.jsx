@@ -117,7 +117,7 @@ export default function ComponentEdit() {
   const previewSrc = imageFile
     ? URL.createObjectURL(imageFile)
     : (base.image
-        ? (base.image.startsWith('http') ? base.image : `${STORAGE_URL}/${base.image}`)
+        ? `${STORAGE_URL}/${base.image}`
         : DEFAULT_IMG);
 
   const safeModelName = base.model?.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '_').substring(0, 30) || 'component';

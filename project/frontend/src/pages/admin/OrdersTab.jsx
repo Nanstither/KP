@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
-import { Package, Eye } from 'lucide-react';
+import { Package, Eye, Download } from 'lucide-react';
+import { useToast } from '@/context/ToastContext';
+import { parseApiError } from '@/lib/parseApiError';
 
 const ACTIVE_STATUS_OPTIONS = [
   { value: 'all', label: 'Все статусы' },
@@ -20,6 +22,7 @@ const ARCHIVE_STATUS_OPTIONS = [
 
 export default function OrdersTab() {
   const navigate = useNavigate();
+  const toast = useToast();
   const { user } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -59,6 +62,26 @@ export default function OrdersTab() {
     setListScope(scope);
     setStatusFilter('all');
     setPage(1);
+  };
+
+  const handleExportArchive = async () => {
+    try {
+      const response = await api.get('/admin/orders/export', {
+        params: { scope: 'archive' },
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `archive-orders-${new Date().toISOString().split('T')[0]}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Ошибка экспорта:', err);
+      toast.error(parseApiError(err));
+    }
   };
 
   const statusOptions = listScope === 'archive' ? ARCHIVE_STATUS_OPTIONS : ACTIVE_STATUS_OPTIONS;
@@ -103,6 +126,16 @@ export default function OrdersTab() {
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Заказы</h2>
 
           <div className="flex flex-wrap gap-3">
+            {listScope === 'archive' && (
+              <button
+                type="button"
+                onClick={handleExportArchive}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm transition-colors"
+              >
+                <Download className="w-4 h-4" />
+                Скачать Excel
+              </button>
+            )}
             <select
               value={statusFilter}
               onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}

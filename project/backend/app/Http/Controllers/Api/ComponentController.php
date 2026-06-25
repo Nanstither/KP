@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ComponentsExport;
+use App\Services\ComponentImageService;
 
 class ComponentController extends Controller
 {
@@ -136,31 +137,21 @@ class ComponentController extends Controller
             $oldImagePath = $component->image;
             $categorySlug = $component->category->slug;
 
-            // Обновляем базовые поля (модель изменится здесь)
             $baseData = array_filter($validated, fn($k) => !in_array($k, ['image', 'specs']), ARRAY_FILTER_USE_KEY);
             if (!empty($baseData)) {
                 $component->update($baseData);
             }
 
-            // 2. Логика изображения
-            $newModel = $component->model; // уже обновлённое название
-            $safeModelName = Str::slug($newModel) ?: 'component';
-            $directory = "images/components/{$categorySlug}";
-
             if ($request->hasFile('image')) {
-                $file = $request->file('image');
-                $ext = $file->getClientOriginalExtension();
-                $newFilename = $safeModelName . '.' . $ext;
-
-                if ($oldImagePath && Storage::disk('public')->exists($oldImagePath)) {
-                    Storage::disk('public')->delete($oldImagePath);
-                }
-
-                // Сохраняем новый файл
-                Storage::disk('public')->putFileAs($directory, $file, $newFilename);
-                $component->update(['image' => "{$directory}/{$newFilename}"]);
+                $imageService = new ComponentImageService();
+                $path = $imageService->store(
+                    $request->file('image'),
+                    $categorySlug,
+                    $component->model,
+                    $oldImagePath
+                );
+                $component->update(['image' => $path]);
             }
-            // Если файл не передан -> старое изображение остаётся нетронутым
 
             // 3. Спецификации
             $rawSpecs = json_decode($validated['specs'] ?? '{}', true);
@@ -229,17 +220,13 @@ class ComponentController extends Controller
             // 2. Обработка изображения
             $slug = ComponentCategory::find($validated['category_id'])->slug;
             if ($request->hasFile('image')) {
-                $file = $request->file('image');
-                $ext = $file->getClientOriginalExtension();
-                $safeName = Str::slug($validated['model']) ?: 'component';
-                $filename = $safeName . '.' . $ext;
-                $directory = "images/components/{$slug}";
-
-                if (!Storage::disk('public')->exists($directory)) {
-                    Storage::disk('public')->makeDirectory($directory);
-                }
-                Storage::disk('public')->putFileAs($directory, $file, $filename);
-                $component->update(['image' => "{$directory}/{$filename}"]);
+                $imageService = new ComponentImageService();
+                $path = $imageService->store(
+                    $request->file('image'),
+                    $slug,
+                    $validated['model']
+                );
+                $component->update(['image' => $path]);
             }
 
             // 3. Сохранение спецификаций

@@ -6,11 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderComponent;
+use App\Models\Component;
 use App\Models\PrebuiltPc;
 use App\Models\CartItemComponent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ArchiveOrdersExport;
 
 class OrderController extends Controller
 {
@@ -406,7 +409,7 @@ class OrderController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $user = Auth::user();
-        
+
         if (!$user || !$user->hasRole(['admin', 'manager'])) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
@@ -415,36 +418,26 @@ class OrderController extends Controller
             'status' => 'required|in:pending,paid,preparing,shipped,delivered,cancelled',
         ]);
 
-        $order = Order::findOrFail($id);
-        $order->update(['status' => $validated['status']]);
+        try {
+            DB::transaction(function () use ($id, $validated) {
+                $order = Order::lockForUpdate()->findOrFail($id);
+                $order->update(['status' => $validated['status']]);
 
-        if ($validated['status'] === 'paid' && !$order->paid_at) {
-            $order->update(['paid_at' => now()]);
+                if ($validated['status'] === 'paid' && !$order->paid_at) {
+                    $order->update(['paid_at' => now()]);
+                }
+
+                if ($validated['status'] === 'delivered' && !$order->stock_deducted_at) {
+                    $this->deductStockForOrder($order);
+                }
+            });
+        } catch (\RuntimeException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
         }
 
-        // Загружаем и добавляем components_data
-        $order->load('items.components.component');
-        $order->items->transform(function($item) {
-            $components = $item->components;
-            if (!$components) {
-                $item->components_data = [];
-                return $item;
-            }
-            
-            $item->components_data = $components->map(function($oc) {
-                return [
-                    'id' => $oc->id,
-                    'component_id' => $oc->component_id,
-                    'price_snapshot' => $oc->price_snapshot,
-                    'quantity' => $oc->quantity,
-                    'component' => $oc->component ? [
-                        'id' => $oc->component->id,
-                        
-                        'model' => $oc->component->model,
-                        'price' => $oc->component->price,
-                    ] : null,
-                ];
-            });
+        $order = Order::with('items.components.component')->findOrFail($id);
+        $order->items->transform(function ($item) {
+            $this->attachComponentsDataToItem($item);
             return $item;
         });
 
@@ -452,6 +445,50 @@ class OrderController extends Controller
             'message' => 'Order status updated successfully',
             'order' => $order,
         ]);
+    }
+
+    private function deductStockForOrder(Order $order): void
+    {
+        if ($order->stock_deducted_at) {
+            return;
+        }
+
+        $order->load('items.components');
+        $quantities = [];
+
+        foreach ($order->items as $item) {
+            foreach ($item->components as $orderComponent) {
+                if (!$orderComponent->component_id) {
+                    continue;
+                }
+                $qty = $orderComponent->quantity ?? 1;
+                $quantities[$orderComponent->component_id] =
+                    ($quantities[$orderComponent->component_id] ?? 0) + $qty;
+            }
+        }
+
+        if (empty($quantities)) {
+            $order->update(['stock_deducted_at' => now()]);
+            return;
+        }
+
+        foreach ($quantities as $componentId => $qty) {
+            $component = Component::lockForUpdate()->find($componentId);
+            if (!$component) {
+                throw new \RuntimeException("Компонент #{$componentId} не найден");
+            }
+            if ($component->stock < $qty) {
+                throw new \RuntimeException(
+                    "Недостаточно на складе: {$component->model} (нужно {$qty}, есть {$component->stock})"
+                );
+            }
+        }
+
+        foreach ($quantities as $componentId => $qty) {
+            Component::where('id', $componentId)->decrement('stock', $qty);
+        }
+
+        $order->update(['stock_deducted_at' => now()]);
     }
 
     /**
@@ -546,5 +583,34 @@ class OrderController extends Controller
         });
         
         return response()->json(['order' => $order]);
+    }
+
+    /**
+     * Экспорт архива доставленных заказов в Excel.
+     */
+    public function exportArchive(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user || !$user->hasRole(['admin', 'manager'])) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $query = Order::with('items.components')
+            ->where('status', 'delivered');
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        $orders = $query->orderBy('created_at', 'desc')->get();
+
+        return Excel::download(
+            new ArchiveOrdersExport($orders),
+            'archive-orders-' . date('Y-m-d') . '.xlsx'
+        );
     }
 }
