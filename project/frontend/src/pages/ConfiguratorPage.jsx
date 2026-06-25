@@ -182,7 +182,7 @@ export default function ConfiguratorPage() {
   const [selectedCase, setSelectedCase] = useState(null);
   
   // build хранит: { categoryId: { item: Object, quantity: Number } }
-  // Для накопителей используем отдельные ключи: build.nvme и build.sata
+  // Для накопителей использование отдельных ключей: build.nvme и build.sata
   const [build, setBuild] = useState({});
   const [limits, setLimits] = useState({ ram: 2, nvme: 1, sata: 4 });
   const [activeStorageType, setActiveStorageType] = useState('nvme');
@@ -250,11 +250,11 @@ export default function ConfiguratorPage() {
           }
         }
 
-        // 🔹 Выбираем корпус по умолчанию
+        // Выбираем корпус по умолчанию
         const initialCase = grouped.case?.[0];
         if (initialCase) setSelectedCase(initialCase);
 
-        // 🔹 Выбираем материнскую плату (первую совместимую)
+        // Выбираем материнскую плату (первую совместимую)
         const mbs = grouped.motherboard || [];
         let compatibleMb = null;
         const caseFormFactors = initialCase?.supported_form_factors?.map(f => f.id) || [];

@@ -28,9 +28,9 @@ class CartController extends Controller
             $cart = Cart::firstOrCreate(['session_id' => $sessionId]);
         }
 
-        // Загружаем элементы корзины + компоненты внутри них (для сборок)
+        // Загрузка элементов корзины + компоненты внутри них (для сборок)
         // Связь component нужна, чтобы на фронте показать картинку и название детали
-        // Также загружаем category для определения роли компонента
+        // Также загрузка category для определения роли компонента
         $cart->load([
             'items' => function ($query) {
                 $query->with([
@@ -49,7 +49,7 @@ class CartController extends Controller
     }
 
     /**
-     * Получить один элемент корзины (для редактирования сборки в конфигураторе)
+     * Получение одного элемента корзины (для редактирования сборки в конфигураторе)
      */
     public function show($id, Request $request)
     {
@@ -82,7 +82,7 @@ class CartController extends Controller
 
     /**
      * Добавить товар в корзину
-     * Поддерживает: Одиночный компонент, Готовый ПК, Сборку из конфигуратора
+     * Поддерживает: одиночный компонент, готовый ПК, сборку из конфигуратора
      */
     public function store(Request $request)
     {
@@ -112,18 +112,18 @@ class CartController extends Controller
 
         return DB::transaction(function () use ($request, $cart, $type) {
             
-            // 🔵 Обычный компонент (если вдруг пригодится)
-            if ($type === 'component') {
-                $comp = Component::findOrFail($request->component_id);
-                return CartItem::create([
-                    'cart_id' => $cart->id,
-                    'type'    => 'component',
-                    'name'    => $comp->model,
-                    'total_price' => $comp->price,
-                ]);
-            }
+            // // Обычный компонент (если вдруг пригодится)
+            // if ($type === 'component') {
+            //     $comp = Component::findOrFail($request->component_id);
+            //     return CartItem::create([
+            //         'cart_id' => $cart->id,
+            //         'type'    => 'component',
+            //         'name'    => $comp->model,
+            //         'total_price' => $comp->price,
+            //     ]);
+            // }
 
-            // 🟢 Готовый ПК (нельзя редактировать, фиксированная цена)
+            // Готовый ПК (нельзя редактировать, фиксированная цена)
             if ($type === 'prebuilt') {
                 $pc = PrebuiltPc::with('components')->findOrFail($request->prebuilt_id);
                 if (!$pc->is_active) {
@@ -151,7 +151,7 @@ class CartController extends Controller
                 return $cartItem;
             }
 
-            // 🟡 Сборка из конфигуратора (можно редактировать)
+            // Сборка из конфигуратора (можно редактировать)
             if ($type === 'custom') {
                 $componentsData = $request->input('components', []);
                 
@@ -234,7 +234,7 @@ class CartController extends Controller
         
         $cartItem = $query->firstOrFail();
 
-        // Разрешаем редактировать ТОЛЬКО кастомные сборки
+        // Разрешает редактировать ТОЛЬКО кастомные сборки
         if ($cartItem->type !== 'custom') {
             return response()->json(['message' => 'Этот товар нельзя редактировать'], 403);
         }

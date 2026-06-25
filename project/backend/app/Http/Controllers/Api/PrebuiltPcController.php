@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PrebuiltPc;
 use App\Models\Component;
 use App\Models\Tag;
+use App\Services\ComponentImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -84,25 +85,37 @@ class PrebuiltPcController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
-            'image' => 'nullable|string',
+            'image' => 'nullable|file|mimes:jpg,jpeg,png,webp,svg|max:2048',
             'is_active' => 'boolean',
-            'components' => 'array', // [{ component_id: 1, role: 'cpu' }, ...]
-            'tag_ids' => 'array' // [1, 2, 3]
+            'components' => 'nullable|string',
+            'tag_ids' => 'nullable|string',
         ]);
 
-        $validated['slug'] = Str::slug($validated['name']);
-        $validated['is_active'] = $validated['is_active'] ?? false;
+        $components = $this->parseJsonArray($request->input('components'));
+        $request->merge(['tag_ids' => $this->parseJsonArray($request->input('tag_ids'))]);
 
-        $pc = PrebuiltPc::create($validated);
+        $data = [
+            'name' => $validated['name'],
+            'description' => $validated['description'] ?? null,
+            'price' => $validated['price'],
+            'slug' => Str::slug($validated['name']),
+            'is_active' => $request->boolean('is_active'),
+        ];
 
-        // Привязываем компоненты
-        if (!empty($validated['components'])) {
-            foreach ($validated['components'] as $comp) {
+        $pc = PrebuiltPc::create($data);
+
+        if ($request->hasFile('image')) {
+            $imageService = new ComponentImageService();
+            $path = $imageService->storePrebuilt($request->file('image'), $validated['name']);
+            $pc->update(['image' => $path]);
+        }
+
+        if (!empty($components)) {
+            foreach ($components as $comp) {
                 $pc->components()->attach($comp['component_id'], ['role' => $comp['role']]);
             }
         }
 
-        // Привязываем теги
         $tagIds = $this->resolveTagIds($request);
         if ($tagIds !== null) {
             $pc->tags()->sync($tagIds);
@@ -133,26 +146,38 @@ class PrebuiltPcController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
-            'image' => 'nullable|string',
+            'image' => 'nullable|file|mimes:jpg,jpeg,png,webp,svg|max:2048',
             'is_active' => 'boolean',
-            'components' => 'array',
-            'tag_ids' => 'array'
+            'components' => 'nullable|string',
+            'tag_ids' => 'nullable|string',
         ]);
 
-        $validated['slug'] = Str::slug($validated['name']);
-        $validated['is_active'] = $validated['is_active'] ?? false;
+        $components = $this->parseJsonArray($request->input('components'));
+        $request->merge(['tag_ids' => $this->parseJsonArray($request->input('tag_ids'))]);
 
-        $pc->update($validated);
+        $data = [
+            'name' => $validated['name'],
+            'description' => $validated['description'] ?? null,
+            'price' => $validated['price'],
+            'slug' => Str::slug($validated['name']),
+            'is_active' => $request->boolean('is_active'),
+        ];
 
-        // Синхронизация компонентов
-        if (isset($validated['components'])) {
+        $pc->update($data);
+
+        if ($request->hasFile('image')) {
+            $imageService = new ComponentImageService();
+            $path = $imageService->storePrebuilt($request->file('image'), $validated['name'], $pc->image);
+            $pc->update(['image' => $path]);
+        }
+
+        if ($request->has('components')) {
             $pc->components()->detach();
-            foreach ($validated['components'] as $comp) {
+            foreach ($components as $comp) {
                 $pc->components()->attach($comp['component_id'], ['role' => $comp['role']]);
             }
         }
 
-        // Синхронизация тегов
         $tagIds = $this->resolveTagIds($request, $pc);
         if ($tagIds !== null) {
             $pc->tags()->sync($tagIds);
@@ -165,11 +190,23 @@ class PrebuiltPcController extends Controller
     public function destroy($id)
     {
         $pc = PrebuiltPc::findOrFail($id);
+        (new ComponentImageService())->delete($pc->image);
         $pc->components()->detach();
         $pc->tags()->detach();
         $pc->delete();
 
         return response()->json(['message' => 'Готовый ПК удалён']);
+    }
+
+    private function parseJsonArray(mixed $value): array
+    {
+        if (is_array($value)) {
+            return $value;
+        }
+        if (is_string($value) && $value !== '') {
+            return json_decode($value, true) ?: [];
+        }
+        return [];
     }
 
     private function resolveTagIds(Request $request, ?PrebuiltPc $pc = null): ?array

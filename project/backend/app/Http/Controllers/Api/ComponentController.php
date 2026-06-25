@@ -6,13 +6,13 @@ use App\Models\Component;
 use App\Models\{ComponentCategory, Brand, Socket, FormFactor, CpuSpec, GpuSpec, RamSpec, MotherboardSpec, PsuSpec, StorageSpec, CoolerSpec, CaseSpec, RamType, VramType, CaseType, Material};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-// ✅ Добавляем необходимые классы для работы с файлами и строками
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ComponentsExport;
 use App\Services\ComponentImageService;
+// use Illuminate\Support\Facades\Log;
 
 class ComponentController extends Controller
 {
@@ -21,7 +21,6 @@ class ComponentController extends Controller
         $query = Component::with([
             'category', 
             'brand',
-            // ✅ ВСЕ спецификации — названия должны ТОЧНО совпадать с методами в модели
             'cpuSpec.socket', 
             'gpuSpec', 
             'ramSpec.ramType', 
@@ -31,7 +30,7 @@ class ComponentController extends Controller
             'psuSpec', 
             'storageSpec', 
             'coolerSpec', 
-            'caseSpec',  // ← Вот это критично!
+            'caseSpec', 
             'compatibleSockets:id,name',
             'supportedFormFactors:id,name'
         ]);
@@ -44,7 +43,7 @@ class ComponentController extends Controller
             $query->where('stock', '>', 0);
         }
         
-        return $query->get(); // ← Вернёт компоненты со всеми spec
+        return $query->get(); // Возвращение компонентов со всеми spec
     }
 
     public function show($id)
@@ -213,7 +212,7 @@ class ComponentController extends Controller
         ]);
 
         DB::transaction(function () use ($validated, $request) {
-            // 1. Создаём базовый компонент
+            // 1. Создание базового компонента
             $baseData = array_filter($validated, fn($k) => !in_array($k, ['image', 'specs']), ARRAY_FILTER_USE_KEY);
             $component = Component::create($baseData);
 
@@ -261,10 +260,10 @@ class ComponentController extends Controller
         return response()->json(['message' => 'Компонент успешно создан']);
     }
 
-    // ✅ Получение списка справочника
+    // Получение списка справочника
     public function getRefs($type)
     {
-        // Используем ::class для получения полного имени класса
+        // Использование ::class для получения полного имени класса
         $models = [
             'sockets' => Socket::class,
             'ram_types' => RamType::class,
@@ -276,11 +275,11 @@ class ComponentController extends Controller
             return response()->json([], 404);
         }
         
-        // ✅ Используем ::select() (статический вызов) вместо ->select()
+        // Использование ::select() (статический вызов) вместо ->select()
         return response()->json($models[$type]::select('id', 'name')->get());
     }
 
-    // ✅ Создание записи
+    // Создание записи
     public function storeRef(Request $request, $type)
     {
         $validated = $request->validate(['name' => 'required|string|max:50']);
@@ -296,12 +295,12 @@ class ComponentController extends Controller
             return response()->json(['message' => 'Invalid type'], 404);
         }
         
-        // ✅ Создаем через ::create()
+        // Создание через ::create()
         $item = $models[$type]::create(['name' => $validated['name']]);
         return response()->json($item, 201);
     }
 
-    // ✅ Обновление записи
+    // Обновление записи
     public function updateRef(Request $request, $type, $id)
     {
         $validated = $request->validate(['name' => 'required|string|max:50']);
@@ -317,13 +316,13 @@ class ComponentController extends Controller
             return response()->json(['message' => 'Invalid type'], 404);
         }
         
-        // ✅ Находим и обновляем
+        // Нахождение и обновление
         $item = $models[$type]::findOrFail($id);
         $item->update(['name' => $validated['name']]);
         return response()->json($item);
     }
 
-    // ✅ Удаление записи
+    // Удаление записи
     public function deleteRef($type, $id)
     {
         $models = [

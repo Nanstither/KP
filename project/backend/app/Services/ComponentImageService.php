@@ -25,6 +25,23 @@ class ComponentImageService
         return "{$directory}/{$filename}";
     }
 
+    public function storePrebuilt(UploadedFile $file, string $name, ?string $oldPath = null): string
+    {
+        $this->delete($oldPath);
+
+        $directory = 'pcs';
+
+        if (!Storage::disk('public')->exists($directory)) {
+            Storage::disk('public')->makeDirectory($directory);
+        }
+
+        $ext = $file->getClientOriginalExtension();
+        $filename = (Str::slug($name) ?: 'pc') . '.' . $ext;
+        Storage::disk('public')->putFileAs($directory, $file, $filename);
+
+        return "{$directory}/{$filename}";
+    }
+
     public function delete(?string $path): void
     {
         if ($path && Storage::disk('public')->exists($path)) {

@@ -69,14 +69,14 @@ class AuthController extends Controller
             return; // Нет гостевой корзины для переноса
         }
 
-        // Находим гостевую корзину
+        // Нахождение гостевой корзины
         $guestCart = Cart::where('session_id', $sessionId)->first();
         
         if (!$guestCart) {
             return; // Гостевая корзина не найдена
         }
 
-        // Находим или создаем корзину пользователя
+        // Нахождение или создание корзины пользователя
         $userCart = Cart::firstOrCreate(['user_id' => $user->id]);
 
         // Переносим товары
@@ -91,7 +91,7 @@ class AuthController extends Controller
                     'prebuilt_id' => $item->prebuilt_id,
                 ]);
 
-                // Если это сборка (custom), переносим компоненты
+                // Если это сборка (custom), перенос компонентов
                 if ($item->type === 'custom') {
                     foreach ($item->components as $component) {
                         $newItem->components()->create([
@@ -102,11 +102,11 @@ class AuthController extends Controller
                     }
                 }
                 
-                // Удаляем старый товар из гостевой корзины (опционально, можно удалять всю корзину в конце)
+                // Удаление старого товара из гостевой корзины
                 $item->delete(); 
             }
             
-            // Удаляем пустую гостевую корзину
+            // Удаление пустой гостевой корзины
             $guestCart->delete();
         });
     }

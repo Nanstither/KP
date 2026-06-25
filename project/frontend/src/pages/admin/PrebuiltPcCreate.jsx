@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '@/services/api';
 import { useToast } from '@/context/ToastContext';
 import { useAuth } from '@/context/AuthContext';
 import { parseApiError } from '@/lib/parseApiError';
-import { ArrowLeft, Save, Loader2, X } from 'lucide-react';
+import { ALLOWED_IMAGE_EXTENSIONS, validateImageFile } from '@/lib/imageUpload';
+import { ArrowLeft, Save, Loader2, X, Upload, Image as ImageIcon } from 'lucide-react';
 
 const EXCLUSIVE_TAG_SLUG = 'ekskliuzivnyi';
 
@@ -44,17 +45,18 @@ export default function PrebuiltPcCreate() {
   const toast = useToast();
   const { isAdmin } = useAuth();
   const canManageExclusive = isAdmin();
+  const fileInputRef = useRef(null);
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [refs, setRefs] = useState({ categories: [], brands: [], tags: [] });
   const [components, setComponents] = useState([]);
+  const [imageFile, setImageFile] = useState(null);
   
   const [base, setBase] = useState({ 
     name: '', 
     description: '', 
     price: '', 
-    image: '', 
     is_active: true 
   });
   
@@ -113,15 +115,18 @@ export default function PrebuiltPcCreate() {
     
     setSaving(true);
     try {
-      const payload = {
-        ...base,
-        price: Number(base.price),
-        is_active: base.is_active && allComponentsFilled,
-        components: selectedComponents.filter(c => c.component_id),
-        tag_ids: selectedTagIds
-      };
-      
-      await api.post('/admin/prebuilt-pcs', payload);
+      const formData = new FormData();
+      formData.append('name', base.name);
+      formData.append('description', base.description ?? '');
+      formData.append('price', Number(base.price));
+      formData.append('is_active', base.is_active && allComponentsFilled ? '1' : '0');
+      formData.append('components', JSON.stringify(selectedComponents.filter(c => c.component_id)));
+      formData.append('tag_ids', JSON.stringify(selectedTagIds));
+      if (imageFile) {
+        formData.append('image', imageFile);
+      }
+
+      await api.post('/admin/prebuilt-pcs', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
       toast.success('Готовый ПК успешно создан');
       navigate('/admin/prebuilt-pcs');
     } catch (err) {
@@ -130,6 +135,18 @@ export default function PrebuiltPcCreate() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const err = validateImageFile(file);
+    if (err) {
+      toast.warning(err);
+      e.target.value = '';
+      return;
+    }
+    setImageFile(file);
   };
 
   const updateComponent = (index, field, value) => {
@@ -153,6 +170,11 @@ export default function PrebuiltPcCreate() {
     );
   }
 
+  const previewSrc = imageFile ? URL.createObjectURL(imageFile) : '';
+  const autoPath = base.name?.trim()
+    ? `pcs/${base.name.trim().toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-')}.jpg`
+    : 'pcs/...';
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0f0f10] text-gray-800 dark:text-gray-200 p-6 pt-24 transition-colors">
       <div className="max-w-5xl mx-auto space-y-6">
@@ -170,64 +192,93 @@ export default function PrebuiltPcCreate() {
 
         {/* Основная форма */}
         <div className="border rounded-xl p-6 space-y-6 shadow-sm dark:shadow-none bg-white dark:bg-[#141416] border-gray-200 dark:border-white/10">
-          
-          {/* Название и цена */}
-          <div className="grid md:grid-cols-2 gap-4">
-            <Field label="Название *" val={base.name} set={v => setBase({...base, name: v})} error={errors.name} placeholder="Например: Gaming Pro X1" />
-            <Field label="Цена *" type="number" val={base.price} set={v => setBase({...base, price: v})} error={errors.price} placeholder="99990" />
-          </div>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Основная информация</h2>
 
-          {/* Описание */}
-          <div className="space-y-1">
-            <label className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Описание</label>
-            <textarea 
-              value={base.description ?? ''} 
-              onChange={e => setBase({...base, description: e.target.value})}
-              placeholder="Описание компьютера..."
-              rows={4}
-              className={`${inputClass()} resize-none`}
-            />
-          </div>
+          <div className="flex flex-col md:flex-row gap-8">
+            <div className="w-full md:w-80 flex-shrink-0 space-y-4">
+              <div
+                className="aspect-square bg-gray-100 dark:bg-[#0a0a0c] border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden relative group cursor-pointer hover:border-purple-400 dark:hover:border-purple-500/50 transition-colors"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {previewSrc ? (
+                  <img src={previewSrc} alt="Preview" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 dark:text-gray-600">
+                    <ImageIcon className="w-12 h-12 mb-2 opacity-50" />
+                    <span className="text-xs">Нажмите для загрузки</span>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <Upload className="w-6 h-6 text-white drop-shadow-md" />
+                </div>
+                <input type="file" ref={fileInputRef} className="hidden" accept={ALLOWED_IMAGE_EXTENSIONS} onChange={handleImageChange} />
+              </div>
+              <div className="bg-gray-50 dark:bg-[#0a0a0c] border border-gray-200 dark:border-white/10 rounded-lg p-3 text-center">
+                <p className="text-xs text-gray-500 dark:text-gray-500 mb-1">Файл будет сохранён по пути:</p>
+                <p className="text-xs font-mono text-gray-600 dark:text-gray-300 truncate" title={autoPath}>{autoPath}</p>
+              </div>
+            </div>
 
-          {/* Статус */}
-          <div className="flex items-center gap-3">
-            <label className="text-sm text-gray-600 dark:text-gray-400">Статус:</label>
-            <button 
-              onClick={() => allComponentsFilled && setBase({...base, is_active: !base.is_active})}
-              disabled={!allComponentsFilled}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                base.is_active && allComponentsFilled 
-                  ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-300 dark:border-green-800' 
-                  : 'bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-white/10 cursor-not-allowed'
-              }`}
-            >
-              {base.is_active && allComponentsFilled ? 'Активен' : 'Скрыт'}
-            </button>
-            {!allComponentsFilled && <span className="text-xs text-orange-500 dark:text-orange-400">Заполните все компоненты для активации</span>}
-          </div>
+            <div className="flex-1 space-y-6">
+              {/* Название и цена */}
+              <div className="grid md:grid-cols-2 gap-4">
+                <Field label="Название *" val={base.name} set={v => setBase({...base, name: v})} error={errors.name} placeholder="Например: Gaming Pro X1" />
+                <Field label="Цена *" type="number" val={base.price} set={v => setBase({...base, price: v})} error={errors.price} placeholder="99990" />
+              </div>
 
-          {/* Теги */}
-          <div className="space-y-2">
-            <label className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Теги</label>
-            <div className="flex flex-wrap gap-2">
-              {refs.tags?.map(tag => {
-                const isExclusiveLocked = tag.slug === EXCLUSIVE_TAG_SLUG && !canManageExclusive;
-                return (
-                  <button
-                    key={tag.id}
-                    type="button"
-                    onClick={() => toggleTag(tag.id, tag.slug)}
-                    disabled={isExclusiveLocked}
-                    title={isExclusiveLocked ? 'Только администратор' : undefined}
-                    className={`${chipClass(selectedTagIds.includes(tag.id))}${isExclusiveLocked ? ' opacity-50 cursor-not-allowed' : ''}`}
-                  >
-                    {tag.name}
-                  </button>
-                );
-              })}
+              {/* Описание */}
+              <div className="space-y-1">
+                <label className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Описание</label>
+                <textarea 
+                  value={base.description ?? ''} 
+                  onChange={e => setBase({...base, description: e.target.value})}
+                  placeholder="Описание компьютера..."
+                  rows={4}
+                  className={`${inputClass()} resize-none`}
+                />
+              </div>
+
+              {/* Статус */}
+              <div className="flex items-center gap-3">
+                <label className="text-sm text-gray-600 dark:text-gray-400">Статус:</label>
+                <button 
+                  type="button"
+                  onClick={() => allComponentsFilled && setBase({...base, is_active: !base.is_active})}
+                  disabled={!allComponentsFilled}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    base.is_active && allComponentsFilled 
+                      ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-300 dark:border-green-800' 
+                      : 'bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-white/10 cursor-not-allowed'
+                  }`}
+                >
+                  {base.is_active && allComponentsFilled ? 'Активен' : 'Скрыт'}
+                </button>
+                {!allComponentsFilled && <span className="text-xs text-orange-500 dark:text-orange-400">Заполните все компоненты для активации</span>}
+              </div>
+
+              {/* Теги */}
+              <div className="space-y-2">
+                <label className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Теги</label>
+                <div className="flex flex-wrap gap-2">
+                  {refs.tags?.map(tag => {
+                    const isExclusiveLocked = tag.slug === EXCLUSIVE_TAG_SLUG && !canManageExclusive;
+                    return (
+                      <button
+                        key={tag.id}
+                        type="button"
+                        onClick={() => toggleTag(tag.id, tag.slug)}
+                        disabled={isExclusiveLocked}
+                        title={isExclusiveLocked ? 'Только администратор' : undefined}
+                        className={`${chipClass(selectedTagIds.includes(tag.id))}${isExclusiveLocked ? ' opacity-50 cursor-not-allowed' : ''}`}
+                      >
+                        {tag.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
-
         </div>
 
         {/* Компоненты */}

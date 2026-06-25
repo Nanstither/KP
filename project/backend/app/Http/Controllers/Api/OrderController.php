@@ -116,7 +116,7 @@ class OrderController extends Controller
         
         $orders = $query->orderBy('created_at', 'desc')->get();
         
-        // Добавляем components_data вручную
+        // Добавление components_data вручную
         $orders->transform(function($order) {
             $order->items->transform(function($item) {
                 $this->attachComponentsDataToItem($item);
@@ -171,10 +171,10 @@ class OrderController extends Controller
                 $components = $itemData['components'] ?? null;
                 $cartItemId = $itemData['cart_item_id'] ?? null;
                 
-                // Отладка: логируем данные компонентов
+                // Отладка: логирование данных компонентов
                 \Log::info('Order item components:', ['item' => $itemData['name'], 'components' => $components, 'cart_item_id' => $cartItemId]);
                 
-                // Если компоненты не переданы явно, но есть cart_item_id, загружаем из cart_item_components
+                // Если компоненты не переданы явно, но есть cart_item_id, загрузка из cart_item_components
                 if ((!$components || (is_array($components) && count($components) === 0)) && $cartItemId) {
                     $cartItemComponents = CartItemComponent::with('component.category')
                         ->where('cart_item_id', $cartItemId)
@@ -196,7 +196,7 @@ class OrderController extends Controller
                     }
                 }
                 
-                // Если указан prebuilt_pc_id и компоненты не переданы явно, загружаем их из БД
+                // Если указан prebuilt_pc_id и компоненты не переданы явно, загрузка из БД
                 if ((!$components || (is_array($components) && count($components) === 0)) && !empty($itemData['prebuilt_pc_id'])) {
                     $pc = PrebuiltPc::with('components')->find($itemData['prebuilt_pc_id']);
                     if ($pc) {
@@ -269,7 +269,7 @@ class OrderController extends Controller
                     'status' => 'pending',
                 ]);
                 
-                // Сохраняем компоненты в отдельную таблицу
+                // Сохранение компонентов в отдельную таблицу
                 foreach ($componentsForDb as $compDb) {
                     OrderComponent::create([
                         'order_item_id' => $orderItem->id,
@@ -283,10 +283,10 @@ class OrderController extends Controller
 
             DB::commit();
 
-            // Загружаем заказ с данными о компонентах
+            // Загрузка заказа с данными о компонентах
             $order->load('items.components.component');
             
-            // Добавляем components_data вручную для ответа
+            // Добавление components_data вручную для ответа
             $order->items->transform(function($item) {
                 // Проверяем, что relation загружен и это коллекция
                 $components = $item->components;
@@ -342,7 +342,7 @@ class OrderController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
         
-        // Добавляем components_data вручную
+        // Добавление components_data вручную
         $order->items->transform(function($item) {
             $components = $item->getRelation('components');
             if (!$components || !is_object($components) || !method_exists($components, 'map')) {
@@ -388,7 +388,7 @@ class OrderController extends Controller
         $orderItem = OrderItem::where('order_id', $orderId)->findOrFail($itemId);
         $orderItem->update(['status' => $validated['status']]);
 
-        // Если все элементы готовы, обновляем статус заказа
+        // Если все элементы готовы, обновить статус заказа
         $order = Order::findOrFail($orderId);
         $allReady = $order->items()->where('status', '!=', 'ready')->count() === 0;
         
@@ -515,7 +515,7 @@ class OrderController extends Controller
         
         $orders = $query->orderBy('created_at', 'desc')->paginate(20);
         
-        // Добавляем components_data вручную
+        // Добавление components_data вручную
         $orders->getCollection()->transform(function($order) {
             $order->items->transform(function($item) {
                 $components = $item->getRelation('components');
@@ -553,7 +553,7 @@ class OrderController extends Controller
     {
         $order = Order::with('items.components.component.category', 'items.prebuiltPc.components', 'user')->findOrFail($id);
         
-        // Добавляем components_data вручную
+        // Добавление components_data вручную
         $order->items->transform(function($item) {
             $components = $item->getRelation('components');
             if (!$components || !is_object($components) || !method_exists($components, 'map')) {
